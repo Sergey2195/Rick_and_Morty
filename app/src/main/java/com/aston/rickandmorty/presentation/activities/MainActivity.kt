@@ -18,9 +18,11 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.mainToolBar)
         setBackButtonState(false)
         binding.collapsingToolBarLayout.setExpandedTitleColor(getColor(R.color.transparent))
-        supportFragmentManager.beginTransaction()
-            .add(R.id.mainFragmentContainer, CharactersFragment.newInstance())
-            .commit()
+        if (savedInstanceState == null){
+            supportFragmentManager.beginTransaction()
+                .add(R.id.mainFragmentContainer, CharactersFragment.newInstance())
+                .commit()
+        }
     }
 
     private fun setupSwipeRefreshLayout() {

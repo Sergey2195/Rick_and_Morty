@@ -22,6 +22,7 @@
                 android:layout_height="100dp"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
                 app:contentScrim="?attr/colorPrimary"
+                android:background="?attr/colorPrimary"
                 app:scrimAnimationDuration="100"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
@@ -62,8 +63,10 @@
         android:layout_gravity="bottom"
         app:itemIconSize="32dp"
         app:itemIconTint="@drawable/bottom_nav_color"
+        app:itemTextColor="@drawable/bottom_nav_color"
         app:itemPaddingBottom="4dp"
         app:itemPaddingTop="10dp"
+
         app:menu="@menu/bottom_navigation_menu"
         app:layout_constraintTop_toBottomOf="@+id/coordinatorLayout"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
