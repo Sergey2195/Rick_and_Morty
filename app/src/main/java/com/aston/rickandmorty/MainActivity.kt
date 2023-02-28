@@ -1,20 +1,25 @@
 package com.aston.rickandmorty
 
-import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.FragmentContainerView
+import androidx.appcompat.app.AppCompatActivity
+import com.aston.rickandmorty.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(findViewById(R.id.mainToolBar))
-        supportActionBar?.setTitle("kekw")
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.mainToolBar)
+        setBackButtonState(false)
+        binding.collapsingToolBarLayout.setExpandedTitleColor(getColor(R.color.transparent))
         supportFragmentManager.beginTransaction()
             .add(R.id.mainFragmentContainer, MainScreenFragment.newInstance("", ""))
             .commit()
+    }
+
+    private fun setBackButtonState(isEnabled: Boolean){
+        supportActionBar?.setDisplayHomeAsUpEnabled(isEnabled)
     }
 }
