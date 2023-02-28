@@ -6,4 +6,9 @@
     <string name="bottom_navigation_menu_characters_title">Персонажи</string>
     <string name="bottom_navigation_menu_location_title">Локации</string>
     <string name="bottom_navigation_menu_episodes_title">Эпизоды</string>
+    <string name="character_name_title">Имя:</string>
+    <string name="character_species_title">Вид:</string>
+    <string name="character_status_title">Статус:</string>
+    <string name="character_gender_title">Пол:</string>
+    <string name="character_example_value">Пример</string>
 </resources>

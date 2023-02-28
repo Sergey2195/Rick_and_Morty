@@ -5,4 +5,9 @@
     <string name="bottom_navigation_menu_characters_title">Characters</string>
     <string name="bottom_navigation_menu_location_title">Location</string>
     <string name="bottom_navigation_menu_episodes_title">Episodes</string>
+    <string name="character_name_title">Name:</string>
+    <string name="character_species_title">Species:</string>
+    <string name="character_status_title">Status:</string>
+    <string name="character_gender_title">Gender:</string>
+    <string name="character_example_value">Example</string>
 </resources>

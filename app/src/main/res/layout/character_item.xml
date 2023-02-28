@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorPrimaryVariant">
+
+    <ImageView
+        android:id="@+id/characterImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/example_rick_image"
+        android:adjustViewBounds="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/characterNameTitle"
+        style="@style/TitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/character_name_title"
+        app:layout_constraintBottom_toTopOf="@+id/characterSpeciesTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/characterImage" />
+
+    <TextView
+        android:id="@+id/characterNameValue"
+        style="@style/ValueStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/character_example_value"
+        app:layout_constraintBottom_toBottomOf="@+id/characterNameTitle"
+        app:layout_constraintStart_toEndOf="@+id/characterNameTitle"
+        app:layout_constraintTop_toTopOf="@+id/characterNameTitle" />
+
+    <TextView
+        android:id="@+id/characterSpeciesTitle"
+        style="@style/TitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/character_species_title"
+        app:layout_constraintBottom_toTopOf="@+id/characterStatusTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/characterNameTitle" />
+
+    <TextView
+        android:id="@+id/characterSpeciesValue"
+        style="@style/ValueStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/character_example_value"
+        app:layout_constraintBottom_toBottomOf="@+id/characterSpeciesTitle"
+        app:layout_constraintStart_toEndOf="@+id/characterSpeciesTitle"
+        app:layout_constraintTop_toTopOf="@+id/characterSpeciesTitle" />
+
+    <TextView
+        android:id="@+id/characterStatusTitle"
+        style="@style/TitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/character_status_title"
+        app:layout_constraintBottom_toTopOf="@+id/characterGenderTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/characterSpeciesTitle" />
+
+    <TextView
+        android:id="@+id/characterStatusValue"
+        style="@style/ValueStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/character_example_value"
+        app:layout_constraintBottom_toBottomOf="@+id/characterStatusTitle"
+        app:layout_constraintStart_toEndOf="@+id/characterStatusTitle"
+        app:layout_constraintTop_toTopOf="@+id/characterStatusTitle" />
+
+    <TextView
+        android:id="@+id/characterGenderTitle"
+        style="@style/TitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/character_gender_title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/characterStatusTitle" />
+
+    <TextView
+        android:id="@+id/characterGenderValue"
+        style="@style/ValueStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/character_example_value"
+        app:layout_constraintBottom_toBottomOf="@+id/characterGenderTitle"
+        app:layout_constraintStart_toEndOf="@+id/characterGenderTitle"
+        app:layout_constraintTop_toTopOf="@+id/characterGenderTitle" />
+</androidx.constraintlayout.widget.ConstraintLayout>
