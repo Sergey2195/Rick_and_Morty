@@ -38,6 +38,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:layout="@layout/fragment_main_screen"></androidx.fragment.app.FragmentContainerView>
+        tools:layout="@layout/fragment_main_screen" />
 
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:menu="@menu/bottom_navigation_menu"
+        android:layout_gravity="bottom"
+        app:itemIconSize="32dp"
+        app:itemPaddingTop="10dp"
+        app:itemPaddingBottom="0dp"
+        app:itemIconTint="@drawable/bottom_nav_color"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
