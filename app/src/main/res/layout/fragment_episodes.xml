@@ -5,11 +5,28 @@
     android:layout_height="match_parent"
     tools:context=".presentation.fragments.EpisodesFragment">
 
-    <TextView
+    <FrameLayout
+        android:id="@+id/episodesContentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="EPISODES"
+            android:textSize="40sp"/>
+        <Button
+            android:id="@+id/episodesOpenChild"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|top"
+            android:text="openChild"/>
+    </FrameLayout>
+
+    <androidx.fragment.app.FragmentContainerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="EPISODES"
-        android:textSize="40sp"/>
+        android:id="@+id/episodesFragmentContainer"
+        android:visibility="gone"/>
 
 </FrameLayout>

@@ -19,27 +19,26 @@ class Router {
     }
 
     fun openCharactersFragment() {
-        if (mainActivity == null) return
-        val fragment = mainActivity!!.supportFragmentManager.findFragmentByTag(CHARACTERS_TAG)
-        val characterFragment = fragment ?: CharactersFragment.newInstance()
-        openFragment(characterFragment, false, CHARACTERS_TAG, null)
+        openFragment(CharactersFragment.newInstance(), CHARACTERS_TAG, null)
     }
 
-    fun openLocationFragment(){
-        if (mainActivity == null) return
-        val fragment = mainActivity!!.supportFragmentManager.findFragmentByTag(LOCATION_TAG)
-        val locationFragment = fragment ?: LocationsFragment.newInstance()
-        openFragment(locationFragment, true, LOCATION_TAG, LOCATION_NAME)
+    fun openLocationFragment() {
+        openFragment(LocationsFragment.newInstance(), LOCATION_TAG, LOCATION_NAME)
     }
 
-    fun openEpisodesFragment(){
-        if (mainActivity == null) return
-        val fragment = mainActivity!!.supportFragmentManager.findFragmentByTag(EPISODES_TAG)
-        val episodesFragment = fragment ?: EpisodesFragment.newInstance()
-        openFragment(episodesFragment, true, EPISODES_TAG, EPISODES_NAME)
+    fun openEpisodesFragment() {
+        openFragment(EpisodesFragment.newInstance(), EPISODES_TAG, EPISODES_NAME)
     }
 
-    private fun openFragment(
+    private fun openFragment(fragmentIfNotFound: Fragment, tag: String?, name: String?) {
+        if (mainActivity == null) return
+        val findFragment = mainActivity!!.supportFragmentManager.findFragmentByTag(tag)
+        val fragmentIntoTransaction = findFragment ?: fragmentIfNotFound
+        val addToBackStack = tag != CHARACTERS_TAG
+        conductTransaction(fragmentIntoTransaction, addToBackStack, tag, name)
+    }
+
+    private fun conductTransaction(
         fragment: Fragment,
         addToBackStack: Boolean,
         tag: String? = null,
@@ -51,7 +50,7 @@ class Router {
         transaction?.commit()
     }
 
-    companion object{
+    companion object {
         const val CHARACTERS_TAG = "characters fragment"
         const val LOCATION_TAG = "location fragment"
         const val LOCATION_NAME = "location name"
