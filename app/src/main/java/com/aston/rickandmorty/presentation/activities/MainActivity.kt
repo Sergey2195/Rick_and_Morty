@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         setupSwipeRefreshLayout()
         setupToolbar()
         onBackPressedHandling()
+        setBottomNavigationBarClickListeners()
     }
 
     private fun setupToolbar() {
@@ -122,5 +123,39 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     private fun onBackPressedHandling() {
 //        onBackPressedDispatcher.addCallback(this) {
 //        }
+    }
+
+    private fun setBottomNavigationBarClickListeners() {
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.charactersBottomBtn -> {
+                    openCharactersFragment()
+                    true
+                }
+                R.id.locationBottomBtn -> {
+                    openLocationFragment()
+                    true
+                }
+                R.id.episodesBottomBtn -> {
+                    openEpisodesFragment()
+                    true
+                }
+                else -> {
+                    false
+                }
+            }
+        }
+    }
+
+    private fun openEpisodesFragment(){
+        viewModel.openEpisodesFragment()
+    }
+
+    private fun openLocationFragment(){
+        viewModel.openLocationFragment()
+    }
+
+    private fun openCharactersFragment() {
+        viewModel.openCharacterFragment()
     }
 }

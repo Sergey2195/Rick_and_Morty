@@ -27,4 +27,16 @@ class MainViewModel: ViewModel() {
     fun setIsOnParentFragment(isOnParentFragment: Boolean){
         onParentFragment = isOnParentFragment
     }
+
+    fun openCharacterFragment(){
+        router?.openCharactersFragment()
+    }
+
+    fun openLocationFragment(){
+        router?.openLocationFragment()
+    }
+
+    fun openEpisodesFragment(){
+        router?.openEpisodesFragment()
+    }
 }
