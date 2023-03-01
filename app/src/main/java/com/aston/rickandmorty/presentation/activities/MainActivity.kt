@@ -1,49 +1,83 @@
 package com.aston.rickandmorty.presentation.activities
 
 import android.os.Bundle
-import android.util.Log
+import android.view.View
+import android.view.View.OnClickListener
+import androidx.activity.addCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import com.aston.rickandmorty.presentation.fragments.CharactersFragment
+import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.ActivityMainBinding
+import com.aston.rickandmorty.presentation.fragments.CharactersFragment
+import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.abs
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ToolbarManager {
     private lateinit var binding: ActivityMainBinding
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        connectToRouter()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setupSwipeRefreshLayout()
-        setSupportActionBar(binding.mainToolBar)
-        setBackButtonState(false)
-        setupToolbar()
-        binding.collapsingToolBarLayout.setExpandedTitleColor(getColor(R.color.transparent))
-        if (savedInstanceState == null){
+        if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .add(R.id.mainFragmentContainer, CharactersFragment.newInstance())
                 .commit()
         }
+        setupSwipeRefreshLayout()
+        setupToolbar()
+        onBackPressedHandling()
     }
 
     private fun setupToolbar() {
+        setSupportActionBar(binding.mainToolBar)
+        binding.collapsingToolBarLayout.setExpandedTitleColor(getColor(R.color.transparent))
+        setupToolbarListener()
+    }
+
+    private fun connectToRouter() {
+        viewModel.attachRouter(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.detachRouter()
+    }
+
+    private fun setupToolbarListener() {
         binding.appBarLayout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
-            if (verticalOffset == 0){
-                binding.toolbarTextInputLayout.isVisible = false
-                binding.searchButton.isVisible = false
-                binding.filterButton.isVisible = false
-                Log.d("SSV", "expanded")
-            }else if (Math.abs(verticalOffset) >= appBarLayout.totalScrollRange){
-                Log.d("SSV", "collapsed")
-                binding.toolbarTextInputLayout.isVisible = true
-                binding.searchButton.isVisible = true
-                binding.filterButton.isVisible = true
-            }else{
-                Log.d("SSV", "idle")
+            when {
+                isCollapsed(verticalOffset, appBarLayout) -> collapsedToolBarChangedState(true)
+                isExpanded(verticalOffset) -> collapsedToolBarChangedState(false)
+                else -> {}
             }
+        }
+    }
+
+    private fun isCollapsed(verticalOffset: Int, appBarLayout: AppBarLayout): Boolean {
+        return abs(verticalOffset) >= appBarLayout.totalScrollRange
+    }
+
+    private fun isExpanded(verticalOffset: Int): Boolean {
+        return verticalOffset == 0
+    }
+
+    private fun collapsedToolBarChangedState(isCollapsed: Boolean) {
+        if (viewModel.isOnParentFragment()) {
+            binding.toolbarTextInputLayout.isVisible = isCollapsed
+            binding.searchButton.isVisible = isCollapsed
+            binding.filterButton.isVisible = isCollapsed
+        } else {
+            binding.backButtonOnToolbar.isVisible = isCollapsed
         }
     }
 
@@ -59,7 +93,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setBackButtonState(isEnabled: Boolean){
-        supportActionBar?.setDisplayHomeAsUpEnabled(isEnabled)
+    override fun onParentScreen() {
+        binding.appBarLayout.setExpanded(true, false)
+        changeVisibilityToolBarElements(View.VISIBLE, View.GONE)
+        viewModel.setIsOnParentFragment(true)
+    }
+
+    override fun onChildScreen() {
+        changeVisibilityToolBarElements(View.GONE, View.VISIBLE)
+        binding.appBarLayout.setExpanded(false, false)
+        viewModel.setIsOnParentFragment(false)
+    }
+
+    override fun setBackButtonClickLister(clickListener: OnClickListener) {
+        binding.backButtonOnToolbar.setOnClickListener(clickListener)
+    }
+
+    private fun changeVisibilityToolBarElements(
+        parentElementsVisibility: Int,
+        childElementsVisibility: Int
+    ) {
+        binding.toolbarEditText.visibility = parentElementsVisibility
+        binding.searchButton.visibility = parentElementsVisibility
+        binding.filterButton.visibility = parentElementsVisibility
+        binding.backButtonOnToolbar.visibility = childElementsVisibility
+    }
+
+    private fun onBackPressedHandling() {
+//        onBackPressedDispatcher.addCallback(this) {
+//        }
     }
 }

@@ -15,6 +15,9 @@ import com.aston.rickandmorty.databinding.FragmentCharactersBinding
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.presentation.adapters.CharactersAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class CharactersFragment : Fragment() {
     private val viewModel: CharactersViewModel by viewModels()
@@ -35,6 +38,13 @@ class CharactersFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
         setupObservers()
+        setupBackButtonClickListener()
+    }
+
+    private fun setupBackButtonClickListener() {
+        (requireActivity() as ToolbarManager).setBackButtonClickLister{
+            backFromCharacterDetailsFragment()
+        }
     }
 
     private fun setupObservers() {
@@ -47,9 +57,29 @@ class CharactersFragment : Fragment() {
 
     private fun prepareRecyclerView() {
         binding.charactersRecyclerView.adapter = adapter
+        adapter.clickListener = { id ->
+            startCharacterDetailsFragment(id)
+        }
         binding.charactersRecyclerView.layoutManager =
             GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
         viewModel.updateData()
+    }
+
+    private fun startCharacterDetailsFragment(id: Int){
+        binding.charactersRecyclerView.visibility = View.GONE
+        childFragmentManager.beginTransaction()
+            .add(R.id.characterFragmentContainer, CharacterDetailsFragment.newInstance(id))
+            .addToBackStack(null)
+            .commit()
+        binding.characterFragmentContainer.visibility = View.VISIBLE
+        (requireActivity() as ToolbarManager).onChildScreen()
+    }
+
+    private fun backFromCharacterDetailsFragment(){
+        childFragmentManager.popBackStack()
+        binding.charactersRecyclerView.visibility = View.VISIBLE
+        binding.characterFragmentContainer.visibility = View.GONE
+        (requireActivity() as ToolbarManager).onParentScreen()
     }
 
 

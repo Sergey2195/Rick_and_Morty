@@ -8,11 +8,14 @@ class CharacterViewHolder(
     private val binding: CharacterItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun populate(data: CharacterModel) {
+    fun populate(data: CharacterModel, clickListener: ((id:Int)-> Unit)?) {
         //TODO binding.characterImage.setImageDrawable()
         binding.characterNameValue.text = data.name
         binding.characterGenderValue.text = data.gender
         binding.characterSpeciesValue.text = data.species
         binding.characterStatusValue.text = data.status
+        binding.characterConstraintLayout.setOnClickListener {
+            clickListener?.invoke(data.id)
+        }
     }
 }

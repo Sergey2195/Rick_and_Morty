@@ -9,6 +9,9 @@ import com.aston.rickandmorty.presentation.diffUtils.CharacterDiffUtilsCallback
 import com.aston.rickandmorty.presentation.viewHolders.CharacterViewHolder
 
 class CharactersAdapter: ListAdapter<CharacterModel, CharacterViewHolder>(CharacterDiffUtilsCallback()) {
+
+    var clickListener: ((id: Int)-> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = CharacterItemBinding.inflate(inflater, parent, false)
@@ -17,6 +20,6 @@ class CharactersAdapter: ListAdapter<CharacterModel, CharacterViewHolder>(Charac
 
     override fun onBindViewHolder(holder: CharacterViewHolder, position: Int) {
         val data = currentList[position]
-        holder.populate(data)
+        holder.populate(data, clickListener)
     }
 }
