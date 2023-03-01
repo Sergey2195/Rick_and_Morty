@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.addCallback
@@ -22,6 +23,7 @@ import kotlin.math.abs
 class MainActivity : AppCompatActivity(), ToolbarManager {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
+    private var toolBarBackButtonClickListener: OnClickListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,6 +109,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     }
 
     override fun setBackButtonClickLister(clickListener: OnClickListener) {
+        toolBarBackButtonClickListener = clickListener
         binding.backButtonOnToolbar.setOnClickListener(clickListener)
     }
 
@@ -121,8 +124,17 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     }
 
     private fun onBackPressedHandling() {
-//        onBackPressedDispatcher.addCallback(this) {
-//        }
+        onBackPressedDispatcher.addCallback(this) {
+            when{
+                !viewModel.isOnParentFragment()-> binding.backButtonOnToolbar.callOnClick()
+                binding.bottomNavigation.selectedItemId == R.id.charactersBottomBtn -> hideApp()
+                else -> binding.bottomNavigation.selectedItemId = R.id.charactersBottomBtn
+            }
+        }
+    }
+
+    private fun hideApp() {
+        moveTaskToBack(true)
     }
 
     private fun setBottomNavigationBarClickListeners() {
@@ -149,13 +161,16 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     private fun openEpisodesFragment(){
         viewModel.openEpisodesFragment()
+        onParentScreen()
     }
 
     private fun openLocationFragment(){
         viewModel.openLocationFragment()
+        onParentScreen()
     }
 
     private fun openCharactersFragment() {
         viewModel.openCharacterFragment()
+        onParentScreen()
     }
 }
