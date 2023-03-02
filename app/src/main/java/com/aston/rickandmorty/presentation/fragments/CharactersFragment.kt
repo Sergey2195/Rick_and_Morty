@@ -1,6 +1,5 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,12 +11,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharactersBinding
-import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.presentation.adapters.CharactersAdapter
+import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class CharactersFragment : Fragment() {
     private val viewModel: CharactersViewModel by viewModels()
@@ -42,21 +39,25 @@ class CharactersFragment : Fragment() {
     }
 
     private fun setupBackButtonClickListener() {
-        (requireActivity() as ToolbarManager).setBackButtonClickLister{
+        (requireActivity() as ToolbarManager).setBackButtonClickLister {
             backFromCharacterDetailsFragment()
         }
     }
 
     private fun setupObservers() {
         lifecycleScope.launchWhenStarted {
-            viewModel.charactersDataStateFlow.collect{
-                adapter.submitList(it)
+            viewModel.charactersFlow.collect { pagingData ->
+                adapter.submitData(pagingData)
             }
         }
     }
 
     private fun prepareRecyclerView() {
-        binding.charactersRecyclerView.adapter = adapter
+        val footerAdapter = DefaultLoadStateAdapter {
+            //needtodo click listener
+        }
+        val adapterWithLoadFooter = adapter.withLoadStateFooter(footerAdapter)
+        binding.charactersRecyclerView.adapter = adapterWithLoadFooter
         adapter.clickListener = { id ->
             startCharacterDetailsFragment(id)
         }
@@ -65,7 +66,7 @@ class CharactersFragment : Fragment() {
         viewModel.updateData()
     }
 
-    private fun startCharacterDetailsFragment(id: Int){
+    private fun startCharacterDetailsFragment(id: Int) {
         binding.charactersRecyclerView.visibility = View.GONE
         childFragmentManager.beginTransaction()
             .add(R.id.characterFragmentContainer, CharacterDetailsFragment.newInstance(id))
@@ -75,7 +76,7 @@ class CharactersFragment : Fragment() {
         (requireActivity() as ToolbarManager).onChildScreen()
     }
 
-    private fun backFromCharacterDetailsFragment(){
+    private fun backFromCharacterDetailsFragment() {
         childFragmentManager.popBackStack()
         binding.charactersRecyclerView.visibility = View.VISIBLE
         binding.characterFragmentContainer.visibility = View.GONE

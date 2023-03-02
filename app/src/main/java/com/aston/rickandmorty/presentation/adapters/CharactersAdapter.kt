@@ -2,13 +2,14 @@ package com.aston.rickandmorty.presentation.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.ListAdapter
 import com.aston.rickandmorty.databinding.CharacterItemBinding
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.presentation.diffUtils.CharacterDiffUtilsCallback
 import com.aston.rickandmorty.presentation.viewHolders.CharacterViewHolder
 
-class CharactersAdapter: ListAdapter<CharacterModel, CharacterViewHolder>(CharacterDiffUtilsCallback()) {
+class CharactersAdapter: PagingDataAdapter<CharacterModel, CharacterViewHolder>(CharacterDiffUtilsCallback()) {
 
     var clickListener: ((id: Int)-> Unit)? = null
 
@@ -19,7 +20,7 @@ class CharactersAdapter: ListAdapter<CharacterModel, CharacterViewHolder>(Charac
     }
 
     override fun onBindViewHolder(holder: CharacterViewHolder, position: Int) {
-        val data = currentList[position]
+        val data = getItem(position) ?: return
         holder.populate(data, clickListener)
     }
 }

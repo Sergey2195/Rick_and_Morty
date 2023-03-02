@@ -10,4 +10,6 @@
     <string name="character_status_title">Status:</string>
     <string name="character_gender_title">Gender:</string>
     <string name="character_example_value">Example</string>
+    <string name="load_error_text">Load error</string>
+    <string name="try_again">Try again</string>
 </resources>
