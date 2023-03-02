@@ -10,7 +10,7 @@ class CharactersPagingSource(): PagingSource<Int, CharacterModel>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CharacterModel> {
         val pageIndex = params.key ?: 1
         return try {
-            delay(10000)
+            delay(2000)
             val resultData = CharactersRepository.hardcodedData()
             val prevPage = if (pageIndex == 1) null else pageIndex-1
             val nextPage = if (pageIndex == 10) null else pageIndex + 1

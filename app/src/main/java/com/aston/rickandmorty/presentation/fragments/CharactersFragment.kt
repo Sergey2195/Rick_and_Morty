@@ -58,11 +58,14 @@ class CharactersFragment : Fragment() {
         }
         val adapterWithLoadFooter = adapter.withLoadStateFooter(footerAdapter)
         binding.charactersRecyclerView.adapter = adapterWithLoadFooter
-        adapter.clickListener = { id ->
-            startCharacterDetailsFragment(id)
+        adapter.clickListener = { id -> startCharacterDetailsFragment(id) }
+        val gridLayoutManager = GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
+        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if (position == adapter.itemCount && footerAdapter.itemCount > 0) 2 else 1
+            }
         }
-        binding.charactersRecyclerView.layoutManager =
-            GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
+        binding.charactersRecyclerView.layoutManager = gridLayoutManager
         viewModel.updateData()
     }
 
