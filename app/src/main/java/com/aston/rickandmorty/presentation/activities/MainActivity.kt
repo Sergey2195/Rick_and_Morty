@@ -11,13 +11,17 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
+import com.aston.rickandmorty.bottomSheetResultHandler.BottomSheetResultHandler
 import com.aston.rickandmorty.data.apiCalls.RetrofitApiCall
 import com.aston.rickandmorty.databinding.ActivityMainBinding
+import com.aston.rickandmorty.presentation.fragments.BottomSheetFragment
 import com.aston.rickandmorty.presentation.fragments.CharactersFragment
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -40,6 +44,18 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         setupToolbar()
         onBackPressedHandling()
         setBottomNavigationBarClickListeners()
+        setupToolbarClickListener()
+    }
+
+    private fun setupToolbarClickListener(){
+//        binding.searchButton.setOnClickListener {
+//            val bottomSheetFragment = BottomSheetFragment.newInstance(BottomSheetFragment.MODE_SEARCH)
+//            bottomSheetFragment.show(supportFragmentManager, null)
+//        }
+//        binding.filterButton.setOnClickListener {
+//            val bottomSheetFragment = BottomSheetFragment.newInstance(BottomSheetFragment.MODE_FILTER)
+//            bottomSheetFragment.show(supportFragmentManager, null)
+//        }
     }
 
     private fun setupToolbar() {
@@ -116,6 +132,10 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     override fun setToolbarText(text: String) {
         binding.toolbarTextView.text = text
+    }
+
+    override fun setSearchClickListener(clickListener: OnClickListener?) {
+        binding.searchButton.setOnClickListener(clickListener)
     }
 
     private fun changeVisibilityToolBarElements(

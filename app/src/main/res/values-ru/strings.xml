@@ -13,4 +13,6 @@
     <string name="character_example_value">Пример</string>
     <string name="load_error_text">Ошибка загрузки</string>
     <string name="try_again">Попробовать снова</string>
+    <string name="filter_title">Фильтр</string>
+    <string name="search_title">Поиск</string>
 </resources>
