@@ -77,11 +77,11 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     private fun collapsedToolBarChangedState(isCollapsed: Boolean) {
         if (viewModel.isOnParentFragment()) {
-            binding.toolbarTextInputLayout.isVisible = isCollapsed
             binding.searchButton.isVisible = isCollapsed
             binding.filterButton.isVisible = isCollapsed
         } else {
             binding.backButtonOnToolbar.isVisible = isCollapsed
+            binding.toolbarTextView.isVisible = isCollapsed
         }
     }
 
@@ -114,14 +114,18 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         binding.backButtonOnToolbar.setOnClickListener(clickListener)
     }
 
+    override fun setToolbarText(text: String) {
+        binding.toolbarTextView.text = text
+    }
+
     private fun changeVisibilityToolBarElements(
         parentElementsVisibility: Int,
         childElementsVisibility: Int
     ) {
-        binding.toolbarEditText.visibility = parentElementsVisibility
         binding.searchButton.visibility = parentElementsVisibility
         binding.filterButton.visibility = parentElementsVisibility
         binding.backButtonOnToolbar.visibility = childElementsVisibility
+        binding.toolbarTextView.visibility = childElementsVisibility
     }
 
     private fun onBackPressedHandling() {

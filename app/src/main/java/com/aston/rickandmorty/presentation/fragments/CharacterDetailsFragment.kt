@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharacterDetailsBinding
 import com.aston.rickandmorty.databinding.FragmentCharactersBinding
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 
 class CharacterDetailsFragment : Fragment() {
 
@@ -35,6 +36,11 @@ class CharacterDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.tmpDetailsID.text = id.toString()
+        setToolBarText()
+    }
+
+    private fun setToolBarText(){
+        (requireActivity() as ToolbarManager).setToolbarText(id.toString())
     }
 
     override fun onDestroyView() {

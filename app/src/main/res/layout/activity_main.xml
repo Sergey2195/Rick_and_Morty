@@ -42,32 +42,26 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_gravity="start">
+                        android:gravity="end">
                         <ImageButton
                             android:id="@+id/backButtonOnToolbar"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/baseline_arrow_back_24"
                             android:background="@drawable/rounded_shape"
-                            android:gravity="start"
                             android:padding="10dp"
                             android:visibility="gone"/>
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/toolbarTextInputLayout"
+                        <TextView
+                            android:id="@+id/toolbarTextView"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_marginHorizontal="10dp"
-                            android:layout_weight="1"
-                            android:layout_gravity="center">
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/toolbarEditText"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="20sp"
-                                android:textColor="@color/black"
-                                android:layout_gravity="center"
-                                android:padding="10dp"/>
-                        </com.google.android.material.textfield.TextInputLayout>
+                            android:text="Example name"
+                            android:visibility="gone"
+                            android:gravity="center_vertical"
+                            android:layout_marginStart="20dp"
+                            android:textColor="@color/white"
+                            android:textSize="20sp"
+                            android:layout_weight="1"/>
                         <ImageButton
                             android:id="@+id/searchButton"
                             android:layout_width="wrap_content"
@@ -75,16 +69,16 @@
                             android:src="@drawable/baseline_search_24"
                             android:background="@drawable/rounded_shape"
                             android:layout_marginEnd="10dp"
-                            android:layout_gravity="center"
-                            android:padding="10dp"/>
+                            android:layout_gravity="end"
+                            android:padding="4dp"/>
                         <ImageButton
                             android:id="@+id/filterButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/baseline_filter_list_24"
                             android:background="@drawable/rounded_shape"
-                            android:layout_gravity="center"
-                            android:padding="10dp"
+                            android:layout_gravity="end"
+                            android:padding="4dp"
                             android:layout_marginEnd="10dp"/>
                     </androidx.appcompat.widget.LinearLayoutCompat>
                 </androidx.appcompat.widget.Toolbar>

@@ -6,4 +6,5 @@ interface ToolbarManager {
     fun onParentScreen()
     fun onChildScreen()
     fun setBackButtonClickLister(clickListener: View.OnClickListener)
+    fun setToolbarText(text: String)
 }
