@@ -16,4 +16,5 @@
     <string name="filter_title">Фильтр</string>
     <string name="search_title">Поиск</string>
     <string name="search_position">%d/%d</string>
+    <string name="snackbar_not_found">Не найдено</string>
 </resources>

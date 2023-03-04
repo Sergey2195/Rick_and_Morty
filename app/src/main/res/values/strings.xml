@@ -15,4 +15,5 @@
     <string name="filter_title">Filter</string>
     <string name="search_title">Search</string>
     <string name="search_position">%d/%d</string>
+    <string name="snackbar_not_found">Not Found</string>
 </resources>

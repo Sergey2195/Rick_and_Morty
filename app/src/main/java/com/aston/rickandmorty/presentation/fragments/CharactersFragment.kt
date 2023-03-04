@@ -25,7 +25,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-
 class CharactersFragment : Fragment() {
     private val viewModel: CharactersViewModel by viewModels()
     private val mainViewModel by lazy {
@@ -55,7 +54,7 @@ class CharactersFragment : Fragment() {
 
     private fun handlingResultSearch(positions: List<Int>) {
         if (positions.isEmpty()) {
-            val snackBar = Snackbar.make(requireView(), "Not found", Snackbar.LENGTH_SHORT)
+            val snackBar = Snackbar.make(requireView(), R.string.snackbar_not_found, Snackbar.LENGTH_SHORT)
             snackBar.show()
         } else {
             setupSearchPanel(positions)
@@ -84,18 +83,18 @@ class CharactersFragment : Fragment() {
         }
         var index = calcClosestItem(positions)
         animateItem(positions[index])
-        setPositionTextView(index+1, positions.size)
+        setPositionTextView(index + 1, positions.size)
         binding.searchNextButton.setOnClickListener {
             index = if (isValidPosition(index + 1, positions)) index + 1 else index
             scrollToPositionForward(positions[index])
             animateItem(positions[index])
-            setPositionTextView(index+1, positions.size)
+            setPositionTextView(index + 1, positions.size)
         }
         binding.searchPrevButton.setOnClickListener {
             index = if (isValidPosition(index - 1, positions)) index - 1 else index
             scrollToPositionBack(positions[index])
             animateItem(positions[index])
-            setPositionTextView(index+1, positions.size)
+            setPositionTextView(index + 1, positions.size)
         }
     }
 
@@ -122,6 +121,7 @@ class CharactersFragment : Fragment() {
         smoothScroller.targetPosition = target
         binding.charactersRecyclerView.layoutManager?.startSmoothScroll(smoothScroller)
     }
+
     private fun scrollToPositionForward(position: Int) {
         val smoothScroller: LinearSmoothScroller = object : LinearSmoothScroller(activity) {
             override fun getVerticalSnapPreference(): Int {
