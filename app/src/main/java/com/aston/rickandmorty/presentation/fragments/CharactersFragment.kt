@@ -2,11 +2,9 @@ package com.aston.rickandmorty.presentation.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AlphaAnimation
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -66,13 +64,13 @@ class CharactersFragment : Fragment() {
         }
     }
 
-    private fun calcClosestItem(list: List<Int>): Int{
+    private fun calcClosestItem(list: List<Int>): Int {
         val currentPosition = binding.charactersRecyclerView.getCurrentPosition()
         var value = Int.MAX_VALUE
-        var minDiff = abs(value-currentPosition)
-        for ((index,num) in list.withIndex()){
-            val calcDiff = abs(num-currentPosition)
-            if (calcDiff <= minDiff){
+        var minDiff = abs(value - currentPosition)
+        for ((index, num) in list.withIndex()) {
+            val calcDiff = abs(num - currentPosition)
+            if (calcDiff <= minDiff) {
                 value = index
                 minDiff = calcDiff
             }
@@ -88,17 +86,25 @@ class CharactersFragment : Fragment() {
         }
         var index = calcClosestItem(positions)
         scrollAndAnimate(positions[index])
+        setPositionTextView(index+1, positions.size)
         binding.searchNextButton.setOnClickListener {
             index = if (isValidPosition(index + 1, positions)) index + 1 else index
             scrollAndAnimate(positions[index])
+            setPositionTextView(index+1, positions.size)
         }
         binding.searchPrevButton.setOnClickListener {
             index = if (isValidPosition(index - 1, positions)) index - 1 else index
             scrollAndAnimate(positions[index])
+            setPositionTextView(index+1, positions.size)
         }
     }
 
-    private fun scrollAndAnimate(positionAtAdapter: Int){
+    private fun setPositionTextView(current: Int, total: Int) {
+        binding.searchPositionTextView.text =
+            String.format(getString(R.string.search_position), current, total)
+    }
+
+    private fun scrollAndAnimate(positionAtAdapter: Int) {
         scrollToPosition(positionAtAdapter)
         animateAtPosition(positionAtAdapter)
     }
@@ -198,18 +204,20 @@ class CharactersFragment : Fragment() {
         }
     }
 
-    private fun animateAtPosition(position: Int){
+    private fun animateAtPosition(position: Int) {
         lifecycleScope.launch {
-            var viewHolder = binding.charactersRecyclerView.findViewHolderForAdapterPosition(position)
-            while (viewHolder == null){
-                viewHolder = binding.charactersRecyclerView.findViewHolderForAdapterPosition(position)
+            var viewHolder =
+                binding.charactersRecyclerView.findViewHolderForAdapterPosition(position)
+            while (viewHolder == null) {
+                viewHolder =
+                    binding.charactersRecyclerView.findViewHolderForAdapterPosition(position)
                 delay(50)
             }
             (viewHolder as CharacterViewHolder).animate()
         }
     }
 
-    private fun RecyclerView?.getCurrentPosition() : Int {
+    private fun RecyclerView?.getCurrentPosition(): Int {
         return (this?.layoutManager as GridLayoutManager).findFirstVisibleItemPosition()
     }
 

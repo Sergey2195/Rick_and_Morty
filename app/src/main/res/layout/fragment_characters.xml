@@ -21,7 +21,7 @@
         android:layout_gravity="bottom"
         android:background="?attr/colorOnPrimary"
         android:orientation="horizontal"
-        android:paddingTop="4dp"
+        android:paddingVertical="4dp"
         android:visibility="gone">
 
         <ImageButton
@@ -33,6 +33,13 @@
             android:backgroundTint="@color/variantSecond"
             android:padding="8dp"
             android:src="@drawable/baseline_close_24" />
+
+        <TextView
+            android:id="@+id/searchPositionTextView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="8dp"/>
 
         <TextView
             android:id="@+id/searchResultTextView"
