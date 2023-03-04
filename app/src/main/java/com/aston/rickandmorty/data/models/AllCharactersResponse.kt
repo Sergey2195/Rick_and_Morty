@@ -7,5 +7,5 @@ data class AllCharactersResponse (
     val pageInfo: PageInfoResponse? = null,
 
     @SerializedName("results")
-    val listCharactersInfo: List<CharacterInfo>? = null
+    val listCharactersInfo: List<CharacterInfoRemote>? = null
 )

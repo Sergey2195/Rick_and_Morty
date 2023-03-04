@@ -2,7 +2,7 @@ package com.aston.rickandmorty.data.models
 
 import com.google.gson.annotations.SerializedName
 
-data class CharacterLocation(
+data class CharacterLocationRemote(
     @SerializedName("name")
     val characterLocationName: String? = null,
 

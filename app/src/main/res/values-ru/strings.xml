@@ -17,4 +17,8 @@
     <string name="search_title">Поиск</string>
     <string name="search_position">%d/%d</string>
     <string name="snackbar_not_found">Не найдено</string>
+    <string name="character_type_title">Тип:</string>
+    <string name="character_origin_title">Рождение:</string>
+    <string name="character_location_title">Локация:</string>
+    <string name="episodes_title">Эпизоды:</string>
 </resources>

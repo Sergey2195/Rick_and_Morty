@@ -15,4 +15,12 @@
         <item name="android:layout_marginTop">2dp</item>
         <item name="android:layout_marginBottom">2dp</item>
     </style>
+    <style name="TitleDetailsStyle" parent="TitleStyle">
+        <item name="android:layout_marginStart">20dp</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    <style name="ValueDetailsStyle" parent="ValueStyle">
+        <item name="android:layout_marginEnd">20dp</item>
+        <item name="android:textSize">18sp</item>
+    </style>
 </resources>

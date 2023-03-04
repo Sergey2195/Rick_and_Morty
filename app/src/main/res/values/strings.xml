@@ -16,4 +16,8 @@
     <string name="search_title">Search</string>
     <string name="search_position">%d/%d</string>
     <string name="snackbar_not_found">Not Found</string>
+    <string name="character_type_title">Type:</string>
+    <string name="character_origin_title">Origin:</string>
+    <string name="character_location_title">Location:</string>
+    <string name="episodes_title">Episodes:</string>
 </resources>

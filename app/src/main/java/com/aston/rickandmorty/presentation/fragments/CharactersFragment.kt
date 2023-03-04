@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -36,6 +37,7 @@ class CharactersFragment : Fragment() {
         get() = _binding!!
     private var prevSearch: String? = null
     private var gridLayoutManager: GridLayoutManager? = null
+    private var searchLayoutIsVisible = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -82,6 +84,7 @@ class CharactersFragment : Fragment() {
             binding.searchLayout.visibility = View.GONE
         }
         var index = calcClosestItem(positions)
+        scrollToPositionForward(positions[index])
         animateItem(positions[index])
         setPositionTextView(index + 1, positions.size)
         binding.searchNextButton.setOnClickListener {
@@ -192,6 +195,7 @@ class CharactersFragment : Fragment() {
 
     private fun startCharacterDetailsFragment(id: Int) {
         binding.charactersRecyclerView.visibility = View.GONE
+        saveStateSearchLayout()
         childFragmentManager.beginTransaction()
             .add(R.id.characterFragmentContainer, CharacterDetailsFragment.newInstance(id))
             .addToBackStack(null)
@@ -200,8 +204,14 @@ class CharactersFragment : Fragment() {
         (requireActivity() as ToolbarManager).onChildScreen()
     }
 
+    private fun saveStateSearchLayout(){
+        searchLayoutIsVisible = binding.searchLayout.isVisible
+        binding.searchLayout.isVisible = false
+    }
+
     private fun backFromCharacterDetailsFragment() {
         childFragmentManager.popBackStack()
+        binding.searchLayout.isVisible = searchLayoutIsVisible
         binding.charactersRecyclerView.visibility = View.VISIBLE
         binding.characterFragmentContainer.visibility = View.GONE
         (requireActivity() as ToolbarManager).onParentScreen()

@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.activities
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.addCallback
@@ -9,20 +8,12 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
-import com.aston.rickandmorty.bottomSheetResultHandler.BottomSheetResultHandler
-import com.aston.rickandmorty.data.apiCalls.RetrofitApiCall
 import com.aston.rickandmorty.databinding.ActivityMainBinding
-import com.aston.rickandmorty.presentation.fragments.BottomSheetFragment
 import com.aston.rickandmorty.presentation.fragments.CharactersFragment
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity(), ToolbarManager {
@@ -39,23 +30,12 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
             supportFragmentManager.beginTransaction()
                 .add(R.id.mainFragmentContainer, CharactersFragment.newInstance())
                 .commit()
+            onParentScreen()
         }
         setupSwipeRefreshLayout()
         setupToolbar()
         onBackPressedHandling()
         setBottomNavigationBarClickListeners()
-        setupToolbarClickListener()
-    }
-
-    private fun setupToolbarClickListener(){
-//        binding.searchButton.setOnClickListener {
-//            val bottomSheetFragment = BottomSheetFragment.newInstance(BottomSheetFragment.MODE_SEARCH)
-//            bottomSheetFragment.show(supportFragmentManager, null)
-//        }
-//        binding.filterButton.setOnClickListener {
-//            val bottomSheetFragment = BottomSheetFragment.newInstance(BottomSheetFragment.MODE_FILTER)
-//            bottomSheetFragment.show(supportFragmentManager, null)
-//        }
     }
 
     private fun setupToolbar() {
@@ -114,7 +94,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     }
 
     override fun onParentScreen() {
-        binding.appBarLayout.setExpanded(true, false)
+        binding.appBarLayout.setExpanded(false, false)
         changeVisibilityToolBarElements(View.VISIBLE, View.GONE)
         viewModel.setIsOnParentFragment(true)
     }
@@ -150,8 +130,8 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     private fun onBackPressedHandling() {
         onBackPressedDispatcher.addCallback(this) {
-            when{
-                !viewModel.isOnParentFragment()-> binding.backButtonOnToolbar.callOnClick()
+            when {
+                !viewModel.isOnParentFragment() -> binding.backButtonOnToolbar.callOnClick()
                 binding.bottomNavigation.selectedItemId == R.id.charactersBottomBtn -> hideApp()
                 else -> binding.bottomNavigation.selectedItemId = R.id.charactersBottomBtn
             }
@@ -184,12 +164,12 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         }
     }
 
-    private fun openEpisodesFragment(){
+    private fun openEpisodesFragment() {
         viewModel.openEpisodesFragment()
         onParentScreen()
     }
 
-    private fun openLocationFragment(){
+    private fun openLocationFragment() {
         viewModel.openLocationFragment()
         onParentScreen()
     }
