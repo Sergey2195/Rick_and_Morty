@@ -68,7 +68,7 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
         binding.modeTextView.text = requireContext().getString(R.string.search_title)
         binding.bottomSheetSaveButton.setOnClickListener {
             val search = binding.searchEditText.text.toString()
-            mainViewModel.searchCharacterLiveData.postValue(search)
+            mainViewModel.addSearchCharacterLiveData(search)
             this.dismiss()
         }
     }

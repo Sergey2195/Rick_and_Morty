@@ -12,7 +12,6 @@ class MainViewModel: ViewModel() {
     val searchCharacterLiveData = MutableLiveData<String>()
 
     init {
-        Log.d("SSV", "view model created")
         router = Router()
     }
 
@@ -46,5 +45,9 @@ class MainViewModel: ViewModel() {
 
     fun addSearchCharacterLiveData(search: String){
         searchCharacterLiveData.value = search
+    }
+
+    fun clearSearchCharacterLiveData(){
+        searchCharacterLiveData.value = ""
     }
 }

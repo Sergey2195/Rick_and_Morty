@@ -1,6 +1,5 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,7 +36,6 @@ class CharactersFragment : Fragment() {
     private val binding
         get() = _binding!!
     private var prevSearch: String? = null
-    private var smoothScroller: RecyclerView.SmoothScroller? = null
     private var gridLayoutManager: GridLayoutManager? = null
 
     override fun onCreateView(
@@ -85,16 +83,18 @@ class CharactersFragment : Fragment() {
             binding.searchLayout.visibility = View.GONE
         }
         var index = calcClosestItem(positions)
-        scrollAndAnimate(positions[index])
+        animateItem(positions[index])
         setPositionTextView(index+1, positions.size)
         binding.searchNextButton.setOnClickListener {
             index = if (isValidPosition(index + 1, positions)) index + 1 else index
-            scrollAndAnimate(positions[index])
+            scrollToPositionForward(positions[index])
+            animateItem(positions[index])
             setPositionTextView(index+1, positions.size)
         }
         binding.searchPrevButton.setOnClickListener {
             index = if (isValidPosition(index - 1, positions)) index - 1 else index
-            scrollAndAnimate(positions[index])
+            scrollToPositionBack(positions[index])
+            animateItem(positions[index])
             setPositionTextView(index+1, positions.size)
         }
     }
@@ -104,8 +104,7 @@ class CharactersFragment : Fragment() {
             String.format(getString(R.string.search_position), current, total)
     }
 
-    private fun scrollAndAnimate(positionAtAdapter: Int) {
-        scrollToPosition(positionAtAdapter)
+    private fun animateItem(positionAtAdapter: Int) {
         animateAtPosition(positionAtAdapter)
     }
 
@@ -113,10 +112,24 @@ class CharactersFragment : Fragment() {
         return current >= 0 && current < list.size
     }
 
-    private fun scrollToPosition(position: Int) {
-        smoothScroller = CenterSmoothScroller(binding.charactersRecyclerView.context)
-        smoothScroller?.targetPosition = position
-        gridLayoutManager?.startSmoothScroll(smoothScroller)
+    private fun scrollToPositionBack(position: Int) {
+        val smoothScroller: LinearSmoothScroller = object : LinearSmoothScroller(activity) {
+            override fun getVerticalSnapPreference(): Int {
+                return SNAP_TO_START
+            }
+        }
+        val target = if (position <= 2) 0 else position - 2
+        smoothScroller.targetPosition = target
+        binding.charactersRecyclerView.layoutManager?.startSmoothScroll(smoothScroller)
+    }
+    private fun scrollToPositionForward(position: Int) {
+        val smoothScroller: LinearSmoothScroller = object : LinearSmoothScroller(activity) {
+            override fun getVerticalSnapPreference(): Int {
+                return SNAP_TO_END
+            }
+        }
+        smoothScroller.targetPosition = position + 2
+        binding.charactersRecyclerView.layoutManager?.startSmoothScroll(smoothScroller)
     }
 
     private fun setupToolBarClickListener() {
@@ -137,6 +150,7 @@ class CharactersFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         (requireActivity() as ToolbarManager).setSearchClickListener(null)
+        mainViewModel.clearSearchCharacterLiveData()
     }
 
     private fun setupBackButtonClickListener() {
@@ -152,6 +166,7 @@ class CharactersFragment : Fragment() {
             }
         }
         mainViewModel.searchCharacterLiveData.observe(viewLifecycleOwner) { search ->
+            if (search.isEmpty()) return@observe
             prevSearch = search
             val positions = adapter.findPosition(search)
             handlingResultSearch(positions)
@@ -190,18 +205,6 @@ class CharactersFragment : Fragment() {
         binding.charactersRecyclerView.visibility = View.VISIBLE
         binding.characterFragmentContainer.visibility = View.GONE
         (requireActivity() as ToolbarManager).onParentScreen()
-    }
-
-    class CenterSmoothScroller(context: Context?) : LinearSmoothScroller(context) {
-        override fun calculateDtToFit(
-            viewStart: Int,
-            viewEnd: Int,
-            boxStart: Int,
-            boxEnd: Int,
-            snapPreference: Int
-        ): Int {
-            return boxStart + (boxEnd - boxStart) / 2 - (viewStart + (viewEnd - viewStart) / 2)
-        }
     }
 
     private fun animateAtPosition(position: Int) {
