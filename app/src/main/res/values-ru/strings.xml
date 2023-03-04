@@ -1,13 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Rick and Morty</string>
     <string name="example_largeText">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="bottom_navigation_menu_characters_title">Characters</string>
-    <string name="bottom_navigation_menu_location_title">Location</string>
-    <string name="bottom_navigation_menu_episodes_title">Episodes</string>
-    <string name="character_name_title">Name:</string>
-    <string name="character_species_title">Species:</string>
-    <string name="character_status_title">Status:</string>
-    <string name="character_gender_title">Gender:</string>
-    <string name="character_example_value">Example</string>
+    <string name="bottom_navigation_menu_characters_title">Персонажи</string>
+    <string name="bottom_navigation_menu_location_title">Локации</string>
+    <string name="bottom_navigation_menu_episodes_title">Эпизоды</string>
+    <string name="character_name_title">Имя:</string>
+    <string name="character_species_title">Вид:</string>
+    <string name="character_status_title">Статус:</string>
+    <string name="character_gender_title">Пол:</string>
+    <string name="character_example_value">Пример</string>
 </resources>
