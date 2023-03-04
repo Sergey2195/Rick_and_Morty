@@ -14,12 +14,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharactersBinding
 import com.aston.rickandmorty.presentation.BottomSheetInputData
 import com.aston.rickandmorty.presentation.adapters.CharactersAdapter
 import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
+import com.aston.rickandmorty.presentation.viewHolders.CharacterViewHolder
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
@@ -27,7 +27,6 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
-import kotlin.math.min
 
 
 class CharactersFragment : Fragment() {
@@ -166,7 +165,6 @@ class CharactersFragment : Fragment() {
                 return if (position == adapter.itemCount && footerAdapter.itemCount > 0) 2 else 1
             }
         }
-        smoothScroller = CenterSmoothScroller(binding.charactersRecyclerView.context)
         binding.charactersRecyclerView.layoutManager = gridLayoutManager
         viewModel.updateData()
     }
@@ -205,13 +203,9 @@ class CharactersFragment : Fragment() {
             var viewHolder = binding.charactersRecyclerView.findViewHolderForAdapterPosition(position)
             while (viewHolder == null){
                 viewHolder = binding.charactersRecyclerView.findViewHolderForAdapterPosition(position)
-                delay(100)
+                delay(50)
             }
-            val animation = AlphaAnimation(0.1f, 1f).apply {
-                duration = 500
-                repeatCount = 1
-            }
-            viewHolder.itemView.animation = animation
+            (viewHolder as CharacterViewHolder).animate()
         }
     }
 

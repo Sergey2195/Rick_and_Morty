@@ -1,23 +1,19 @@
 package com.aston.rickandmorty.presentation.viewHolders
 
-import android.content.res.Resources
-import android.view.RoundedCorner
-import android.view.animation.Transformation
-import androidx.constraintlayout.widget.ConstraintSet.Transform
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.CharacterItemBinding
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.bumptech.glide.request.RequestOptions
+import kotlinx.coroutines.delay
 
 class CharacterViewHolder(
     private val binding: CharacterItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun populate(data: CharacterModel, clickListener: ((id:Int)-> Unit)?) {
+    fun populate(data: CharacterModel, clickListener: ((id: Int) -> Unit)?) {
         Glide.with(binding.root)
             .load(data.image)
             .placeholder(R.drawable.toolbar_image)
@@ -30,5 +26,11 @@ class CharacterViewHolder(
         binding.characterConstraintLayout.setOnClickListener {
             clickListener?.invoke(data.id)
         }
+    }
+
+    suspend fun animate() {
+        binding.characterConstraintLayout.alpha = 0.2f
+        delay(1000)
+        binding.characterConstraintLayout.alpha = 1f
     }
 }
