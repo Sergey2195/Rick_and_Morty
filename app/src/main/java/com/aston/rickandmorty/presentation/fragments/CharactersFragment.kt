@@ -1,16 +1,20 @@
 package com.aston.rickandmorty.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharactersBinding
 import com.aston.rickandmorty.presentation.BottomSheetInputData
@@ -20,6 +24,11 @@ import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.min
+
 
 class CharactersFragment : Fragment() {
     private val viewModel: CharactersViewModel by viewModels()
@@ -31,6 +40,8 @@ class CharactersFragment : Fragment() {
     private val binding
         get() = _binding!!
     private var prevSearch: String? = null
+    private var smoothScroller: RecyclerView.SmoothScroller? = null
+    private var gridLayoutManager: GridLayoutManager? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,18 +56,62 @@ class CharactersFragment : Fragment() {
         prepareRecyclerView()
         setupObservers()
         setupToolBarClickListener()
-        mainViewModel.searchCharacterLiveData.observe(viewLifecycleOwner) { search ->
-            prevSearch = search
-            val positions = adapter.findPosition(search)
-            handlingResultSearch(positions)
+    }
+
+    private fun handlingResultSearch(positions: List<Int>) {
+        if (positions.isEmpty()) {
+            val snackBar = Snackbar.make(requireView(), "Not found", Snackbar.LENGTH_SHORT)
+            snackBar.show()
+        } else {
+            setupSearchPanel(positions)
         }
     }
 
-    private fun handlingResultSearch(positions: List<Int>){
-        if (positions.isEmpty()){
-            val snackbar = Snackbar.make(requireView(), "Not found", Snackbar.LENGTH_SHORT)
-            snackbar.show()
+    private fun calcClosestItem(list: List<Int>): Int{
+        val currentPosition = binding.charactersRecyclerView.getCurrentPosition()
+        var value = Int.MAX_VALUE
+        var minDiff = abs(value-currentPosition)
+        for ((index,num) in list.withIndex()){
+            val calcDiff = abs(num-currentPosition)
+            if (calcDiff <= minDiff){
+                value = index
+                minDiff = calcDiff
+            }
         }
+        return value
+    }
+
+    private fun setupSearchPanel(positions: List<Int>) {
+        binding.searchResultTextView.text = prevSearch
+        binding.searchLayout.visibility = View.VISIBLE
+        binding.closeSearchPanel.setOnClickListener {
+            binding.searchLayout.visibility = View.GONE
+        }
+        var index = calcClosestItem(positions)
+        scrollAndAnimate(positions[index])
+        binding.searchNextButton.setOnClickListener {
+            index = if (isValidPosition(index + 1, positions)) index + 1 else index
+            scrollAndAnimate(positions[index])
+        }
+        binding.searchPrevButton.setOnClickListener {
+            index = if (isValidPosition(index - 1, positions)) index - 1 else index
+            scrollAndAnimate(positions[index])
+        }
+    }
+
+    private fun scrollAndAnimate(positionAtAdapter: Int){
+        scrollToPosition(positionAtAdapter)
+        animateAtPosition(positionAtAdapter)
+    }
+
+    private fun isValidPosition(current: Int, list: List<Int>): Boolean {
+        return current >= 0 && current < list.size
+    }
+
+    private fun scrollToPosition(position: Int) {
+        smoothScroller = CenterSmoothScroller(binding.charactersRecyclerView.context)
+        smoothScroller?.targetPosition = position
+        gridLayoutManager?.startSmoothScroll(smoothScroller)
     }
 
     private fun setupToolBarClickListener() {
@@ -91,6 +146,11 @@ class CharactersFragment : Fragment() {
                 adapter.submitData(pagingData)
             }
         }
+        mainViewModel.searchCharacterLiveData.observe(viewLifecycleOwner) { search ->
+            prevSearch = search
+            val positions = adapter.findPosition(search)
+            handlingResultSearch(positions)
+        }
     }
 
     private fun prepareRecyclerView() {
@@ -100,12 +160,13 @@ class CharactersFragment : Fragment() {
         val adapterWithLoadFooter = adapter.withLoadStateFooter(footerAdapter)
         binding.charactersRecyclerView.adapter = adapterWithLoadFooter
         adapter.clickListener = { id -> startCharacterDetailsFragment(id) }
-        val gridLayoutManager = GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
-        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+        gridLayoutManager = GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
+        gridLayoutManager?.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 return if (position == adapter.itemCount && footerAdapter.itemCount > 0) 2 else 1
             }
         }
+        smoothScroller = CenterSmoothScroller(binding.charactersRecyclerView.context)
         binding.charactersRecyclerView.layoutManager = gridLayoutManager
         viewModel.updateData()
     }
@@ -125,6 +186,37 @@ class CharactersFragment : Fragment() {
         binding.charactersRecyclerView.visibility = View.VISIBLE
         binding.characterFragmentContainer.visibility = View.GONE
         (requireActivity() as ToolbarManager).onParentScreen()
+    }
+
+    class CenterSmoothScroller(context: Context?) : LinearSmoothScroller(context) {
+        override fun calculateDtToFit(
+            viewStart: Int,
+            viewEnd: Int,
+            boxStart: Int,
+            boxEnd: Int,
+            snapPreference: Int
+        ): Int {
+            return boxStart + (boxEnd - boxStart) / 2 - (viewStart + (viewEnd - viewStart) / 2)
+        }
+    }
+
+    private fun animateAtPosition(position: Int){
+        lifecycleScope.launch {
+            var viewHolder = binding.charactersRecyclerView.findViewHolderForAdapterPosition(position)
+            while (viewHolder == null){
+                viewHolder = binding.charactersRecyclerView.findViewHolderForAdapterPosition(position)
+                delay(100)
+            }
+            val animation = AlphaAnimation(0.1f, 1f).apply {
+                duration = 500
+                repeatCount = 1
+            }
+            viewHolder.itemView.animation = animation
+        }
+    }
+
+    private fun RecyclerView?.getCurrentPosition() : Int {
+        return (this?.layoutManager as GridLayoutManager).findFirstVisibleItemPosition()
     }
 
 

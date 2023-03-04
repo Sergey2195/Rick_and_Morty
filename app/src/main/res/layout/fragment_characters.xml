@@ -13,4 +13,53 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/searchLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="?attr/colorOnPrimary"
+        android:orientation="horizontal"
+        android:paddingTop="4dp"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/closeSearchPanel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/rounded_shape"
+            android:backgroundTint="@color/variantSecond"
+            android:padding="8dp"
+            android:src="@drawable/baseline_close_24" />
+
+        <TextView
+            android:id="@+id/searchResultTextView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:text="Text" />
+
+        <ImageButton
+            android:id="@+id/searchPrevButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/rounded_shape"
+            android:backgroundTint="@color/variantSecond"
+            android:padding="8dp"
+            android:src="@drawable/baseline_navigate_before_24" />
+
+        <ImageButton
+            android:id="@+id/searchNextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/rounded_shape"
+            android:backgroundTint="@color/variantSecond"
+            android:padding="8dp"
+            android:src="@drawable/baseline_navigate_next_24" />
+    </LinearLayout>
 </FrameLayout>
