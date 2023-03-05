@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.addCallback
@@ -144,6 +145,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     private fun setBottomNavigationBarClickListeners() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
+            if (!viewModel.isOnParentFragment()) binding.backButtonOnToolbar.callOnClick()
             when (item.itemId) {
                 R.id.charactersBottomBtn -> {
                     openCharactersFragment()
