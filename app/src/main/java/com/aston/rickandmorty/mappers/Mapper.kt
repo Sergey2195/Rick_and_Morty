@@ -11,7 +11,7 @@ import com.aston.rickandmorty.domain.entity.CharacterOrigin
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
 
 object Mapper {
-    fun transformCharacterInfoIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
+    private fun transformCharacterInfoIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
         return CharacterModel(
             id = src.characterId ?: 0,
             name = src.characterName ?: EMPTY,
@@ -50,7 +50,6 @@ object Mapper {
     }
 
     private fun findLastNumber(str: String): String{
-        Log.d("SSV", str)
         val indexSlash = str.lastIndexOf('/')
         return str.substring(indexSlash+1 until str.length)
     }

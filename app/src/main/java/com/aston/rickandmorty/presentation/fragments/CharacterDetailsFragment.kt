@@ -58,7 +58,7 @@ class CharacterDetailsFragment : Fragment() {
             viewModel.getCharacterDetailsInfo(id!!)
         }
 
-    private fun setupViews(data: CharacterDetailsModel){
+    private fun setupViews(data: CharacterDetailsModel) {
         setupTitle(data)
         val listAdapterData =
             Mapper.mapCharacterDetailsModelToListAdapterData(requireContext(), data)

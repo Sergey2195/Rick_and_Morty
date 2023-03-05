@@ -145,7 +145,9 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     private fun setBottomNavigationBarClickListeners() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-            if (!viewModel.isOnParentFragment()) binding.backButtonOnToolbar.callOnClick()
+            while (!viewModel.isOnParentFragment()){
+                binding.backButtonOnToolbar.callOnClick()
+            }
             when (item.itemId) {
                 R.id.charactersBottomBtn -> {
                     openCharactersFragment()
