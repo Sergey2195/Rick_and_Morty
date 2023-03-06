@@ -9,6 +9,7 @@ class MainViewModel : ViewModel() {
     private var router: Router? = null
     private var onParentFragment = true
     val searchCharacterLiveData = MutableLiveData<String>()
+    val isOnParentLiveData = MutableLiveData(true)
 
     init {
         router = Router()
@@ -26,10 +27,6 @@ class MainViewModel : ViewModel() {
         return onParentFragment
     }
 
-    fun setIsOnParentFragment(isOnParentFragment: Boolean) {
-        onParentFragment = isOnParentFragment
-    }
-
     fun openCharacterFragment() {
         router?.openCharactersFragment()
     }
@@ -40,6 +37,10 @@ class MainViewModel : ViewModel() {
 
     fun openEpisodesFragment() {
         router?.openEpisodesFragment()
+    }
+
+    fun setIsOnParentLiveData(isOnParent: Boolean){
+        isOnParentLiveData.postValue(isOnParent)
     }
 
     fun addSearchCharacterLiveData(search: String) {

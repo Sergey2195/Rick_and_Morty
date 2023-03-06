@@ -42,7 +42,6 @@ class EpisodesFragment : Fragment() {
         childFragmentManager.popBackStack()
         binding.episodesFragmentContainer.visibility = View.GONE
         binding.episodesContentLayout.visibility = View.VISIBLE
-        (requireActivity() as ToolbarManager).onParentScreen()
     }
 
     private fun startEpisodesDetailsFragment() {
@@ -52,7 +51,6 @@ class EpisodesFragment : Fragment() {
             .addToBackStack(null)
             .commit()
         binding.episodesFragmentContainer.visibility = View.VISIBLE
-        (requireActivity() as ToolbarManager).onChildScreen()
     }
 
     override fun onDestroy() {

@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharacterDetailsBinding
 import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.mappers.Mapper
@@ -16,6 +18,7 @@ import com.aston.rickandmorty.presentation.adapters.CharacterDetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -81,6 +84,7 @@ class CharacterDetailsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Log.d("SSV", "details onDestroyView")
         _binding = null
     }
 

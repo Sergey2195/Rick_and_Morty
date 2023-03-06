@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/characterDetailsRecyclerView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/characterDetailsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".presentation.fragments.CharacterDetailsFragment" />
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/characterDetailsFragmentContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
-</FrameLayout>
+    android:layout_height="match_parent"
+    tools:context=".presentation.fragments.CharacterDetailsFragment" />

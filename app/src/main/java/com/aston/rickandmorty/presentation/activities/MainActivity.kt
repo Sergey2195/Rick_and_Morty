@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.activities
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.addCallback
@@ -21,6 +20,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
     private var toolBarBackButtonClickListener: OnClickListener? = null
+    private var isOnParentScreen = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,12 +31,27 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
             supportFragmentManager.beginTransaction()
                 .add(R.id.mainFragmentContainer, CharactersFragment.newInstance())
                 .commit()
-            onParentScreen()
         }
         setupSwipeRefreshLayout()
         setupToolbar()
         onBackPressedHandling()
         setBottomNavigationBarClickListeners()
+        observeLiveData()
+    }
+
+    private fun observeLiveData(){
+        viewModel.isOnParentLiveData.observe(this){ isOnParent->
+            changeIsOnParentState(isOnParent)
+            isOnParentScreen = isOnParent
+        }
+    }
+
+    private fun changeIsOnParentState(isOnParent: Boolean){
+        binding.appBarLayout.setExpanded(false)
+        when (isOnParent){
+            true -> changeVisibilityToolBarElements(View.VISIBLE, View.GONE)
+            false -> changeVisibilityToolBarElements(View.GONE, View.VISIBLE)
+        }
     }
 
     private fun setupToolbar() {
@@ -57,8 +72,8 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     private fun setupToolbarListener() {
         binding.appBarLayout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
             when {
-                isCollapsed(verticalOffset, appBarLayout) -> collapsedToolBarChangedState(true)
-                isExpanded(verticalOffset) -> collapsedToolBarChangedState(false)
+                isCollapsed(verticalOffset, appBarLayout) -> collapsedToolBarChangedState(true, isOnParentScreen)
+                isExpanded(verticalOffset) -> collapsedToolBarChangedState(false, isOnParentScreen)
                 else -> {}
             }
         }
@@ -72,8 +87,8 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         return verticalOffset == 0
     }
 
-    private fun collapsedToolBarChangedState(isCollapsed: Boolean) {
-        if (viewModel.isOnParentFragment()) {
+    private fun collapsedToolBarChangedState(isCollapsed: Boolean, isOnParent: Boolean) {
+        if (isOnParent) {
             binding.searchButton.isVisible = isCollapsed
             binding.filterButton.isVisible = isCollapsed
         } else {
@@ -92,18 +107,6 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
             //todo refresh logic
             binding.swipeRefreshLayout.isRefreshing = false
         }
-    }
-
-    override fun onParentScreen() {
-        binding.appBarLayout.setExpanded(false, false)
-        changeVisibilityToolBarElements(View.VISIBLE, View.GONE)
-        viewModel.setIsOnParentFragment(true)
-    }
-
-    override fun onChildScreen() {
-        changeVisibilityToolBarElements(View.GONE, View.VISIBLE)
-        binding.appBarLayout.setExpanded(false, false)
-        viewModel.setIsOnParentFragment(false)
     }
 
     override fun setBackButtonClickLister(clickListener: OnClickListener) {
@@ -145,9 +148,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     private fun setBottomNavigationBarClickListeners() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-            while (!viewModel.isOnParentFragment()){
-                binding.backButtonOnToolbar.callOnClick()
-            }
+            if (!viewModel.isOnParentFragment()) binding.backButtonOnToolbar.callOnClick()
             when (item.itemId) {
                 R.id.charactersBottomBtn -> {
                     openCharactersFragment()
@@ -170,16 +171,13 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     private fun openEpisodesFragment() {
         viewModel.openEpisodesFragment()
-        onParentScreen()
     }
 
     private fun openLocationFragment() {
         viewModel.openLocationFragment()
-        onParentScreen()
     }
 
     private fun openCharactersFragment() {
         viewModel.openCharacterFragment()
-        onParentScreen()
     }
 }

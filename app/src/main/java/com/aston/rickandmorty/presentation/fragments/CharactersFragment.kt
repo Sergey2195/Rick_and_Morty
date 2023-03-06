@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,7 +57,8 @@ class CharactersFragment : Fragment() {
 
     private fun handlingResultSearch(positions: List<Int>) {
         if (positions.isEmpty()) {
-            val snackBar = Snackbar.make(requireView(), R.string.snackbar_not_found, Snackbar.LENGTH_SHORT)
+            val snackBar =
+                Snackbar.make(requireView(), R.string.snackbar_not_found, Snackbar.LENGTH_SHORT)
             snackBar.show()
         } else {
             setupSearchPanel(positions)
@@ -152,8 +154,14 @@ class CharactersFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
+        Log.d("SSV", "onStop")
         (requireActivity() as ToolbarManager).setSearchClickListener(null)
         mainViewModel.clearSearchCharacterLiveData()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("SSV", "onStart")
     }
 
     private fun setupBackButtonClickListener() {
@@ -201,10 +209,10 @@ class CharactersFragment : Fragment() {
             .addToBackStack(null)
             .commit()
         binding.characterFragmentContainer.visibility = View.VISIBLE
-        (requireActivity() as ToolbarManager).onChildScreen()
+        mainViewModel.setIsOnParentLiveData(false)
     }
 
-    private fun saveStateSearchLayout(){
+    private fun saveStateSearchLayout() {
         searchLayoutIsVisible = binding.searchLayout.isVisible
         binding.searchLayout.isVisible = false
     }
@@ -214,7 +222,7 @@ class CharactersFragment : Fragment() {
         binding.searchLayout.isVisible = searchLayoutIsVisible
         binding.charactersRecyclerView.visibility = View.VISIBLE
         binding.characterFragmentContainer.visibility = View.GONE
-        (requireActivity() as ToolbarManager).onParentScreen()
+        mainViewModel.setIsOnParentLiveData(true)
     }
 
     private fun animateAtPosition(position: Int) {
@@ -233,7 +241,6 @@ class CharactersFragment : Fragment() {
     private fun RecyclerView?.getCurrentPosition(): Int {
         return (this?.layoutManager as GridLayoutManager).findFirstVisibleItemPosition()
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
