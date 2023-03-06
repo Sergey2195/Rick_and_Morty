@@ -26,17 +26,17 @@ class EpisodesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupBackButtonClickListener()
-        binding.episodesOpenChild.setOnClickListener {
-            startEpisodesDetailsFragment()
-        }
+//        setupBackButtonClickListener()
+//        binding.episodesOpenChild.setOnClickListener {
+//            startEpisodesDetailsFragment()
+//        }
     }
 
-    private fun setupBackButtonClickListener() {
-        (requireActivity() as ToolbarManager).setBackButtonClickLister {
-            backFromEpisodesDetailsFragment()
-        }
-    }
+//    private fun setupBackButtonClickListener() {
+//        (requireActivity() as ToolbarManager).setBackButtonClickLister {
+//            backFromEpisodesDetailsFragment()
+//        }
+//    }
 
     private fun backFromEpisodesDetailsFragment() {
         childFragmentManager.popBackStack()

@@ -19,7 +19,6 @@ import kotlin.math.abs
 class MainActivity : AppCompatActivity(), ToolbarManager {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
-    private var toolBarBackButtonClickListener: OnClickListener? = null
     private var isOnParentScreen = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +36,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         onBackPressedHandling()
         setBottomNavigationBarClickListeners()
         observeLiveData()
+        setBackButtonClickLister()
     }
 
     private fun observeLiveData(){
@@ -109,9 +109,10 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         }
     }
 
-    override fun setBackButtonClickLister(clickListener: OnClickListener) {
-        toolBarBackButtonClickListener = clickListener
-        binding.backButtonOnToolbar.setOnClickListener(clickListener)
+    private fun setBackButtonClickLister() {
+        binding.backButtonOnToolbar.setOnClickListener{
+            supportFragmentManager.popBackStack()
+        }
     }
 
     override fun setToolbarText(text: String) {
@@ -135,7 +136,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     private fun onBackPressedHandling() {
         onBackPressedDispatcher.addCallback(this) {
             when {
-                !viewModel.isOnParentFragment() -> binding.backButtonOnToolbar.callOnClick()
+                !isOnParentScreen -> binding.backButtonOnToolbar.callOnClick()
                 binding.bottomNavigation.selectedItemId == R.id.charactersBottomBtn -> hideApp()
                 else -> binding.bottomNavigation.selectedItemId = R.id.charactersBottomBtn
             }

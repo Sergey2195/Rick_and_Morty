@@ -7,6 +7,7 @@ import com.aston.rickandmorty.databinding.CharacterDetailsImageBinding
 import com.aston.rickandmorty.databinding.CharacterDetailsItemBinding
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 
 abstract class CharacterDetailsViewHolder(view: View) : ViewHolder(view) {
     abstract fun populate(itemData: CharacterDetailsModelAdapter)
@@ -18,6 +19,7 @@ class CharacterDetailsViewHolderImage(private val binding: CharacterDetailsImage
         Glide.with(binding.root)
             .load(itemData.value)
             .placeholder(R.drawable.toolbar_image)
+            .transform(RoundedCorners(20))
             .into(binding.characterDetailsImageView)
     }
 

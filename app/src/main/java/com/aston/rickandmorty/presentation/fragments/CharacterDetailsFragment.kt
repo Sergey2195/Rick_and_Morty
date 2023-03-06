@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aston.rickandmorty.R
@@ -16,6 +17,7 @@ import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
 import com.aston.rickandmorty.presentation.adapters.CharacterDetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
+import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -30,6 +32,9 @@ class CharacterDetailsFragment : Fragment() {
         get() = _binding!!
     private val viewModel: CharactersViewModel by viewModels()
     private val adapter = CharacterDetailsAdapter()
+    private val mainViewModel by lazy {
+        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,28 +53,41 @@ class CharacterDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setToolBarText("loading")
         lifecycleScope.launch {
             val data = loadData() ?: return@launch
             setupViews(data)
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        mainViewModel.setIsOnParentLiveData(false)
+        setupTitle("")
+    }
+
+    override fun onStop() {
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("SSV", "destroyed details fragment")
+    }
+
     private suspend fun loadData() =
         withContext(lifecycleScope.coroutineContext + Dispatchers.IO) {
-            if (id == null) null
-            viewModel.getCharacterDetailsInfo(id!!)
+            viewModel.getCharacterDetailsInfo(id ?: 1)
         }
 
     private fun setupViews(data: CharacterDetailsModel) {
-        setupTitle(data)
+        setupTitle(data.characterName)
         val listAdapterData =
             Mapper.mapCharacterDetailsModelToListAdapterData(requireContext(), data)
         setupRecyclerView(listAdapterData)
     }
 
-    private fun setupTitle(data: CharacterDetailsModel) {
-        setToolBarText(data.characterName)
+    private fun setupTitle(name: String) {
+        setToolBarText(name)
     }
 
     private fun setupRecyclerView(data: List<CharacterDetailsModelAdapter>) {

@@ -39,6 +39,10 @@ class MainViewModel : ViewModel() {
         router?.openEpisodesFragment()
     }
 
+    fun openCharacterDetailFragment(id: Int){
+        router?.openCharacterDetailFragment(id)
+    }
+
     fun setIsOnParentLiveData(isOnParent: Boolean){
         isOnParentLiveData.postValue(isOnParent)
     }

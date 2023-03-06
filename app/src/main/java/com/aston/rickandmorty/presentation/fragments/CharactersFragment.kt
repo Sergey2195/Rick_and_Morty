@@ -138,7 +138,6 @@ class CharactersFragment : Fragment() {
     }
 
     private fun setupToolBarClickListener() {
-        setupBackButtonClickListener()
         setupSearchButtonClickListener()
     }
 
@@ -161,13 +160,8 @@ class CharactersFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        mainViewModel.setIsOnParentLiveData(true)
         Log.d("SSV", "onStart")
-    }
-
-    private fun setupBackButtonClickListener() {
-        (requireActivity() as ToolbarManager).setBackButtonClickLister {
-            backFromCharacterDetailsFragment()
-        }
     }
 
     private fun setupObservers() {
@@ -202,27 +196,13 @@ class CharactersFragment : Fragment() {
     }
 
     private fun startCharacterDetailsFragment(id: Int) {
-        binding.charactersRecyclerView.visibility = View.GONE
         saveStateSearchLayout()
-        childFragmentManager.beginTransaction()
-            .add(R.id.characterFragmentContainer, CharacterDetailsFragment.newInstance(id))
-            .addToBackStack(null)
-            .commit()
-        binding.characterFragmentContainer.visibility = View.VISIBLE
-        mainViewModel.setIsOnParentLiveData(false)
+        mainViewModel.openCharacterDetailFragment(id)
     }
 
     private fun saveStateSearchLayout() {
         searchLayoutIsVisible = binding.searchLayout.isVisible
         binding.searchLayout.isVisible = false
-    }
-
-    private fun backFromCharacterDetailsFragment() {
-        childFragmentManager.popBackStack()
-        binding.searchLayout.isVisible = searchLayoutIsVisible
-        binding.charactersRecyclerView.visibility = View.VISIBLE
-        binding.characterFragmentContainer.visibility = View.GONE
-        mainViewModel.setIsOnParentLiveData(true)
     }
 
     private fun animateAtPosition(position: Int) {

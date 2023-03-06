@@ -3,6 +3,7 @@ package com.aston.rickandmorty.router
 import androidx.fragment.app.Fragment
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.presentation.activities.MainActivity
+import com.aston.rickandmorty.presentation.fragments.CharacterDetailsFragment
 import com.aston.rickandmorty.presentation.fragments.CharactersFragment
 import com.aston.rickandmorty.presentation.fragments.EpisodesFragment
 import com.aston.rickandmorty.presentation.fragments.LocationsFragment
@@ -28,6 +29,11 @@ class Router {
 
     fun openEpisodesFragment() {
         openFragment(EpisodesFragment.newInstance(), EPISODES_TAG, EPISODES_NAME)
+    }
+
+    fun openCharacterDetailFragment(id: Int){
+        val fragment = CharacterDetailsFragment.newInstance(id)
+        openFragment(fragment, CHARACTER_DETAIL_TAG, CHARACTER_DETAIL_NAME)
     }
 
     private fun openFragment(fragmentIfNotFound: Fragment, tag: String?, name: String?) {
@@ -56,6 +62,7 @@ class Router {
         const val LOCATION_NAME = "location name"
         const val EPISODES_TAG = "episodes fragment"
         const val EPISODES_NAME = "episodes name"
+        const val CHARACTER_DETAIL_TAG = "character detail fragment"
+        const val CHARACTER_DETAIL_NAME = "character detail name"
     }
-
 }
