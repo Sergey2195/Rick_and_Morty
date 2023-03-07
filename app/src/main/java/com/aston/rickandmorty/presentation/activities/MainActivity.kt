@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
     private var isOnParentScreen = true
+    private var toolBarBackButtonClickListener: OnClickListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +37,6 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         onBackPressedHandling()
         setBottomNavigationBarClickListeners()
         observeLiveData()
-        setBackButtonClickLister()
     }
 
     private fun observeLiveData(){
@@ -109,18 +109,17 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         }
     }
 
-    private fun setBackButtonClickLister() {
-        binding.backButtonOnToolbar.setOnClickListener{
-            supportFragmentManager.popBackStack()
-        }
-    }
-
     override fun setToolbarText(text: String) {
         binding.toolbarTextView.text = text
     }
 
     override fun setSearchClickListener(clickListener: OnClickListener?) {
         binding.searchButton.setOnClickListener(clickListener)
+    }
+
+    override fun setBackButtonClickLister(clickListener: OnClickListener?) {
+        toolBarBackButtonClickListener = clickListener
+        binding.backButtonOnToolbar.setOnClickListener(clickListener)
     }
 
     private fun changeVisibilityToolBarElements(
@@ -148,6 +147,10 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     }
 
     private fun setBottomNavigationBarClickListeners() {
+        if (!isOnParentScreen){
+            onBackPressedDispatcher.onBackPressed()
+            return
+        }
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             if (!viewModel.isOnParentFragment()) binding.backButtonOnToolbar.callOnClick()
             when (item.itemId) {

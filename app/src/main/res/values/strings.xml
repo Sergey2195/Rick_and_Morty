@@ -20,4 +20,5 @@
     <string name="character_origin_title">Origin:</string>
     <string name="character_location_title">Location:</string>
     <string name="episodes_title">Episodes:</string>
+    <string name="dimension_title">Dimension:</string>
 </resources>

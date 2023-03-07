@@ -6,26 +6,52 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentLocationsBinding
+import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class LocationsFragment : Fragment() {
 
     private var _binding: FragmentLocationsBinding? = null
     private val binding
         get() = _binding!!
+    private val mainViewModel by lazy {
+        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_locations, container, false)
+    ): View {
+        _binding = FragmentLocationsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("SSV", "LocationsFragment onCreate")
+        if (savedInstanceState == null){
+            lifecycleScope.launch {
+                childFragmentManager.beginTransaction()
+                    .add(R.id.locationFragmentContainerRoot, LocationAllFragment.newInstance())
+                    .commit()
+            }
+        }
+        setupBackButtonClickListener()
+    }
+
+    private fun setupBackButtonClickListener(){
+        (requireActivity() as ToolbarManager).setBackButtonClickLister{
+            childFragmentManager.popBackStack()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
     }
 
     override fun onDestroy() {
@@ -34,7 +60,6 @@ class LocationsFragment : Fragment() {
     }
 
     companion object {
-
         fun newInstance() = LocationsFragment()
     }
 }

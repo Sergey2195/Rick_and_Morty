@@ -1,17 +1,14 @@
 package com.aston.rickandmorty.mappers
 
 import android.content.Context
-import android.util.Log
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.data.models.CharacterInfoRemote
-import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
-import com.aston.rickandmorty.domain.entity.CharacterLocation
-import com.aston.rickandmorty.domain.entity.CharacterModel
-import com.aston.rickandmorty.domain.entity.CharacterOrigin
+import com.aston.rickandmorty.data.models.LocationInfoRemote
+import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
 
 object Mapper {
-    private fun transformCharacterInfoIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
+    private fun transformCharacterInfoRemoteIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
         return CharacterModel(
             id = src.characterId ?: 0,
             name = src.characterName ?: EMPTY,
@@ -22,8 +19,21 @@ object Mapper {
         )
     }
 
-    fun transformListCharacterInfoIntoListCharacterModel(src: List<CharacterInfoRemote>): List<CharacterModel> {
-        return src.map { transformCharacterInfoIntoCharacterModel(it) }
+    private fun transformLocationInfoRemoteIntoLocationModel(src: LocationInfoRemote): LocationModel{
+        return LocationModel(
+            id = src.locationId ?: 0,
+            name = src.locationName ?: EMPTY,
+            type = src.locationType ?: EMPTY,
+            dimension = src.locationDimension ?: EMPTY
+        )
+    }
+
+    fun transformListCharacterInfoRemoteIntoListCharacterModel(src: List<CharacterInfoRemote>): List<CharacterModel> {
+        return src.map { transformCharacterInfoRemoteIntoCharacterModel(it) }
+    }
+
+    fun transformListLocationInfoRemoteIntoListLocationModel(src: List<LocationInfoRemote>): List<LocationModel>{
+        return src.map { transformLocationInfoRemoteIntoLocationModel(it) }
     }
 
     fun transformCharacterInfoRemoteIntoCharacterDetailsModel(src: CharacterInfoRemote): CharacterDetailsModel {

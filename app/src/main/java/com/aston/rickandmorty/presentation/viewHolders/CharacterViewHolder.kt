@@ -1,6 +1,5 @@
 package com.aston.rickandmorty.presentation.viewHolders
 
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.CharacterItemBinding
