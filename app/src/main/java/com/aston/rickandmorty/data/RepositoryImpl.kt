@@ -8,12 +8,16 @@ import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
 import com.aston.rickandmorty.data.pagingSources.LocationsPagingSource
 import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.domain.entity.CharacterModel
+import com.aston.rickandmorty.domain.entity.LocationDetailsModel
 import com.aston.rickandmorty.domain.entity.LocationModel
 import com.aston.rickandmorty.domain.repository.Repository
 import com.aston.rickandmorty.mappers.Mapper
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.flow.Flow
 
-object RepositoryImpl: Repository {
+object RepositoryImpl : Repository {
 
     val apiCall = RetrofitApiCall.getCharacterApiCall()
 
@@ -27,7 +31,7 @@ object RepositoryImpl: Repository {
     override fun getFlowAllLocations(): Flow<PagingData<LocationModel>> {
         return Pager(
             config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
-            pagingSourceFactory = {LocationsPagingSource(apiCall)}
+            pagingSourceFactory = { LocationsPagingSource(apiCall) }
         ).flow
     }
 
@@ -35,8 +39,14 @@ object RepositoryImpl: Repository {
         return try {
             val result = apiCall.getSingleCharacterData(id)
             return Mapper.transformCharacterInfoRemoteIntoCharacterDetailsModel(result)
-        }catch (e: java.lang.Exception){
+        } catch (e: java.lang.Exception) {
             null
+        }
+    }
+
+    override fun getSingleLocationData(id: Int): Single<LocationDetailsModel> {
+        return apiCall.getSingleLocationData(id).map { data->
+            Mapper.transformLocationInfoRemoteIntoLocationDetailsModel(data)
         }
     }
 }

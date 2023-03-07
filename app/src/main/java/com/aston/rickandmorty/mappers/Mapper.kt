@@ -110,5 +110,16 @@ object Mapper {
         )
     }
 
+    fun transformLocationInfoRemoteIntoLocationDetailsModel(src: LocationInfoRemote): LocationDetailsModel{
+        return LocationDetailsModel(
+            locationId = src.locationId ?: 0,
+            locationName = src.locationName ?: "",
+            locationType = src.locationType ?: "",
+            dimension = src.locationDimension ?: "",
+            residents = src.locationResidents ?: emptyList(),
+            created = src.locationCreated ?: ""
+        )
+    }
+
     private const val EMPTY = "placeholder"
 }

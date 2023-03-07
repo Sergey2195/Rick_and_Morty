@@ -4,7 +4,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.CharacterDetailsImageBinding
-import com.aston.rickandmorty.databinding.CharacterDetailsItemBinding
+import com.aston.rickandmorty.databinding.DetailsTitleValueBinding
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -25,7 +25,7 @@ class CharacterDetailsViewHolderImage(private val binding: CharacterDetailsImage
 
 }
 
-class CharacterDetailsViewHolderTitleValue(private val binding: CharacterDetailsItemBinding) :
+class CharacterDetailsViewHolderTitleValue(private val binding: DetailsTitleValueBinding) :
     CharacterDetailsViewHolder(binding.root) {
     override fun populate(itemData: CharacterDetailsModelAdapter) = with(binding) {
         titleTextView.text = itemData.title

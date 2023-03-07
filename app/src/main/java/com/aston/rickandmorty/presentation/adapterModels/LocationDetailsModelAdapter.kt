@@ -2,7 +2,7 @@ package com.aston.rickandmorty.presentation.adapterModels
 
 import com.aston.rickandmorty.R
 
-data class CharacterDetailsModelAdapter(
+data class LocationDetailsModelAdapter(
     val title: String?,
     val value: String?,
     val isClickable: Boolean = false,

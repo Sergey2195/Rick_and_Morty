@@ -1,59 +1,153 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.aston.rickandmorty.R
+import com.aston.rickandmorty.databinding.FragmentLocationDetailsBinding
+import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
+import com.aston.rickandmorty.domain.entity.LocationDetailsModel
+import com.aston.rickandmorty.presentation.adapterModels.LocationDetailsModelAdapter
+import com.aston.rickandmorty.presentation.adapters.LocationDetailsAdapter
+import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
+import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [LocationDetailsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class LocationDetailsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    private var id: Int? = null
+    private val mainViewModel by lazy {
+        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    }
+    private val viewModel by lazy {
+        ViewModelProvider(requireActivity())[LocationsViewModel::class.java]
+    }
+    private val adapter = LocationDetailsAdapter()
+    private var _binding: FragmentLocationDetailsBinding? = null
+    private val binding
+        get() = _binding!!
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+            id = it.getInt(ID)
+            Log.d("SSV", "got $id")
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mainViewModel.setIsOnParentLiveData(false)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_location_details, container, false)
+    ): View {
+        _binding = FragmentLocationDetailsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        loadData()
+        prepareRecyclerView()
+    }
+
+    private fun prepareRecyclerView() {
+        binding.locationDetailsRecyclerView.adapter = adapter
+        binding.locationDetailsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+    }
+
+    private fun loadData() {
+        val observable = viewModel.getLocationDetails(id ?: 1)
+        val disposable = observable
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ data ->
+                parsingData(data)
+            }, {
+
+            })
+        compositeDisposable.add(disposable)
+    }
+
+    private fun parsingData(data: LocationDetailsModel) = lifecycleScope.launch {
+        val residentsIds = viewModel.getIdsFromUrl(data.residents)
+        val list = mutableListOf(
+            LocationDetailsModelAdapter(
+                title = requireContext().getString(R.string.character_name_title),
+                value = data.locationName
+            ),
+            LocationDetailsModelAdapter(
+                title = requireContext().getString(R.string.character_type_title),
+                value = data.locationType
+            ),
+            LocationDetailsModelAdapter(
+                title = requireContext().getString(R.string.dimension_title),
+                value = data.dimension
+            )
+        )
+        val models = getCharacterModels(residentsIds)
+        for (model in models) {
+            list.add(
+                LocationDetailsModelAdapter(
+                    title = null,
+                    url = model.characterImage,
+                    value = model.characterName,
+                    viewType = R.layout.location_details_residents
+                )
+            )
+        }
+        list.add(
+            LocationDetailsModelAdapter("Created:", data.created)
+        )
+        adapter.submitList(list)
+    }
+
+    private suspend fun getCharacterModels(listId: List<Int>): List<CharacterDetailsModel> {
+        val listDetails = mutableListOf<CharacterDetailsModel>()
+        val listJob = mutableListOf<Job>()
+        for (id in listId) {
+            val job = lifecycleScope.launch {
+                val data = viewModel.getCharacterDetails(id)
+                if (data != null) listDetails.add(data)
+            }
+            listJob.add(job)
+        }
+        listJob.joinAll()
+        return listDetails
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        compositeDisposable.dispose()
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment LocationDetailsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
+        private const val ID = "id"
+
+        fun newInstance(id: Int) =
             LocationDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    putInt(ID, id)
                 }
             }
     }

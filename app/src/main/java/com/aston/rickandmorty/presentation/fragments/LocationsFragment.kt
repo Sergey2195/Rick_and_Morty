@@ -1,19 +1,15 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentLocationsBinding
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class LocationsFragment : Fragment() {
 
@@ -34,18 +30,16 @@ class LocationsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState == null){
-            lifecycleScope.launch {
-                childFragmentManager.beginTransaction()
-                    .add(R.id.locationFragmentContainerRoot, LocationAllFragment.newInstance())
-                    .commit()
-            }
+        if (savedInstanceState == null) {
+            childFragmentManager.beginTransaction()
+                .add(R.id.locationFragmentContainerRoot, LocationAllFragment.newInstance())
+                .commit()
         }
         setupBackButtonClickListener()
     }
 
-    private fun setupBackButtonClickListener(){
-        (requireActivity() as ToolbarManager).setBackButtonClickLister{
+    private fun setupBackButtonClickListener() {
+        (requireActivity() as ToolbarManager).setBackButtonClickLister {
             childFragmentManager.popBackStack()
         }
     }

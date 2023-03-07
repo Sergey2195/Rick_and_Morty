@@ -28,7 +28,9 @@ class LocationAllFragment : Fragment() {
     private val mainViewModel by lazy {
         ViewModelProvider(requireActivity())[MainViewModel::class.java]
     }
-    private val viewModel: LocationsViewModel by viewModels()
+    private val viewModel by lazy {
+        ViewModelProvider(requireActivity())[LocationsViewModel::class.java]
+    }
     private val adapter = LocationsAdapter()
     private var gridLayoutManager: GridLayoutManager? = null
 
@@ -36,6 +38,11 @@ class LocationAllFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
         setupObservers()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d("SSV_location", "LocationAllFragment on Create")
     }
 
     private fun setupObservers() {
@@ -59,6 +66,12 @@ class LocationAllFragment : Fragment() {
             }
         }
         binding.locationsRecyclerView.layoutManager = gridLayoutManager
+        adapter.clickListener = {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.locationFragmentContainerRoot, LocationDetailsFragment.newInstance(it))
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     override fun onCreateView(

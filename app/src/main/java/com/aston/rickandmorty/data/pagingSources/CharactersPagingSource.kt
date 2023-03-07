@@ -5,7 +5,7 @@ import androidx.paging.PagingState
 import com.aston.rickandmorty.data.apiCalls.ApiCall
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.mappers.Mapper
-import com.aston.rickandmorty.utils.Utils.getLastInt
+import com.aston.rickandmorty.utils.Utils.getLastIntAfterEquals
 import java.io.IOException
 
 class CharactersPagingSource(private val apiCall: ApiCall) :
@@ -16,8 +16,8 @@ class CharactersPagingSource(private val apiCall: ApiCall) :
         return try {
             val response = apiCall.getAllCharacterData(pageIndex)
             val resultData = response.listCharactersInfo ?: throw IOException()
-            val prevPage = getLastInt(response.pageInfo?.prevPageUrl)
-            val nextPage = getLastInt(response.pageInfo?.nextPageUrl)
+            val prevPage = getLastIntAfterEquals(response.pageInfo?.prevPageUrl)
+            val nextPage = getLastIntAfterEquals(response.pageInfo?.nextPageUrl)
             val mappedList = Mapper.transformListCharacterInfoRemoteIntoListCharacterModel(resultData)
             return LoadResult.Page(mappedList, prevPage, nextPage)
         } catch (e: Exception) {
