@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -14,7 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.aston.rickandmorty.R
-import com.aston.rickandmorty.databinding.FragmentCharactersBinding
+import com.aston.rickandmorty.databinding.FragmentCharactersAllBinding
 import com.aston.rickandmorty.presentation.BottomSheetInputData
 import com.aston.rickandmorty.presentation.adapters.CharactersAdapter
 import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
@@ -27,13 +26,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-class CharactersFragment : Fragment() {
+class CharactersAllFragment : Fragment() {
     private val viewModel: CharactersViewModel by viewModels()
     private val mainViewModel by lazy {
         ViewModelProvider(requireActivity())[MainViewModel::class.java]
     }
     private val adapter = CharactersAdapter()
-    private var _binding: FragmentCharactersBinding? = null
+    private var _binding: FragmentCharactersAllBinding? = null
     private val binding
         get() = _binding!!
     private var prevSearch: String? = null
@@ -44,7 +43,7 @@ class CharactersFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentCharactersBinding.inflate(inflater, container, false)
+        _binding = FragmentCharactersAllBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -61,52 +60,52 @@ class CharactersFragment : Fragment() {
                 Snackbar.make(requireView(), R.string.snackbar_not_found, Snackbar.LENGTH_SHORT)
             snackBar.show()
         } else {
-            setupSearchPanel(positions)
+//            setupSearchPanel(positions)
         }
     }
 
-    private fun calcClosestItem(list: List<Int>): Int {
-        val currentPosition = binding.charactersRecyclerView.getCurrentPosition()
-        var value = Int.MAX_VALUE
-        var minDiff = abs(value - currentPosition)
-        for ((index, num) in list.withIndex()) {
-            val calcDiff = abs(num - currentPosition)
-            if (calcDiff <= minDiff) {
-                value = index
-                minDiff = calcDiff
-            }
-        }
-        return value
-    }
+//    private fun calcClosestItem(list: List<Int>): Int {
+//        val currentPosition = binding.charactersRecyclerView.getCurrentPosition()
+//        var value = Int.MAX_VALUE
+//        var minDiff = abs(value - currentPosition)
+//        for ((index, num) in list.withIndex()) {
+//            val calcDiff = abs(num - currentPosition)
+//            if (calcDiff <= minDiff) {
+//                value = index
+//                minDiff = calcDiff
+//            }
+//        }
+//        return value
+//    }
 
-    private fun setupSearchPanel(positions: List<Int>) {
-        binding.searchResultTextView.text = prevSearch
-        binding.searchLayout.visibility = View.VISIBLE
-        binding.closeSearchPanel.setOnClickListener {
-            binding.searchLayout.visibility = View.GONE
-        }
-        var index = calcClosestItem(positions)
-        scrollToPositionForward(positions[index])
-        animateItem(positions[index])
-        setPositionTextView(index + 1, positions.size)
-        binding.searchNextButton.setOnClickListener {
-            index = if (isValidPosition(index + 1, positions)) index + 1 else index
-            scrollToPositionForward(positions[index])
-            animateItem(positions[index])
-            setPositionTextView(index + 1, positions.size)
-        }
-        binding.searchPrevButton.setOnClickListener {
-            index = if (isValidPosition(index - 1, positions)) index - 1 else index
-            scrollToPositionBack(positions[index])
-            animateItem(positions[index])
-            setPositionTextView(index + 1, positions.size)
-        }
-    }
+//    private fun setupSearchPanel(positions: List<Int>) {
+//        binding.searchResultTextView.text = prevSearch
+//        binding.searchLayout.visibility = View.VISIBLE
+//        binding.closeSearchPanel.setOnClickListener {
+//            binding.searchLayout.visibility = View.GONE
+//        }
+//        var index = calcClosestItem(positions)
+//        scrollToPositionForward(positions[index])
+//        animateItem(positions[index])
+//        setPositionTextView(index + 1, positions.size)
+//        binding.searchNextButton.setOnClickListener {
+//            index = if (isValidPosition(index + 1, positions)) index + 1 else index
+//            scrollToPositionForward(positions[index])
+//            animateItem(positions[index])
+//            setPositionTextView(index + 1, positions.size)
+//        }
+//        binding.searchPrevButton.setOnClickListener {
+//            index = if (isValidPosition(index - 1, positions)) index - 1 else index
+//            scrollToPositionBack(positions[index])
+//            animateItem(positions[index])
+//            setPositionTextView(index + 1, positions.size)
+//        }
+//    }
 
-    private fun setPositionTextView(current: Int, total: Int) {
-        binding.searchPositionTextView.text =
-            String.format(getString(R.string.search_position), current, total)
-    }
+//    private fun setPositionTextView(current: Int, total: Int) {
+//        binding.searchPositionTextView.text =
+//            String.format(getString(R.string.search_position), current, total)
+//    }
 
     private fun animateItem(positionAtAdapter: Int) {
         animateAtPosition(positionAtAdapter)
@@ -192,18 +191,21 @@ class CharactersFragment : Fragment() {
             }
         }
         binding.charactersRecyclerView.layoutManager = gridLayoutManager
-        viewModel.updateData()
     }
 
     private fun startCharacterDetailsFragment(id: Int) {
-        saveStateSearchLayout()
-        mainViewModel.openCharacterDetailFragment(id)
+//        saveStateSearchLayout()
+//        mainViewModel.openCharacterDetailFragment(id)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.charactersFragmentContainerRoot, CharacterDetailsFragment.newInstance(id))
+            .addToBackStack(null)
+            .commit()
     }
 
-    private fun saveStateSearchLayout() {
-        searchLayoutIsVisible = binding.searchLayout.isVisible
-        binding.searchLayout.isVisible = false
-    }
+//    private fun saveStateSearchLayout() {
+//        searchLayoutIsVisible = binding.searchLayout.isVisible
+//        binding.searchLayout.isVisible = false
+//    }
 
     private fun animateAtPosition(position: Int) {
         lifecycleScope.launch {
@@ -228,6 +230,6 @@ class CharactersFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance() = CharactersFragment()
+        fun newInstance() = CharactersAllFragment()
     }
 }

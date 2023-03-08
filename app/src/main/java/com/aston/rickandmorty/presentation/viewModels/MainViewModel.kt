@@ -10,9 +10,14 @@ class MainViewModel : ViewModel() {
     private var onParentFragment = true
     val searchCharacterLiveData = MutableLiveData<String>()
     val isOnParentLiveData = MutableLiveData(true)
+    val backButtonClickListener = MutableLiveData<Int>()
 
     init {
         router = Router()
+    }
+
+    fun setBackButtonClickListenerFragment(id: Int){
+        backButtonClickListener.postValue(id)
     }
 
     fun attachRouter(mainActivity: MainActivity) {
@@ -39,10 +44,6 @@ class MainViewModel : ViewModel() {
         router?.openEpisodesFragment()
     }
 
-    fun openCharacterDetailFragment(id: Int){
-        router?.openCharacterDetailFragment(id)
-    }
-
     fun setIsOnParentLiveData(isOnParent: Boolean){
         isOnParentLiveData.postValue(isOnParent)
     }
@@ -53,5 +54,11 @@ class MainViewModel : ViewModel() {
 
     fun clearSearchCharacterLiveData() {
         searchCharacterLiveData.value = ""
+    }
+
+    companion object{
+        const val CHARACTER_SCREEN = 1
+        const val LOCATION_SCREEN = 2
+        const val EPISODES_SCREEN = 3
     }
 }

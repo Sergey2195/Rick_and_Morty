@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.ActivityMainBinding
-import com.aston.rickandmorty.presentation.fragments.CharactersFragment
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
@@ -28,9 +27,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.mainFragmentContainer, CharactersFragment.newInstance())
-                .commit()
+            viewModel.openCharacterFragment()
         }
         setupSwipeRefreshLayout()
         setupToolbar()
@@ -175,13 +172,16 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     private fun openEpisodesFragment() {
         viewModel.openEpisodesFragment()
+        viewModel.setBackButtonClickListenerFragment(MainViewModel.EPISODES_SCREEN)
     }
 
     private fun openLocationFragment() {
         viewModel.openLocationFragment()
+        viewModel.setBackButtonClickListenerFragment(MainViewModel.LOCATION_SCREEN)
     }
 
     private fun openCharactersFragment() {
         viewModel.openCharacterFragment()
+        viewModel.setBackButtonClickListenerFragment(MainViewModel.CHARACTER_SCREEN)
     }
 }

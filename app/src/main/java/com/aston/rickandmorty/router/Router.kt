@@ -3,10 +3,7 @@ package com.aston.rickandmorty.router
 import androidx.fragment.app.Fragment
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.presentation.activities.MainActivity
-import com.aston.rickandmorty.presentation.fragments.CharacterDetailsFragment
-import com.aston.rickandmorty.presentation.fragments.CharactersFragment
-import com.aston.rickandmorty.presentation.fragments.EpisodesFragment
-import com.aston.rickandmorty.presentation.fragments.LocationsFragment
+import com.aston.rickandmorty.presentation.fragments.*
 
 class Router {
     private var mainActivity: MainActivity? = null
@@ -20,11 +17,11 @@ class Router {
     }
 
     fun openCharactersFragment() {
-        openFragment(CharactersFragment.newInstance(), CHARACTERS_TAG, null)
+        openFragment(CharactersRootFragment.newInstance(), CHARACTERS_TAG, null)
     }
 
     fun openLocationFragment() {
-        openFragment(LocationsFragment.newInstance(), LOCATION_TAG, LOCATION_NAME)
+        openFragment(LocationsRootFragment.newInstance(), LOCATION_TAG, LOCATION_NAME)
     }
 
     fun openEpisodesFragment() {
