@@ -17,6 +17,7 @@ import com.aston.rickandmorty.presentation.adapterModels.LocationDetailsModelAda
 import com.aston.rickandmorty.presentation.adapters.LocationDetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -91,6 +92,7 @@ class LocationDetailsFragment : Fragment() {
 
     private fun parsingData(data: LocationDetailsModel) = lifecycleScope.launch {
         val residentsIds = viewModel.getIdsFromUrl(data.residents)
+        setToolBarText(data.locationName)
         val list = mutableListOf(
             LocationDetailsModelAdapter(
                 title = requireContext().getString(R.string.character_name_title),
@@ -134,6 +136,10 @@ class LocationDetailsFragment : Fragment() {
         }
         listJob.joinAll()
         return listDetails
+    }
+
+    private fun setToolBarText(str: String) {
+        (requireActivity() as ToolbarAndSearchManager).setToolbarText(str)
     }
 
     override fun onDetach() {

@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +19,7 @@ import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.viewHolders.CharacterViewHolder
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -59,53 +58,50 @@ class CharactersAllFragment : Fragment() {
             val snackBar =
                 Snackbar.make(requireView(), R.string.snackbar_not_found, Snackbar.LENGTH_SHORT)
             snackBar.show()
+            (requireActivity() as ToolbarAndSearchManager).changeSearchVisibility(false)
         } else {
-//            setupSearchPanel(positions)
+            setupSearchPanel(positions)
         }
     }
 
-//    private fun calcClosestItem(list: List<Int>): Int {
-//        val currentPosition = binding.charactersRecyclerView.getCurrentPosition()
-//        var value = Int.MAX_VALUE
-//        var minDiff = abs(value - currentPosition)
-//        for ((index, num) in list.withIndex()) {
-//            val calcDiff = abs(num - currentPosition)
-//            if (calcDiff <= minDiff) {
-//                value = index
-//                minDiff = calcDiff
-//            }
-//        }
-//        return value
-//    }
+    private fun calcClosestItem(list: List<Int>): Int {
+        val currentPosition = binding.charactersRecyclerView.getCurrentPosition()
+        var value = Int.MAX_VALUE
+        var minDiff = abs(value - currentPosition)
+        for ((index, num) in list.withIndex()) {
+            val calcDiff = abs(num - currentPosition)
+            if (calcDiff <= minDiff) {
+                value = index
+                minDiff = calcDiff
+            }
+        }
+        return value
+    }
 
-//    private fun setupSearchPanel(positions: List<Int>) {
-//        binding.searchResultTextView.text = prevSearch
-//        binding.searchLayout.visibility = View.VISIBLE
-//        binding.closeSearchPanel.setOnClickListener {
-//            binding.searchLayout.visibility = View.GONE
-//        }
-//        var index = calcClosestItem(positions)
-//        scrollToPositionForward(positions[index])
-//        animateItem(positions[index])
-//        setPositionTextView(index + 1, positions.size)
-//        binding.searchNextButton.setOnClickListener {
-//            index = if (isValidPosition(index + 1, positions)) index + 1 else index
-//            scrollToPositionForward(positions[index])
-//            animateItem(positions[index])
-//            setPositionTextView(index + 1, positions.size)
-//        }
-//        binding.searchPrevButton.setOnClickListener {
-//            index = if (isValidPosition(index - 1, positions)) index - 1 else index
-//            scrollToPositionBack(positions[index])
-//            animateItem(positions[index])
-//            setPositionTextView(index + 1, positions.size)
-//        }
-//    }
+    private fun setupSearchPanel(positions: List<Int>) {
+        var index = calcClosestItem(positions)
+        scrollToPositionForward(positions[index])
+        animateItem(positions[index])
+        setPositionTextView(index + 1, positions.size)
+        (requireActivity() as ToolbarAndSearchManager).setSearchForwardClickListener {
+            index = if (isValidPosition(index + 1, positions)) index + 1 else index
+            scrollToPositionForward(positions[index])
+            animateItem(positions[index])
+            setPositionTextView(index + 1, positions.size)
+        }
+        (requireActivity() as ToolbarAndSearchManager).setSearchBackClickListener {
+            index = if (isValidPosition(index - 1, positions)) index - 1 else index
+            scrollToPositionBack(positions[index])
+            animateItem(positions[index])
+            setPositionTextView(index + 1, positions.size)
+        }
+    }
 
-//    private fun setPositionTextView(current: Int, total: Int) {
-//        binding.searchPositionTextView.text =
-//            String.format(getString(R.string.search_position), current, total)
-//    }
+    private fun setPositionTextView(current: Int, total: Int) {
+        (requireActivity() as ToolbarAndSearchManager).setSearchPositionTextView(
+            String.format(getString(R.string.search_position), current, total)
+        )
+    }
 
     private fun animateItem(positionAtAdapter: Int) {
         animateAtPosition(positionAtAdapter)
@@ -141,26 +137,26 @@ class CharactersAllFragment : Fragment() {
     }
 
     private fun setupSearchButtonClickListener() {
-        (requireActivity() as ToolbarManager).setSearchClickListener {
+        (requireActivity() as ToolbarAndSearchManager).setSearchClickListener {
             val bottomSheetFragment = BottomSheetFragment.newInstance(
                 BottomSheetFragment.MODE_SEARCH,
                 BottomSheetInputData(prevSearch)
             )
             bottomSheetFragment.show(parentFragmentManager, null)
+            (requireActivity() as ToolbarAndSearchManager).changeSearchVisibility(true)
         }
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d("SSV", "onStop")
-        (requireActivity() as ToolbarManager).setSearchClickListener(null)
+        (requireActivity() as ToolbarAndSearchManager).setSearchClickListener(null)
         mainViewModel.clearSearchCharacterLiveData()
+        (requireActivity() as ToolbarAndSearchManager).changeSearchVisibility(false)
     }
 
     override fun onStart() {
         super.onStart()
         mainViewModel.setIsOnParentLiveData(true)
-        Log.d("SSV", "onStart")
     }
 
     private fun setupObservers() {
@@ -174,6 +170,7 @@ class CharactersAllFragment : Fragment() {
             prevSearch = search
             val positions = adapter.findPosition(search)
             handlingResultSearch(positions)
+            (requireActivity() as ToolbarAndSearchManager).setSearchRequestTextView(search)
         }
     }
 
@@ -194,18 +191,11 @@ class CharactersAllFragment : Fragment() {
     }
 
     private fun startCharacterDetailsFragment(id: Int) {
-//        saveStateSearchLayout()
-//        mainViewModel.openCharacterDetailFragment(id)
         parentFragmentManager.beginTransaction()
             .replace(R.id.charactersFragmentContainerRoot, CharacterDetailsFragment.newInstance(id))
             .addToBackStack(null)
             .commit()
     }
-
-//    private fun saveStateSearchLayout() {
-//        searchLayoutIsVisible = binding.searchLayout.isVisible
-//        binding.searchLayout.isVisible = false
-//    }
 
     private fun animateAtPosition(position: Int) {
         lifecycleScope.launch {

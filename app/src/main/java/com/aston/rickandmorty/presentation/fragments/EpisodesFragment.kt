@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentEpisodesBinding
-import com.aston.rickandmorty.toolbarManager.ToolbarManager
 
 class EpisodesFragment : Fragment() {
 

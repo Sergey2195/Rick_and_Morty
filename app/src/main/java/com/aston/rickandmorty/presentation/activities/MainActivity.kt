@@ -11,11 +11,11 @@ import androidx.core.view.isVisible
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.ActivityMainBinding
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
 import com.google.android.material.appbar.AppBarLayout
 import kotlin.math.abs
 
-class MainActivity : AppCompatActivity(), ToolbarManager {
+class MainActivity : AppCompatActivity(), ToolbarAndSearchManager {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
     private var isOnParentScreen = true
@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         setupToolbar()
         onBackPressedHandling()
         setBottomNavigationBarClickListeners()
+        setCloseSearchButtonClickListener()
         observeLiveData()
     }
 
@@ -119,6 +120,32 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         binding.backButtonOnToolbar.setOnClickListener(clickListener)
     }
 
+    override fun changeSearchVisibility(isVisible: Boolean) {
+        binding.searchLayout.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    override fun setSearchBackClickListener(clickListener: OnClickListener?) {
+        binding.searchPrevButton.setOnClickListener(clickListener)
+    }
+
+    override fun setSearchForwardClickListener(clickListener: OnClickListener?) {
+        binding.searchNextButton.setOnClickListener(clickListener)
+    }
+
+    override fun setSearchPositionTextView(text: String) {
+        binding.searchPositionTextView.text = text
+    }
+
+    override fun setSearchRequestTextView(text: String) {
+        binding.searchResultTextView.text = text
+    }
+
+    private fun setCloseSearchButtonClickListener(){
+        binding.closeSearchPanel.setOnClickListener {
+            binding.searchLayout.visibility = View.GONE
+        }
+    }
+
     private fun changeVisibilityToolBarElements(
         parentElementsVisibility: Int,
         childElementsVisibility: Int
@@ -172,16 +199,13 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     private fun openEpisodesFragment() {
         viewModel.openEpisodesFragment()
-        viewModel.setBackButtonClickListenerFragment(MainViewModel.EPISODES_SCREEN)
     }
 
     private fun openLocationFragment() {
         viewModel.openLocationFragment()
-        viewModel.setBackButtonClickListenerFragment(MainViewModel.LOCATION_SCREEN)
     }
 
     private fun openCharactersFragment() {
         viewModel.openCharacterFragment()
-        viewModel.setBackButtonClickListenerFragment(MainViewModel.CHARACTER_SCREEN)
     }
 }

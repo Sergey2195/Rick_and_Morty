@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentLocationsRootBinding
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
 
 class LocationsRootFragment : Fragment() {
 
@@ -39,7 +38,7 @@ class LocationsRootFragment : Fragment() {
     }
 
     private fun setupBackButtonClickListener() {
-        (requireActivity() as ToolbarManager).setBackButtonClickLister {
+        (requireActivity() as ToolbarAndSearchManager).setBackButtonClickLister {
             childFragmentManager.popBackStack()
         }
     }

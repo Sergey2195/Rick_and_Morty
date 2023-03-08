@@ -1,17 +1,13 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharactersRootBinding
-import com.aston.rickandmorty.toolbarManager.ToolbarManager
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
 
 class CharactersRootFragment : Fragment() {
 
@@ -43,7 +39,7 @@ class CharactersRootFragment : Fragment() {
     }
 
     private fun setupBackButtonClickListener() {
-        (requireActivity() as ToolbarManager).setBackButtonClickLister {
+        (requireActivity() as ToolbarAndSearchManager).setBackButtonClickLister {
             childFragmentManager.popBackStack()
         }
     }

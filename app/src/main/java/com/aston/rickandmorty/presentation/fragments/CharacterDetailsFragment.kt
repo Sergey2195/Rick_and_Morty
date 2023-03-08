@@ -10,7 +10,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharacterDetailsBinding
 import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.mappers.Mapper
@@ -18,9 +17,8 @@ import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAd
 import com.aston.rickandmorty.presentation.adapters.CharacterDetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -97,7 +95,7 @@ class CharacterDetailsFragment : Fragment() {
     }
 
     private fun setToolBarText(str: String) {
-        (requireActivity() as ToolbarManager).setToolbarText(str)
+        (requireActivity() as ToolbarAndSearchManager).setToolbarText(str)
     }
 
     override fun onDestroyView() {
