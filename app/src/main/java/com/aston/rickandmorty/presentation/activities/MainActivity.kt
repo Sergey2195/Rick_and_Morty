@@ -33,7 +33,6 @@ class MainActivity : AppCompatActivity(), ToolbarAndSearchManager {
         setupToolbar()
         onBackPressedHandling()
         setBottomNavigationBarClickListeners()
-        setCloseSearchButtonClickListener()
         observeLiveData()
     }
 
@@ -118,32 +117,6 @@ class MainActivity : AppCompatActivity(), ToolbarAndSearchManager {
     override fun setBackButtonClickLister(clickListener: OnClickListener?) {
         toolBarBackButtonClickListener = clickListener
         binding.backButtonOnToolbar.setOnClickListener(clickListener)
-    }
-
-    override fun changeSearchVisibility(isVisible: Boolean) {
-        binding.searchLayout.visibility = if (isVisible) View.VISIBLE else View.GONE
-    }
-
-    override fun setSearchBackClickListener(clickListener: OnClickListener?) {
-        binding.searchPrevButton.setOnClickListener(clickListener)
-    }
-
-    override fun setSearchForwardClickListener(clickListener: OnClickListener?) {
-        binding.searchNextButton.setOnClickListener(clickListener)
-    }
-
-    override fun setSearchPositionTextView(text: String) {
-        binding.searchPositionTextView.text = text
-    }
-
-    override fun setSearchRequestTextView(text: String) {
-        binding.searchResultTextView.text = text
-    }
-
-    private fun setCloseSearchButtonClickListener(){
-        binding.closeSearchPanel.setOnClickListener {
-            binding.searchLayout.visibility = View.GONE
-        }
     }
 
     private fun changeVisibilityToolBarElements(
