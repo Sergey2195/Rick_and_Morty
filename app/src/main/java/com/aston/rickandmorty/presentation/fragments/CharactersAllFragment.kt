@@ -9,21 +9,15 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharactersAllBinding
 import com.aston.rickandmorty.presentation.BottomSheetInputData
 import com.aston.rickandmorty.presentation.adapters.CharactersAdapter
 import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
-import com.aston.rickandmorty.presentation.viewHolders.CharacterViewHolder
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 class CharactersAllFragment : Fragment() {
     private val viewModel: CharactersViewModel by viewModels()
@@ -36,7 +30,6 @@ class CharactersAllFragment : Fragment() {
         get() = _binding!!
     private var prevSearch: String? = null
     private var gridLayoutManager: GridLayoutManager? = null
-    private var searchLayoutIsVisible = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,8 +45,6 @@ class CharactersAllFragment : Fragment() {
         setupObservers()
         setupToolBarClickListener()
     }
-
-
 
     private fun setupToolBarClickListener() {
         setupSearchButtonClickListener()

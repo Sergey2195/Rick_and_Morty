@@ -23,35 +23,6 @@ class EpisodesFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-//        setupBackButtonClickListener()
-//        binding.episodesOpenChild.setOnClickListener {
-//            startEpisodesDetailsFragment()
-//        }
-    }
-
-//    private fun setupBackButtonClickListener() {
-//        (requireActivity() as ToolbarManager).setBackButtonClickLister {
-//            backFromEpisodesDetailsFragment()
-//        }
-//    }
-
-    private fun backFromEpisodesDetailsFragment() {
-        childFragmentManager.popBackStack()
-        binding.episodesFragmentContainer.visibility = View.GONE
-        binding.episodesContentLayout.visibility = View.VISIBLE
-    }
-
-    private fun startEpisodesDetailsFragment() {
-        binding.episodesContentLayout.visibility = View.GONE
-        childFragmentManager.beginTransaction()
-            .add(R.id.episodesFragmentContainer, EpisodeDetailsFragment.newInstance())
-            .addToBackStack(null)
-            .commit()
-        binding.episodesFragmentContainer.visibility = View.VISIBLE
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
