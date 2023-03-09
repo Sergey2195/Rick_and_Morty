@@ -5,11 +5,9 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.apiCalls.RetrofitApiCall
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
+import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
 import com.aston.rickandmorty.data.pagingSources.LocationsPagingSource
-import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
-import com.aston.rickandmorty.domain.entity.CharacterModel
-import com.aston.rickandmorty.domain.entity.LocationDetailsModel
-import com.aston.rickandmorty.domain.entity.LocationModel
+import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.domain.repository.Repository
 import com.aston.rickandmorty.mappers.Mapper
 import io.reactivex.Single
@@ -48,5 +46,12 @@ object RepositoryImpl : Repository {
         return apiCall.getSingleLocationData(id).map { data->
             Mapper.transformLocationInfoRemoteIntoLocationDetailsModel(data)
         }
+    }
+
+    override fun getFlowAllEpisodes(): Flow<PagingData<EpisodeModel>> {
+        return Pager(
+            config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
+            pagingSourceFactory = { EpisodesPagingSource(apiCall)}
+        ).flow
     }
 }

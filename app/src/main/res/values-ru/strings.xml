@@ -22,4 +22,6 @@
     <string name="character_location_title">Локация:</string>
     <string name="episodes_title">Эпизоды:</string>
     <string name="dimension_title">Измерение:</string>
+    <string name="episode_number_title">Эпизод:</string>
+    <string name="air_date_title">Дата релиза:</string>
 </resources>

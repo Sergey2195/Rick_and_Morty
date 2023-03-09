@@ -1,9 +1,6 @@
 package com.aston.rickandmorty.data.apiCalls
 
-import com.aston.rickandmorty.data.models.AllCharactersResponse
-import com.aston.rickandmorty.data.models.AllLocationsResponse
-import com.aston.rickandmorty.data.models.CharacterInfoRemote
-import com.aston.rickandmorty.data.models.LocationInfoRemote
+import com.aston.rickandmorty.data.models.*
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -29,4 +26,9 @@ interface ApiCall {
     fun getSingleLocationData(
         @Path("id") id: Int
     ): Single<LocationInfoRemote>
+
+    @GET("episode")
+    suspend fun getAllEpisodes(
+        @Query("page") page: Int
+    ): AllEpisodesResponse
 }

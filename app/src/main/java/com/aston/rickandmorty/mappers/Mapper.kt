@@ -3,6 +3,7 @@ package com.aston.rickandmorty.mappers
 import android.content.Context
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.data.models.CharacterInfoRemote
+import com.aston.rickandmorty.data.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.models.LocationInfoRemote
 import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
@@ -19,7 +20,7 @@ object Mapper {
         )
     }
 
-    private fun transformLocationInfoRemoteIntoLocationModel(src: LocationInfoRemote): LocationModel{
+    private fun transformLocationInfoRemoteIntoLocationModel(src: LocationInfoRemote): LocationModel {
         return LocationModel(
             id = src.locationId ?: 0,
             name = src.locationName ?: EMPTY,
@@ -32,7 +33,7 @@ object Mapper {
         return src.map { transformCharacterInfoRemoteIntoCharacterModel(it) }
     }
 
-    fun transformListLocationInfoRemoteIntoListLocationModel(src: List<LocationInfoRemote>): List<LocationModel>{
+    fun transformListLocationInfoRemoteIntoListLocationModel(src: List<LocationInfoRemote>): List<LocationModel> {
         return src.map { transformLocationInfoRemoteIntoLocationModel(it) }
     }
 
@@ -59,12 +60,15 @@ object Mapper {
         )
     }
 
-    private fun findLastNumber(str: String): String{
+    private fun findLastNumber(str: String): String {
         val indexSlash = str.lastIndexOf('/')
-        return str.substring(indexSlash+1 until str.length)
+        return str.substring(indexSlash + 1 until str.length)
     }
 
-    fun mapCharacterDetailsModelToListAdapterData(context: Context, src: CharacterDetailsModel): List<CharacterDetailsModelAdapter> {
+    fun mapCharacterDetailsModelToListAdapterData(
+        context: Context,
+        src: CharacterDetailsModel
+    ): List<CharacterDetailsModelAdapter> {
         return listOf(
             CharacterDetailsModelAdapter(
                 title = null,
@@ -110,7 +114,7 @@ object Mapper {
         )
     }
 
-    fun transformLocationInfoRemoteIntoLocationDetailsModel(src: LocationInfoRemote): LocationDetailsModel{
+    fun transformLocationInfoRemoteIntoLocationDetailsModel(src: LocationInfoRemote): LocationDetailsModel {
         return LocationDetailsModel(
             locationId = src.locationId ?: 0,
             locationName = src.locationName ?: "",
@@ -118,6 +122,19 @@ object Mapper {
             dimension = src.locationDimension ?: "",
             residents = src.locationResidents ?: emptyList(),
             created = src.locationCreated ?: ""
+        )
+    }
+
+    fun transformListEpisodeInfoRemoteIntoListEpisodeModel(src: List<EpisodeInfoRemote>): List<EpisodeModel> {
+        return src.map { transformEpisodeInfoRemoteIntoEpisodeModel(it) }
+    }
+
+    fun transformEpisodeInfoRemoteIntoEpisodeModel(src: EpisodeInfoRemote): EpisodeModel {
+        return EpisodeModel(
+            id = src.episodeId ?: 0,
+            name = src.episodeName ?: "",
+            number = src.episodeNumber ?: "",
+            dateRelease = src.episodeAirDate ?: ""
         )
     }
 

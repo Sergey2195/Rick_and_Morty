@@ -25,7 +25,7 @@ class Router {
     }
 
     fun openEpisodesFragment() {
-        openFragment(EpisodesFragment.newInstance(), EPISODES_TAG, EPISODES_NAME)
+        openFragment(EpisodesRootFragment.newInstance(), EPISODES_TAG, EPISODES_NAME)
     }
 
     fun openCharacterDetailFragment(id: Int){
