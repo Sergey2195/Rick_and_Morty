@@ -9,11 +9,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentEpisodeDetailsBinding
 import com.aston.rickandmorty.presentation.adapters.DetailsCharactersAdapter
 import com.aston.rickandmorty.presentation.adapters.EpisodeDetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,10 +65,19 @@ class EpisodeDetailsFragment : Fragment() {
         binding.episodeDetailsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.episodeDetailsRecyclerView.adapter = episodeDetailsAdapter
         episodeDetailsAdapter.internalCharactersAdapter = charactersAdapter
+        charactersAdapter.clickListener = {openCharacterDetailsFragment(it)}
+    }
+
+    private fun openCharacterDetailsFragment(id: Int){
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.episodeFragmentContainerRoot, CharacterDetailsFragment.newInstance(id))
+            .addToBackStack(null)
+            .commit()
     }
 
     private suspend fun loadData() = withContext(Dispatchers.IO) {
         val data = viewModel.getEpisodeDetailsInfo(id ?: 1)
+        setToolBarTitleText(data?.name ?: "")
         viewModel.getDataToAdapter(data, requireContext())
     }
 
@@ -78,6 +89,10 @@ class EpisodeDetailsFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         mainViewModel.setIsOnParentLiveData(false)
+    }
+
+    private fun setToolBarTitleText(text: String){
+        (requireActivity() as ToolbarAndSearchManager).setToolbarText(text)
     }
 
     companion object {
