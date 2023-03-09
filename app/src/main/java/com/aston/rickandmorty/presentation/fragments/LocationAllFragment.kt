@@ -16,6 +16,7 @@ import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.adapters.LocationsAdapter
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
 
 class LocationAllFragment : Fragment() {
 
@@ -87,6 +88,9 @@ class LocationAllFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         mainViewModel.setIsOnParentLiveData(true)
+        (requireActivity() as ToolbarAndSearchManager).setToolbarText(
+            requireContext().getString(R.string.bottom_navigation_menu_location_title)
+        )
     }
 
 

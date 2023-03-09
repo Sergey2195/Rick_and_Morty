@@ -1,17 +1,23 @@
 package com.aston.rickandmorty.presentation.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.paging.PagingDataAdapter
-import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.aston.rickandmorty.databinding.CharacterItemBinding
 import com.aston.rickandmorty.domain.entity.CharacterModel
-import com.aston.rickandmorty.presentation.diffUtils.CharacterDiffUtilsCallback
 import com.aston.rickandmorty.presentation.viewHolders.CharacterViewHolder
 
-class CharactersAdapter: PagingDataAdapter<CharacterModel, CharacterViewHolder>(CharacterDiffUtilsCallback()) {
+class DetailsCharactersAdapter: Adapter<CharacterViewHolder>() {
 
+    private var data = emptyList<CharacterModel>()
     var clickListener: ((id: Int)-> Unit)? = null
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun submitData(list: List<CharacterModel>){
+        data = list
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -19,9 +25,11 @@ class CharactersAdapter: PagingDataAdapter<CharacterModel, CharacterViewHolder>(
         return CharacterViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: CharacterViewHolder, position: Int) {
-        val data = getItem(position) ?: return
-        holder.populate(data, clickListener)
+    override fun getItemCount(): Int {
+        return data.size
     }
 
+    override fun onBindViewHolder(holder: CharacterViewHolder, position: Int) {
+        holder.populate(data[position], clickListener)
+    }
 }

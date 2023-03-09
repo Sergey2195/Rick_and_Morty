@@ -14,4 +14,17 @@ object Utils {
         if (lastEquals == -1) return null
         return str.substring(lastEquals+1 .. str.lastIndex).toInt()
     }
+
+    fun getStringForMultiId(src: List<Int?>): String{
+        var resultStr = ""
+        for ((index, value) in src.withIndex()){
+            if (value == null) continue
+            resultStr += if (index == src.lastIndex){
+                value.toString()
+            }else{
+                "$value,"
+            }
+        }
+        return resultStr
+    }
 }

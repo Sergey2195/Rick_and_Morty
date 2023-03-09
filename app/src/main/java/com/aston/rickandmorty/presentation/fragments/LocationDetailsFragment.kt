@@ -14,6 +14,7 @@ import com.aston.rickandmorty.databinding.FragmentLocationDetailsBinding
 import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.domain.entity.LocationDetailsModel
 import com.aston.rickandmorty.presentation.adapterModels.LocationDetailsModelAdapter
+import com.aston.rickandmorty.presentation.adapters.DetailsCharactersAdapter
 import com.aston.rickandmorty.presentation.adapters.LocationDetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel

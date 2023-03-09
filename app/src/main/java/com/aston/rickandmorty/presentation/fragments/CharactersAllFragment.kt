@@ -69,6 +69,9 @@ class CharactersAllFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         mainViewModel.setIsOnParentLiveData(true)
+        (requireActivity() as ToolbarAndSearchManager).setToolbarText(
+            requireContext().getString(R.string.bottom_navigation_menu_characters_title)
+        )
     }
 
     private fun setupObservers() {

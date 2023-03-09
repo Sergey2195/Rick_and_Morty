@@ -25,7 +25,7 @@
         style="@style/ValueLocation"
         android:text="@string/character_example_value"
         android:layout_marginStart="6dp"
-        app:layout_constraintTop_toBottomOf="@+id/episodeNumberTitle"
+        app:layout_constraintTop_toBottomOf="@+id/episodeNameTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/episodeNumberTitle" />

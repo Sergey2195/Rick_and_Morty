@@ -90,8 +90,8 @@ class MainActivity : AppCompatActivity(), ToolbarAndSearchManager {
             binding.filterButton.isVisible = isCollapsed
         } else {
             binding.backButtonOnToolbar.isVisible = isCollapsed
-            binding.toolbarTextView.isVisible = isCollapsed
         }
+        binding.toolbarTextView.isVisible = isCollapsed
     }
 
     private fun setupSwipeRefreshLayout() {

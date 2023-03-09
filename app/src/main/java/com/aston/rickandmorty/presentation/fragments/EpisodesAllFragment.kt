@@ -15,6 +15,7 @@ import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.adapters.EpisodesAdapter
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
 
 class EpisodesAllFragment : Fragment() {
 
@@ -58,7 +59,10 @@ class EpisodesAllFragment : Fragment() {
         }
         binding.episodesRecyclerView.layoutManager = gridLayoutManager
         adapter.clickListener = {
-            //todo
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.episodeFragmentContainerRoot, EpisodeDetailsFragment.newInstance(it))
+                .addToBackStack(null)
+                .commit()
         }
     }
 
@@ -73,6 +77,9 @@ class EpisodesAllFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         mainViewModel.setIsOnParentLiveData(true)
+        (requireActivity() as ToolbarAndSearchManager).setToolbarText(
+            requireContext().getString(R.string.bottom_navigation_menu_episodes_title)
+        )
     }
 
     override fun onDestroy() {

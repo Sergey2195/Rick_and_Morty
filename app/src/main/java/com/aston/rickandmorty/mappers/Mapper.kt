@@ -7,6 +7,9 @@ import com.aston.rickandmorty.data.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.models.LocationInfoRemote
 import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
+import com.aston.rickandmorty.presentation.adapterModels.EpisodeDetailsModelAdapter
+import com.aston.rickandmorty.presentation.adapterModels.EpisodeDetailsModelCharacterList
+import com.aston.rickandmorty.presentation.adapterModels.EpisodeDetailsModelTitleValue
 
 object Mapper {
     private fun transformCharacterInfoRemoteIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
@@ -135,6 +138,59 @@ object Mapper {
             name = src.episodeName ?: "",
             number = src.episodeNumber ?: "",
             dateRelease = src.episodeAirDate ?: ""
+        )
+    }
+
+    fun transformEpisodeDetailsModelToEpisodeDetailsModelAdapter(
+        src: EpisodeDetailsModel,
+        context: Context
+    ): List<EpisodeDetailsModelAdapter> {
+        return listOf(
+            EpisodeDetailsModelTitleValue(
+                title = context.getString(R.string.character_name_title),
+                value = src.name,
+                viewType = R.layout.details_title_value
+            ),
+            EpisodeDetailsModelTitleValue(
+                title = context.getString(R.string.air_date_title),
+                value = src.airDate,
+                viewType = R.layout.details_title_value
+            ),
+            EpisodeDetailsModelTitleValue(
+                title = context.getString(R.string.episode_number_title),
+                value = src.episodeNumber,
+                viewType = R.layout.details_title_value
+            ),
+            EpisodeDetailsModelCharacterList(
+                viewType = R.layout.details_characters_type,
+                listCharacters = src.characters
+            )
+        )
+    }
+
+    fun transformListCharacterInfoRemoteIntoCharacterModel(src: List<CharacterInfoRemote>): List<CharacterModel> {
+        return src.map { data ->
+            CharacterModel(
+                id = data.characterId ?: 0,
+                name = data.characterName ?: "",
+                species = data.characterSpecies ?: "",
+                status = data.characterStatus ?: "",
+                gender = data.characterGender ?: "",
+                image = data.characterImage ?: ""
+            )
+        }
+    }
+
+    fun transformEpisodeInfoRemoteIntoEpisodeDetailsModel(
+        src: EpisodeInfoRemote,
+        listCharacters: List<CharacterModel>
+    ): EpisodeDetailsModel {
+        return EpisodeDetailsModel(
+            id = src.episodeId ?: 0,
+            name = src.episodeName ?: "",
+            airDate = src.episodeAirDate ?: "",
+            episodeNumber = src.episodeNumber ?: "",
+            characters = listCharacters
         )
     }
 

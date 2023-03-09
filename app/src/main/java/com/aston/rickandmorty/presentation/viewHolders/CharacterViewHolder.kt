@@ -26,10 +26,4 @@ class CharacterViewHolder(
             clickListener?.invoke(data.id)
         }
     }
-
-    suspend fun animate() {
-        binding.characterConstraintLayout.alpha = 0.2f
-        delay(1000)
-        binding.characterConstraintLayout.alpha = 1f
-    }
 }

@@ -31,4 +31,14 @@ interface ApiCall {
     suspend fun getAllEpisodes(
         @Query("page") page: Int
     ): AllEpisodesResponse
+
+    @GET("episode/{id}")
+    suspend fun getSingleEpisodeData(
+        @Path("id") id: Int
+    ): EpisodeInfoRemote
+
+    @GET("character/{multiId}")
+    suspend fun getMultiCharactersData(
+        @Path("multiId") multiId: String
+    ): List<CharacterInfoRemote>
 }
