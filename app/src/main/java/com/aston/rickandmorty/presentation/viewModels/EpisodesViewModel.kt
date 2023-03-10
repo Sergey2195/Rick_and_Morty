@@ -4,16 +4,12 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.aston.rickandmorty.R
 import com.aston.rickandmorty.data.RepositoryImpl
-import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.domain.entity.EpisodeDetailsModel
 import com.aston.rickandmorty.domain.useCases.EpisodeDetailsUseCase
 import com.aston.rickandmorty.domain.useCases.EpisodesAllFlowUseCase
 import com.aston.rickandmorty.mappers.Mapper
-import com.aston.rickandmorty.presentation.adapterModels.EpisodeDetailsModelAdapter
-import com.aston.rickandmorty.presentation.adapterModels.EpisodeDetailsModelCharacterList
-import com.aston.rickandmorty.presentation.adapterModels.EpisodeDetailsModelTitleValue
+import com.aston.rickandmorty.presentation.adapterModels.DetailsModelAdapter
 
 class EpisodesViewModel : ViewModel() {
 
@@ -26,8 +22,8 @@ class EpisodesViewModel : ViewModel() {
         return episodeDetailsUseCase.invoke(id)
     }
 
-    fun getDataToAdapter(src: EpisodeDetailsModel?, context: Context): List<EpisodeDetailsModelAdapter>{
+    fun getDataToAdapter(src: EpisodeDetailsModel?, context: Context): List<DetailsModelAdapter>{
         if (src == null) return emptyList()
-        return Mapper.transformEpisodeDetailsModelToEpisodeDetailsModelAdapter(src, context)
+        return Mapper.transformEpisodeDetailsModelToDetailsModelAdapter(src, context)
     }
 }

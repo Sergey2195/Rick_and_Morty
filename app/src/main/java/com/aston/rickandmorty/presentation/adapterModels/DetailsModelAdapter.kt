@@ -2,17 +2,17 @@ package com.aston.rickandmorty.presentation.adapterModels
 
 import com.aston.rickandmorty.domain.entity.CharacterModel
 
-sealed class EpisodeDetailsModelAdapter {
+sealed class DetailsModelAdapter {
     abstract val viewType: Int
 }
 
-data class EpisodeDetailsModelTitleValue(
+data class DetailsModelTitleValue(
     val title: String,
     val value: String,
     override val viewType: Int
-):EpisodeDetailsModelAdapter()
+):DetailsModelAdapter()
 
-data class EpisodeDetailsModelCharacterList(
+data class DetailsModelCharacterList(
     val listCharacters: List<CharacterModel>,
     override val viewType: Int
-):EpisodeDetailsModelAdapter()
+):DetailsModelAdapter()

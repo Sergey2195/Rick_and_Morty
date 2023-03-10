@@ -41,4 +41,14 @@ interface ApiCall {
     suspend fun getMultiCharactersData(
         @Path("multiId") multiId: String
     ): List<CharacterInfoRemote>
+
+    @GET("character/{multiId}")
+    fun getMultiCharactersDataRx(
+        @Path("multiId") multiId: String
+    ): Single<List<CharacterInfoRemote>>
+
+    @GET("character/{id}")
+    fun getCharactersDataRx(
+        @Path("id") id: String
+    ): Single<CharacterInfoRemote>
 }

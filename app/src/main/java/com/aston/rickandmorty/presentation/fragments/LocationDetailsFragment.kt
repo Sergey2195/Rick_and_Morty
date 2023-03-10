@@ -13,9 +13,9 @@ import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentLocationDetailsBinding
 import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.domain.entity.LocationDetailsModel
-import com.aston.rickandmorty.presentation.adapterModels.LocationDetailsModelAdapter
+import com.aston.rickandmorty.presentation.adapterModels.DetailsModelAdapter
+import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
 import com.aston.rickandmorty.presentation.adapters.DetailsCharactersAdapter
-import com.aston.rickandmorty.presentation.adapters.LocationDetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
@@ -35,7 +35,8 @@ class LocationDetailsFragment : Fragment() {
     private val viewModel by lazy {
         ViewModelProvider(requireActivity())[LocationsViewModel::class.java]
     }
-    private val adapter = LocationDetailsAdapter()
+    private val charactersAdapter = DetailsCharactersAdapter()
+    private val detailsAdapter = DetailsAdapter()
     private var _binding: FragmentLocationDetailsBinding? = null
     private val binding
         get() = _binding!!
@@ -45,7 +46,6 @@ class LocationDetailsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             id = it.getInt(ID)
-            Log.d("SSV", "got $id")
         }
     }
 
@@ -69,13 +69,22 @@ class LocationDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        prepareRecyclersView()
         loadData()
-        prepareRecyclerView()
     }
 
-    private fun prepareRecyclerView() {
-        binding.locationDetailsRecyclerView.adapter = adapter
+    private fun prepareRecyclersView() {
         binding.locationDetailsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.locationDetailsRecyclerView.adapter = detailsAdapter
+        detailsAdapter.internalCharactersAdapter = charactersAdapter
+        charactersAdapter.clickListener = {openCharacterDetailsFragment(it)}
+    }
+
+    private fun openCharacterDetailsFragment(id: Int){
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.locationFragmentContainerRoot, CharacterDetailsFragment.newInstance(id))
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun loadData() {
@@ -92,37 +101,8 @@ class LocationDetailsFragment : Fragment() {
     }
 
     private fun parsingData(data: LocationDetailsModel) = lifecycleScope.launch {
-        val residentsIds = viewModel.getIdsFromUrl(data.residents)
-        setToolBarText(data.locationName)
-        val list = mutableListOf(
-            LocationDetailsModelAdapter(
-                title = requireContext().getString(R.string.character_name_title),
-                value = data.locationName
-            ),
-            LocationDetailsModelAdapter(
-                title = requireContext().getString(R.string.character_type_title),
-                value = data.locationType
-            ),
-            LocationDetailsModelAdapter(
-                title = requireContext().getString(R.string.dimension_title),
-                value = data.dimension
-            )
-        )
-        val models = getCharacterModels(residentsIds)
-        for (model in models) {
-            list.add(
-                LocationDetailsModelAdapter(
-                    title = null,
-                    url = model.characterImage,
-                    value = model.characterName,
-                    viewType = R.layout.location_details_residents
-                )
-            )
-        }
-        list.add(
-            LocationDetailsModelAdapter("Created:", data.created)
-        )
-        adapter.submitList(list)
+        val dataForAdapter = viewModel.prepareDataForAdapter(data, requireContext())
+        detailsAdapter.submitList(dataForAdapter)
     }
 
     private suspend fun getCharacterModels(listId: List<Int>): List<CharacterDetailsModel> {

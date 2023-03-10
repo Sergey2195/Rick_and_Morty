@@ -8,22 +8,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.DetailsCharactersTypeBinding
 import com.aston.rickandmorty.databinding.DetailsTitleValueBinding
-import com.aston.rickandmorty.presentation.adapterModels.EpisodeDetailsModelAdapter
-import com.aston.rickandmorty.presentation.viewHolders.EpisodeDetailsCharactersViewHolder
-import com.aston.rickandmorty.presentation.viewHolders.EpisodeDetailsTitleValueViewHolder
-import com.aston.rickandmorty.presentation.viewHolders.EpisodeDetailsViewHolder
+import com.aston.rickandmorty.presentation.adapterModels.DetailsModelAdapter
+import com.aston.rickandmorty.presentation.viewHolders.DetailsCharactersViewHolder
+import com.aston.rickandmorty.presentation.viewHolders.DetailsTitleValueViewHolder
+import com.aston.rickandmorty.presentation.viewHolders.DetailsViewHolder
 
-class EpisodeDetailsAdapter: RecyclerView.Adapter<EpisodeDetailsViewHolder>() {
+class DetailsAdapter: RecyclerView.Adapter<DetailsViewHolder>() {
 
-    private var data = emptyList<EpisodeDetailsModelAdapter>()
+    private var data = emptyList<DetailsModelAdapter>()
     var internalCharactersAdapter: DetailsCharactersAdapter? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EpisodeDetailsViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DetailsViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType){
             R.layout.details_title_value ->{
                 val binding = DetailsTitleValueBinding.inflate(inflater, parent, false)
-                EpisodeDetailsTitleValueViewHolder(binding)
+                DetailsTitleValueViewHolder(binding)
             }
             R.layout.details_characters_type->{
                 val binding = DetailsCharactersTypeBinding.inflate(inflater, parent, false)
@@ -34,9 +34,9 @@ class EpisodeDetailsAdapter: RecyclerView.Adapter<EpisodeDetailsViewHolder>() {
                 )
                 binding.detailsCharactersRecyclerView.hasFixedSize()
                 binding.detailsCharactersRecyclerView.isNestedScrollingEnabled = false
-                EpisodeDetailsCharactersViewHolder(binding)
+                DetailsCharactersViewHolder(binding)
             }
-            else -> throw RuntimeException("EpisodeDetailsAdapter unknown view type")
+            else -> throw RuntimeException("DetailsAdapter unknown view type")
         }
     }
 
@@ -45,12 +45,12 @@ class EpisodeDetailsAdapter: RecyclerView.Adapter<EpisodeDetailsViewHolder>() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun submitList(list: List<EpisodeDetailsModelAdapter>){
+    fun submitList(list: List<DetailsModelAdapter>){
         data = list
         notifyDataSetChanged()
     }
 
-    override fun onBindViewHolder(holder: EpisodeDetailsViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: DetailsViewHolder, position: Int) {
         holder.populate(data[position])
     }
 

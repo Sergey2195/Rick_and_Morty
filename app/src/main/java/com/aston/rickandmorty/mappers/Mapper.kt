@@ -7,9 +7,9 @@ import com.aston.rickandmorty.data.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.models.LocationInfoRemote
 import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
-import com.aston.rickandmorty.presentation.adapterModels.EpisodeDetailsModelAdapter
-import com.aston.rickandmorty.presentation.adapterModels.EpisodeDetailsModelCharacterList
-import com.aston.rickandmorty.presentation.adapterModels.EpisodeDetailsModelTitleValue
+import com.aston.rickandmorty.presentation.adapterModels.DetailsModelAdapter
+import com.aston.rickandmorty.presentation.adapterModels.DetailsModelCharacterList
+import com.aston.rickandmorty.presentation.adapterModels.DetailsModelTitleValue
 
 object Mapper {
     private fun transformCharacterInfoRemoteIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
@@ -60,6 +60,16 @@ object Mapper {
             characterEpisodes = src.characterEpisodes ?: emptyList(),
             characterUrl = src.characterUrl,
             characterCreated = src.characterCreated ?: ""
+        )
+    }
+
+    fun transformLocationInfoRemoteIntoLocationDetailsModel(src: LocationInfoRemote, characters: List<CharacterModel>):LocationDetailsModel{
+        return LocationDetailsModel(
+            locationId = src.locationId ?: 1,
+            locationName = src.locationName ?: "",
+            locationType = src.locationType ?: "",
+            dimension = src.locationDimension ?: "",
+            characters = characters
         )
     }
 
@@ -117,17 +127,6 @@ object Mapper {
         )
     }
 
-    fun transformLocationInfoRemoteIntoLocationDetailsModel(src: LocationInfoRemote): LocationDetailsModel {
-        return LocationDetailsModel(
-            locationId = src.locationId ?: 0,
-            locationName = src.locationName ?: "",
-            locationType = src.locationType ?: "",
-            dimension = src.locationDimension ?: "",
-            residents = src.locationResidents ?: emptyList(),
-            created = src.locationCreated ?: ""
-        )
-    }
-
     fun transformListEpisodeInfoRemoteIntoListEpisodeModel(src: List<EpisodeInfoRemote>): List<EpisodeModel> {
         return src.map { transformEpisodeInfoRemoteIntoEpisodeModel(it) }
     }
@@ -141,29 +140,56 @@ object Mapper {
         )
     }
 
-    fun transformEpisodeDetailsModelToEpisodeDetailsModelAdapter(
+    fun transformEpisodeDetailsModelToDetailsModelAdapter(
         src: EpisodeDetailsModel,
         context: Context
-    ): List<EpisodeDetailsModelAdapter> {
+    ): List<DetailsModelAdapter> {
         return listOf(
-            EpisodeDetailsModelTitleValue(
+            DetailsModelTitleValue(
                 title = context.getString(R.string.character_name_title),
                 value = src.name,
                 viewType = R.layout.details_title_value
             ),
-            EpisodeDetailsModelTitleValue(
+            DetailsModelTitleValue(
                 title = context.getString(R.string.air_date_title),
                 value = src.airDate,
                 viewType = R.layout.details_title_value
             ),
-            EpisodeDetailsModelTitleValue(
+            DetailsModelTitleValue(
                 title = context.getString(R.string.episode_number_title),
                 value = src.episodeNumber,
                 viewType = R.layout.details_title_value
             ),
-            EpisodeDetailsModelCharacterList(
+            DetailsModelCharacterList(
                 viewType = R.layout.details_characters_type,
                 listCharacters = src.characters
+            )
+        )
+    }
+
+    fun transformLocationDetailsModelToDetailsModelAdapter(
+        data: LocationDetailsModel,
+        context: Context
+    ): List<DetailsModelAdapter> {
+        return listOf(
+            DetailsModelTitleValue(
+                title = context.getString(R.string.character_location_title),
+                value = data.locationName,
+                viewType = R.layout.details_title_value
+            ),
+            DetailsModelTitleValue(
+                title = context.getString(R.string.character_type_title),
+                value = data.locationType,
+                viewType = R.layout.details_title_value
+            ),
+            DetailsModelTitleValue(
+                title = context.getString(R.string.dimension_title),
+                value = data.dimension,
+                viewType = R.layout.details_title_value
+            ),
+            DetailsModelCharacterList(
+                viewType = R.layout.details_characters_type,
+                listCharacters = data.characters
             )
         )
     }

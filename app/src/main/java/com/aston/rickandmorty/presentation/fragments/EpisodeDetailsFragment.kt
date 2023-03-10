@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentEpisodeDetailsBinding
 import com.aston.rickandmorty.presentation.adapters.DetailsCharactersAdapter
-import com.aston.rickandmorty.presentation.adapters.EpisodeDetailsAdapter
+import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
@@ -33,7 +32,7 @@ class EpisodeDetailsFragment : Fragment() {
         ViewModelProvider(requireActivity())[EpisodesViewModel::class.java]
     }
     private val charactersAdapter = DetailsCharactersAdapter()
-    private val episodeDetailsAdapter = EpisodeDetailsAdapter()
+    private val detailsAdapter = DetailsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,13 +57,13 @@ class EpisodeDetailsFragment : Fragment() {
 
     private fun loadAndSubmitData() = lifecycleScope.launch {
         val data = loadData()
-        episodeDetailsAdapter.submitList(data)
+        detailsAdapter.submitList(data)
     }
 
     private fun prepareRecyclersView() {
         binding.episodeDetailsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.episodeDetailsRecyclerView.adapter = episodeDetailsAdapter
-        episodeDetailsAdapter.internalCharactersAdapter = charactersAdapter
+        binding.episodeDetailsRecyclerView.adapter = detailsAdapter
+        detailsAdapter.internalCharactersAdapter = charactersAdapter
         charactersAdapter.clickListener = {openCharacterDetailsFragment(it)}
     }
 
