@@ -6,10 +6,7 @@ import com.aston.rickandmorty.data.models.CharacterInfoRemote
 import com.aston.rickandmorty.data.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.models.LocationInfoRemote
 import com.aston.rickandmorty.domain.entity.*
-import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
-import com.aston.rickandmorty.presentation.adapterModels.DetailsModelAdapter
-import com.aston.rickandmorty.presentation.adapterModels.DetailsModelCharacterList
-import com.aston.rickandmorty.presentation.adapterModels.DetailsModelTitleValue
+import com.aston.rickandmorty.presentation.adapterModels.*
 
 object Mapper {
     private fun transformCharacterInfoRemoteIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
@@ -23,7 +20,7 @@ object Mapper {
         )
     }
 
-    private fun transformLocationInfoRemoteIntoLocationModel(src: LocationInfoRemote): LocationModel {
+    fun transformLocationInfoRemoteIntoLocationModel(src: LocationInfoRemote): LocationModel {
         return LocationModel(
             id = src.locationId ?: 0,
             name = src.locationName ?: EMPTY,
@@ -63,7 +60,10 @@ object Mapper {
         )
     }
 
-    fun transformLocationInfoRemoteIntoLocationDetailsModel(src: LocationInfoRemote, characters: List<CharacterModel>):LocationDetailsModel{
+    fun transformLocationInfoRemoteIntoLocationDetailsModel(
+        src: LocationInfoRemote,
+        characters: List<CharacterModel>
+    ): LocationDetailsModel {
         return LocationDetailsModel(
             locationId = src.locationId ?: 1,
             locationName = src.locationName ?: "",
@@ -76,55 +76,6 @@ object Mapper {
     private fun findLastNumber(str: String): String {
         val indexSlash = str.lastIndexOf('/')
         return str.substring(indexSlash + 1 until str.length)
-    }
-
-    fun mapCharacterDetailsModelToListAdapterData(
-        context: Context,
-        src: CharacterDetailsModel
-    ): List<CharacterDetailsModelAdapter> {
-        return listOf(
-            CharacterDetailsModelAdapter(
-                title = null,
-                value = src.characterImage,
-                viewType = R.layout.character_details_image
-            ),
-            CharacterDetailsModelAdapter(
-                title = context.getString(R.string.character_name_title),
-                value = src.characterName
-            ),
-            CharacterDetailsModelAdapter(
-                title = context.getString(R.string.character_status_title),
-                value = src.characterStatus
-            ),
-            CharacterDetailsModelAdapter(
-                title = context.getString(R.string.character_species_title),
-                value = src.characterSpecies
-            ),
-            CharacterDetailsModelAdapter(
-                title = context.getString(R.string.character_type_title),
-                value = src.characterType
-            ),
-            CharacterDetailsModelAdapter(
-                title = context.getString(R.string.character_gender_title),
-                value = src.characterGender
-            ),
-            CharacterDetailsModelAdapter(
-                title = context.getString(R.string.character_origin_title),
-                value = src.characterOrigin.characterOriginName,
-                isClickable = true,
-                url = src.characterOrigin.characterOriginUrl
-            ),
-            CharacterDetailsModelAdapter(
-                title = context.getString(R.string.character_location_title),
-                value = src.characterLocation.characterLocationName,
-                isClickable = true,
-                url = src.characterLocation.characterLocationUrl
-            ),
-            CharacterDetailsModelAdapter(
-                title = context.getString(R.string.episodes_title),
-                value = src.characterEpisodes.map { findLastNumber(it) }.joinToString()
-            )
-        )
     }
 
     fun transformListEpisodeInfoRemoteIntoListEpisodeModel(src: List<EpisodeInfoRemote>): List<EpisodeModel> {
@@ -218,6 +169,78 @@ object Mapper {
             episodeNumber = src.episodeNumber ?: "",
             characters = listCharacters
         )
+    }
+
+    fun getListCharacterDetailsModelAdapter(
+        data: CharacterDetailsModel,
+        context: Context,
+        originModel: LocationModel?,
+        locationModel: LocationModel?,
+        episodesModels: List<EpisodeModel>?
+    ): List<CharacterDetailsModelAdapter> {
+        val listCharacterDetails: MutableList<CharacterDetailsModelAdapter> = mutableListOf(
+            CharacterDetailsImageModelAdapter(imageUrl = data.characterImage),
+            CharacterDetailsTitleValueModelAdapter(
+                title = context.getString(R.string.character_name_title),
+                value = data.characterName
+            ),
+            CharacterDetailsTitleValueModelAdapter(
+                title = context.getString(R.string.character_status_title),
+                value = data.characterStatus
+            ),
+            CharacterDetailsTitleValueModelAdapter(
+                title = context.getString(R.string.character_species_title),
+                value = data.characterSpecies
+            ),
+            CharacterDetailsTitleValueModelAdapter(
+                title = context.getString(R.string.character_type_title),
+                value = data.characterType
+            ),
+            CharacterDetailsTitleValueModelAdapter(
+                title = context.getString(R.string.character_gender_title),
+                value = data.characterGender
+            ),
+        )
+        if (originModel != null) {
+            listCharacterDetails.add(
+                CharacterDetailsTitleValueModelAdapter(
+                    title = context.getString(R.string.character_origin_title),
+                    value = ""
+                )
+            )
+            listCharacterDetails.add(
+                CharacterDetailsLocationModelAdapter(
+                    locationModel = originModel
+                )
+            )
+        }
+        if (locationModel != null) {
+            listCharacterDetails.add(
+                CharacterDetailsTitleValueModelAdapter(
+                    title = context.getString(R.string.character_location_title),
+                    value = ""
+                )
+            )
+            listCharacterDetails.add(
+                CharacterDetailsLocationModelAdapter(
+                    locationModel = locationModel
+                )
+            )
+        }
+        if (episodesModels != null) {
+            listCharacterDetails.add(
+                CharacterDetailsTitleValueModelAdapter(
+                    title = context.getString(R.string.episodes_title),
+                    value = ""
+                )
+            )
+            listCharacterDetails.add(
+                CharacterDetailsEpisodesModelAdapter(
+                    episodesModels
+                )
+            )
+        }
+        return listCharacterDetails
     }
 
     private const val EMPTY = "placeholder"

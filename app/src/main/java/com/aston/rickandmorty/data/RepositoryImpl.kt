@@ -99,4 +99,22 @@ object RepositoryImpl : Repository {
             null
         }
     }
+
+    override suspend fun getLocationModel(id: Int): LocationModel? {
+        return try {
+            val response = apiCall.getSingleLocationDataCoroutine(id)
+            Mapper.transformLocationInfoRemoteIntoLocationModel(response)
+        }catch (e: Exception){
+            null
+        }
+    }
+
+    override suspend fun getListEpisodeModel(multiId: String): List<EpisodeModel>? {
+        return try {
+            val response = apiCall.getMultiEpisodesData(multiId) ?: return null
+            response.map { Mapper.transformEpisodeInfoRemoteIntoEpisodeModel(it) }
+        }catch (e: Exception){
+            null
+        }
+    }
 }

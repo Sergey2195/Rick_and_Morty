@@ -7,7 +7,6 @@ import com.aston.rickandmorty.router.Router
 
 class MainViewModel : ViewModel() {
     private var router: Router? = null
-    private var onParentFragment = true
     val searchCharacterLiveData = MutableLiveData<String>()
     val isOnParentLiveData = MutableLiveData(true)
 
@@ -21,10 +20,6 @@ class MainViewModel : ViewModel() {
 
     fun detachRouter() {
         router?.onDestroy()
-    }
-
-    fun isOnParentFragment(): Boolean {
-        return onParentFragment
     }
 
     fun openCharacterFragment() {

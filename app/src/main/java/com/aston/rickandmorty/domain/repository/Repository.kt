@@ -12,4 +12,6 @@ interface Repository {
     fun getSingleLocationData(id: Int): Single<LocationDetailsModel>
     fun getFlowAllEpisodes(): Flow<PagingData<EpisodeModel>>
     suspend fun getSingleEpisodeData(id: Int): EpisodeDetailsModel?
+    suspend fun getLocationModel(id: Int): LocationModel?
+    suspend fun getListEpisodeModel(multiId: String): List<EpisodeModel>?
 }

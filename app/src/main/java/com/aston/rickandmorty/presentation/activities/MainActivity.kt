@@ -149,7 +149,6 @@ class MainActivity : AppCompatActivity(), ToolbarAndSearchManager {
             return
         }
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-            if (!viewModel.isOnParentFragment()) binding.backButtonOnToolbar.callOnClick()
             when (item.itemId) {
                 R.id.charactersBottomBtn -> {
                     openCharactersFragment()

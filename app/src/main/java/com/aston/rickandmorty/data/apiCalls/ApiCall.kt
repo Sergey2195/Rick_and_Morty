@@ -27,6 +27,11 @@ interface ApiCall {
         @Path("id") id: Int
     ): Single<LocationInfoRemote>
 
+    @GET("location/{id}")
+    suspend fun getSingleLocationDataCoroutine(
+        @Path("id") id: Int
+    ): LocationInfoRemote
+
     @GET("episode")
     suspend fun getAllEpisodes(
         @Query("page") page: Int
@@ -46,6 +51,11 @@ interface ApiCall {
     fun getMultiCharactersDataRx(
         @Path("multiId") multiId: String
     ): Single<List<CharacterInfoRemote>>
+
+    @GET("episode/{multiId}")
+    suspend fun getMultiEpisodesData(
+        @Path("multiId") multiId: String
+    ): List<EpisodeInfoRemote>?
 
     @GET("character/{id}")
     fun getCharactersDataRx(
