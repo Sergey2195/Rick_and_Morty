@@ -44,7 +44,6 @@ class DetailsAdapter : RecyclerView.Adapter<DetailsViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: DetailsViewHolder, position: Int) {
-        Log.d("RECYCLER", "onBindViewHolder")
         val typeClickListener =
             if (data[position].viewType == R.layout.character_item) clickListener else null
         holder.populate(data[position], typeClickListener)

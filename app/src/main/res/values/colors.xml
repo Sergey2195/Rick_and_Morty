@@ -14,6 +14,5 @@
     <color name="variantSecond">#FDC500</color>
     <color name="splashScreenBackground">#F1E0F6</color>
     <color name="grey">#86888C</color>
-    <color name="variantSecondSpace">#F6E29C</color>
-    <color name="variantFirstVariant">#604970</color>
+    <color name="variantSecondBackground">#604970</color>
 </resources>

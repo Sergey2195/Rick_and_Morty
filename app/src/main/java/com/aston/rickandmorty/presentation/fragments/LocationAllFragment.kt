@@ -45,13 +45,13 @@ class LocationAllFragment : Fragment() {
 
     private fun setupObservers() {
         lifecycleScope.launchWhenStarted {
-            viewModel.locationsAllFlow.collect{pagingData->
+            viewModel.locationsAllFlow.collect { pagingData ->
                 adapter.submitData(pagingData)
             }
         }
     }
 
-    private fun prepareRecyclerView(){
+    private fun prepareRecyclerView() {
         val footerAdapter = DefaultLoadStateAdapter {
             //needtodo click listener
         }
@@ -66,7 +66,10 @@ class LocationAllFragment : Fragment() {
         binding.locationsRecyclerView.layoutManager = gridLayoutManager
         adapter.clickListener = {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.locationFragmentContainerRoot, LocationDetailsFragment.newInstance(it, R.id.locationFragmentContainerRoot))
+                .replace(
+                    R.id.locationFragmentContainerRoot,
+                    LocationDetailsFragment.newInstance(it, R.id.locationFragmentContainerRoot)
+                )
                 .addToBackStack(null)
                 .commit()
         }

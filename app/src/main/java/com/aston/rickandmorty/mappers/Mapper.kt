@@ -73,11 +73,6 @@ object Mapper {
         )
     }
 
-    private fun findLastNumber(str: String): String {
-        val indexSlash = str.lastIndexOf('/')
-        return str.substring(indexSlash + 1 until str.length)
-    }
-
     fun transformListEpisodeInfoRemoteIntoListEpisodeModel(src: List<EpisodeInfoRemote>): List<EpisodeModel> {
         return src.map { transformEpisodeInfoRemoteIntoEpisodeModel(it) }
     }
@@ -98,12 +93,12 @@ object Mapper {
         val list = mutableListOf<DetailsModelAdapter>(
             DetailsModelText(context.getString(R.string.character_name_title)),
             DetailsModelText(src.name),
-            DetailsModelText( context.getString(R.string.air_date_title)),
-            DetailsModelText(src.airDate,),
-            DetailsModelText( context.getString(R.string.episode_number_title)),
+            DetailsModelText(context.getString(R.string.air_date_title)),
+            DetailsModelText(src.airDate),
+            DetailsModelText(context.getString(R.string.episode_number_title)),
             DetailsModelText(src.episodeNumber)
         )
-        for (character in src.characters){
+        for (character in src.characters) {
             list.add(DetailsModelCharacter(character))
         }
         return list.toList()
@@ -116,12 +111,12 @@ object Mapper {
         val list = mutableListOf<DetailsModelAdapter>(
             DetailsModelText(context.getString(R.string.character_location_title)),
             DetailsModelText(data.locationName),
-            DetailsModelText( context.getString(R.string.character_type_title)),
+            DetailsModelText(context.getString(R.string.character_type_title)),
             DetailsModelText(data.locationType),
             DetailsModelText(context.getString(R.string.dimension_title)),
             DetailsModelText(data.dimension)
         )
-        for (character in data.characters){
+        for (character in data.characters) {
             list.add(DetailsModelCharacter(character))
         }
         return list.toList()
@@ -195,6 +190,13 @@ object Mapper {
                     locationModel = originModel
                 )
             )
+        } else {
+            listCharacterDetails.add(
+                CharacterDetailsTitleValueModelAdapter(
+                    title = context.getString(R.string.character_origin_title),
+                    value = data.characterOrigin.characterOriginName
+                )
+            )
         }
         if (locationModel != null) {
             listCharacterDetails.add(
@@ -212,15 +214,15 @@ object Mapper {
         if (episodesModels != null) {
             listCharacterDetails.add(
                 CharacterDetailsTitleValueModelAdapter(
-                    title = context.getString(R.string.episodes_title),
-                    value = ""
+                    context.getString(R.string.episodes_title),
+                    ""
                 )
             )
-            listCharacterDetails.add(
-                CharacterDetailsEpisodesModelAdapter(
-                    episodesModels
+            for (episode in episodesModels) {
+                listCharacterDetails.add(
+                    CharacterDetailsEpisodesModelAdapter(episode)
                 )
-            )
+            }
         }
         return listCharacterDetails
     }

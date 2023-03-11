@@ -76,7 +76,7 @@ class EpisodeDetailsFragment : Fragment() {
 
     private suspend fun loadData() = withContext(Dispatchers.IO) {
         val data = viewModel.getEpisodeDetailsInfo(id ?: 1)
-        setToolBarTitleText(data?.name ?: "")
+        withContext(Dispatchers.Main){setToolBarTitleText(data?.name ?: "")}
         viewModel.getDataToAdapter(data, requireContext())
     }
 

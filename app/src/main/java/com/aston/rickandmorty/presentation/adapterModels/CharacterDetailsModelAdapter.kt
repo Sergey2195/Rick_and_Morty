@@ -26,6 +26,6 @@ data class CharacterDetailsLocationModelAdapter(
 ):CharacterDetailsModelAdapter()
 
 data class CharacterDetailsEpisodesModelAdapter(
-    val episodesModel: List<EpisodeModel>,
-    override val viewType: Int = R.layout.character_details_episodes_type
+    val episodesModel: EpisodeModel,
+    override val viewType: Int = R.layout.episode_item
 ):CharacterDetailsModelAdapter()

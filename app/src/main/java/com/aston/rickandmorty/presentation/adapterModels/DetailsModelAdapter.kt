@@ -10,9 +10,9 @@ sealed class DetailsModelAdapter {
 data class DetailsModelText(
     val text: String,
     override val viewType: Int = R.layout.details_text
-):DetailsModelAdapter()
+) : DetailsModelAdapter()
 
 data class DetailsModelCharacter(
     val characterData: CharacterModel,
     override val viewType: Int = R.layout.character_item
-):DetailsModelAdapter()
+) : DetailsModelAdapter()

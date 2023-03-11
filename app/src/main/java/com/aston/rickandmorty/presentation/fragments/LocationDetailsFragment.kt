@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.aston.rickandmorty.databinding.FragmentLocationDetailsBinding
 import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.domain.entity.LocationDetailsModel
@@ -73,10 +73,10 @@ class LocationDetailsFragment : Fragment() {
     private fun prepareRecyclersView() {
         binding.locationDetailsRecyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.locationDetailsRecyclerView.adapter = detailsAdapter
-        detailsAdapter.clickListener = {openCharacterDetailsFragment(it)}
+        detailsAdapter.clickListener = { openCharacterDetailsFragment(it) }
     }
 
-    private fun openCharacterDetailsFragment(id: Int){
+    private fun openCharacterDetailsFragment(id: Int) {
         parentFragmentManager.beginTransaction()
             .replace(container!!, CharacterDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
@@ -96,24 +96,14 @@ class LocationDetailsFragment : Fragment() {
         compositeDisposable.add(disposable)
     }
 
-    private fun parsingData(data: LocationDetailsModel) = lifecycleScope.launch(Dispatchers.Default) {
-        val dataForAdapter = viewModel.prepareDataForAdapter(data, requireContext())
-        withContext(Dispatchers.Main){ detailsAdapter.submitList(dataForAdapter)}
-    }
-
-    private suspend fun getCharacterModels(listId: List<Int>): List<CharacterDetailsModel> {
-        val listDetails = mutableListOf<CharacterDetailsModel>()
-        val listJob = mutableListOf<Job>()
-        for (id in listId) {
-            val job = lifecycleScope.launch {
-                val data = viewModel.getCharacterDetails(id)
-                if (data != null) listDetails.add(data)
+    private fun parsingData(data: LocationDetailsModel) =
+        lifecycleScope.launch(Dispatchers.Default) {
+            val dataForAdapter = viewModel.prepareDataForAdapter(data, requireContext())
+            withContext(Dispatchers.Main) {
+                detailsAdapter.submitList(dataForAdapter)
+                setToolBarText(data.locationName)
             }
-            listJob.add(job)
         }
-        listJob.joinAll()
-        return listDetails
-    }
 
     private fun setToolBarText(str: String) {
         (requireActivity() as ToolbarAndSearchManager).setToolbarText(str)

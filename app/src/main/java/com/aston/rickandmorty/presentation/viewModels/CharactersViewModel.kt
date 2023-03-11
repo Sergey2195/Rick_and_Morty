@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.viewModels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData

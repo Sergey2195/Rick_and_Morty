@@ -8,5 +8,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/detailsTextView"
         tools:text="example text"
-        android:layout_gravity="center"/>
+        style="@style/ValueDetailsStyle"
+        android:paddingVertical="20dp"
+        android:layout_marginStart="8dp"
+        android:layout_gravity="start|center"/>
 </FrameLayout>

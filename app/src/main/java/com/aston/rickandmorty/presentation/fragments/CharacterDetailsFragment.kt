@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,16 +9,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharacterDetailsBinding
-import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
+import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
+import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsTitleValueModelAdapter
 import com.aston.rickandmorty.presentation.adapters.CharacterDetailsAdapter
-import com.aston.rickandmorty.presentation.adapters.CharacterDetailsEpisodesAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class CharacterDetailsFragment : Fragment() {
 
@@ -30,7 +26,6 @@ class CharacterDetailsFragment : Fragment() {
         get() = _binding!!
     private val viewModel: CharactersViewModel by viewModels()
     private val adapter = CharacterDetailsAdapter()
-    private val internalEpisodeAdapter = CharacterDetailsEpisodesAdapter()
     private val mainViewModel by lazy {
         ViewModelProvider(requireActivity())[MainViewModel::class.java]
     }
@@ -63,39 +58,24 @@ class CharacterDetailsFragment : Fragment() {
     private fun observeData() = lifecycleScope.launchWhenStarted{
         viewModel.dataForAdapter.collect{ list->
             adapter.submitList(list)
+            setupName(list)
         }
+    }
+
+    private fun setupName(list: List<CharacterDetailsModelAdapter>) {
+        if (list.isEmpty()) return
+        val name = (list[1] as CharacterDetailsTitleValueModelAdapter).value
+        setToolBarText(name)
     }
 
     override fun onStart() {
         super.onStart()
         mainViewModel.setIsOnParentLiveData(false)
-        setupTitle("")
-    }
-
-    override fun onStop() {
-        super.onStop()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("SSV", "destroyed details fragment")
-    }
-
-    private fun setupViews(data: CharacterDetailsModel) {
-        setupTitle(data.characterName)
-//        val listAdapterData =
-//            Mapper.mapCharacterDetailsModelToListAdapterData(requireContext(), data)
-//        setupRecyclerView(listAdapterData)
-    }
-
-    private fun setupTitle(name: String) {
-        setToolBarText(name)
     }
 
     private fun prepareRecyclerViews() {
         binding.characterDetailsRecyclerView.adapter = adapter
         binding.characterDetailsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adapter.internalEpisodesAdapter = internalEpisodeAdapter
         setupRecyclerClickListeners()
     }
 
@@ -124,7 +104,6 @@ class CharacterDetailsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d("SSV", "details onDestroyView")
         _binding = null
     }
 

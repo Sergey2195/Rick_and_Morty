@@ -45,7 +45,7 @@ class EpisodesAllFragment : Fragment() {
         setupObservers()
     }
 
-    private fun prepareRecyclerView(){
+    private fun prepareRecyclerView() {
         val footerAdapter = DefaultLoadStateAdapter {
             //needtodo click listener
         }
@@ -60,7 +60,10 @@ class EpisodesAllFragment : Fragment() {
         binding.episodesRecyclerView.layoutManager = gridLayoutManager
         adapter.clickListener = {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.episodeFragmentContainerRoot, EpisodeDetailsFragment.newInstance(it, R.id.episodeFragmentContainerRoot))
+                .replace(
+                    R.id.episodeFragmentContainerRoot,
+                    EpisodeDetailsFragment.newInstance(it, R.id.episodeFragmentContainerRoot)
+                )
                 .addToBackStack(null)
                 .commit()
         }
@@ -68,7 +71,7 @@ class EpisodesAllFragment : Fragment() {
 
     private fun setupObservers() {
         lifecycleScope.launchWhenStarted {
-            viewModel.episodesAllFlow.collect{pagingData->
+            viewModel.episodesAllFlow.collect { pagingData ->
                 adapter.submitData(pagingData)
             }
         }

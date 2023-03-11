@@ -6,6 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.apiCalls.RetrofitApiCall
 import com.aston.rickandmorty.data.models.CharacterInfoRemote
+import com.aston.rickandmorty.data.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.models.LocationInfoRemote
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
 import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
@@ -57,7 +58,6 @@ object RepositoryImpl : Repository {
                 } else {
                     apiCall.getCharactersDataRx(requestStr)
                 }
-
             }.map { data ->
                 val inputList: List<CharacterInfoRemote> = when (data) {
                     is List<*> -> data as List<CharacterInfoRemote>
@@ -111,8 +111,12 @@ object RepositoryImpl : Repository {
 
     override suspend fun getListEpisodeModel(multiId: String): List<EpisodeModel>? {
         return try {
-            val response = apiCall.getMultiEpisodesData(multiId) ?: return null
-            response.map { Mapper.transformEpisodeInfoRemoteIntoEpisodeModel(it) }
+            val list = if (multiId.contains(',')){
+                apiCall.getMultiEpisodesData(multiId)
+            }else{
+                listOf( apiCall.getSingleEpisodeData(multiId.toInt()))
+            }
+            list?.map { Mapper.transformEpisodeInfoRemoteIntoEpisodeModel(it) }
         }catch (e: Exception){
             null
         }

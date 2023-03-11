@@ -3,12 +3,11 @@ package com.aston.rickandmorty.presentation.viewHolders
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.aston.rickandmorty.R
-import com.aston.rickandmorty.databinding.CharacterDetailsEpisodesTypeBinding
 import com.aston.rickandmorty.databinding.CharacterDetailsImageBinding
 import com.aston.rickandmorty.databinding.DetailsTitleValueBinding
+import com.aston.rickandmorty.databinding.EpisodeItemBinding
 import com.aston.rickandmorty.databinding.LocationItemBinding
 import com.aston.rickandmorty.presentation.adapterModels.*
-import com.aston.rickandmorty.presentation.adapters.CharacterDetailsEpisodesAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 
@@ -63,17 +62,18 @@ class CharacterDetailsViewHolderLocation(private val binding: LocationItemBindin
     }
 }
 
-class CharacterDetailsViewHolderEpisodes(private val binding: CharacterDetailsEpisodesTypeBinding) :
+class CharacterDetailsViewHolderEpisodes(private val binding: EpisodeItemBinding) :
     CharacterDetailsViewHolder(binding.root) {
     override fun populate(
         itemData: CharacterDetailsModelAdapter,
         clickListener: ((id: Int) -> Unit)?
     ) {
         val data = itemData as CharacterDetailsEpisodesModelAdapter
-        (binding.characterDetailsEpisodesRecyclerView.adapter as CharacterDetailsEpisodesAdapter)
-            .submitData(data.episodesModel)
-        (binding.characterDetailsEpisodesRecyclerView.adapter as CharacterDetailsEpisodesAdapter).clickListener =
-            clickListener
+        binding.episodeNameValue.text = data.episodesModel.name
+        binding.episodeNumberValue.text = data.episodesModel.number
+        binding.airDateValue.text = data.episodesModel.dateRelease
+        binding.episodeConstraintLayout.setOnClickListener {
+            clickListener?.invoke(data.episodesModel.id)
+        }
     }
-
 }
