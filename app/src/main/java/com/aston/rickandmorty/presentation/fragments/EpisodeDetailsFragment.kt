@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 class EpisodeDetailsFragment : Fragment() {
 
     private var id: Int? = null
+    private var container: Int? = null
     private var _binding: FragmentEpisodeDetailsBinding? = null
     private val binding
         get() = _binding!!
@@ -38,6 +39,7 @@ class EpisodeDetailsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             id = it.getInt(ID)
+            container = it.getInt(CONTAINER)
         }
     }
 
@@ -69,7 +71,7 @@ class EpisodeDetailsFragment : Fragment() {
 
     private fun openCharacterDetailsFragment(id: Int){
         parentFragmentManager.beginTransaction()
-            .replace(R.id.episodeFragmentContainerRoot, CharacterDetailsFragment.newInstance(id))
+            .replace(container!!, CharacterDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()
     }
@@ -97,10 +99,12 @@ class EpisodeDetailsFragment : Fragment() {
     companion object {
 
         private const val ID = "id"
+        private const val CONTAINER = "container"
 
-        fun newInstance(id: Int) = EpisodeDetailsFragment().apply {
+        fun newInstance(id: Int, container: Int) = EpisodeDetailsFragment().apply {
             arguments = Bundle().apply {
                 putInt(ID, id)
+                putInt(CONTAINER, container)
             }
         }
     }

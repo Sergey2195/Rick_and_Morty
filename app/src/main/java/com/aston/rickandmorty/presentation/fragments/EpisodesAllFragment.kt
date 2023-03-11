@@ -60,7 +60,7 @@ class EpisodesAllFragment : Fragment() {
         binding.episodesRecyclerView.layoutManager = gridLayoutManager
         adapter.clickListener = {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.episodeFragmentContainerRoot, EpisodeDetailsFragment.newInstance(it))
+                .replace(R.id.episodeFragmentContainerRoot, EpisodeDetailsFragment.newInstance(it, R.id.episodeFragmentContainerRoot))
                 .addToBackStack(null)
                 .commit()
         }

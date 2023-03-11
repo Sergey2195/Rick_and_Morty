@@ -22,13 +22,12 @@ import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class LocationDetailsFragment : Fragment() {
 
     private var id: Int? = null
+    private var container: Int? = null
     private val mainViewModel by lazy {
         ViewModelProvider(requireActivity())[MainViewModel::class.java]
     }
@@ -46,6 +45,7 @@ class LocationDetailsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             id = it.getInt(ID)
+            container = it.getInt(CONTAINER)
         }
     }
 
@@ -82,7 +82,7 @@ class LocationDetailsFragment : Fragment() {
 
     private fun openCharacterDetailsFragment(id: Int){
         parentFragmentManager.beginTransaction()
-            .replace(R.id.locationFragmentContainerRoot, CharacterDetailsFragment.newInstance(id))
+            .replace(container!!, CharacterDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()
     }
@@ -100,9 +100,9 @@ class LocationDetailsFragment : Fragment() {
         compositeDisposable.add(disposable)
     }
 
-    private fun parsingData(data: LocationDetailsModel) = lifecycleScope.launch {
+    private fun parsingData(data: LocationDetailsModel) = lifecycleScope.launch(Dispatchers.Default) {
         val dataForAdapter = viewModel.prepareDataForAdapter(data, requireContext())
-        detailsAdapter.submitList(dataForAdapter)
+        withContext(Dispatchers.Main){ detailsAdapter.submitList(dataForAdapter)}
     }
 
     private suspend fun getCharacterModels(listId: List<Int>): List<CharacterDetailsModel> {
@@ -130,11 +130,13 @@ class LocationDetailsFragment : Fragment() {
 
     companion object {
         private const val ID = "id"
+        private const val CONTAINER = "container"
 
-        fun newInstance(id: Int) =
+        fun newInstance(id: Int, container: Int) =
             LocationDetailsFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ID, id)
+                    putInt(CONTAINER, container)
                 }
             }
     }

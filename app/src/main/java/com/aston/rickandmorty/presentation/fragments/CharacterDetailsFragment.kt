@@ -24,6 +24,7 @@ import kotlinx.coroutines.withContext
 class CharacterDetailsFragment : Fragment() {
 
     private var id: Int? = null
+    private var container: Int? = null
     private var _binding: FragmentCharacterDetailsBinding? = null
     private val binding
         get() = _binding!!
@@ -38,6 +39,7 @@ class CharacterDetailsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             id = it.getInt(ID_KEY)
+            container = it.getInt(CONTAINER)
         }
     }
 
@@ -104,14 +106,14 @@ class CharacterDetailsFragment : Fragment() {
 
     private fun openLocationDetails(id: Int){
         parentFragmentManager.beginTransaction()
-            .replace(R.id.charactersFragmentContainerRoot, LocationDetailsFragment.newInstance(id))
+            .replace(container!!, LocationDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()
     }
 
     private fun openEpisodeDetails(id: Int){
         parentFragmentManager.beginTransaction()
-            .replace(R.id.charactersFragmentContainerRoot, EpisodeDetailsFragment.newInstance(id))
+            .replace(container!!, EpisodeDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()
     }
@@ -127,12 +129,14 @@ class CharacterDetailsFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(id: Int) = CharacterDetailsFragment().apply {
+        fun newInstance(id: Int, container: Int) = CharacterDetailsFragment().apply {
             arguments = Bundle().apply {
                 putInt(ID_KEY, id)
+                putInt(CONTAINER, container)
             }
         }
 
         private const val ID_KEY = "id"
+        private const val CONTAINER = "container"
     }
 }

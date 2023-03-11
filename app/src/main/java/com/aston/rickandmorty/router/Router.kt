@@ -28,10 +28,6 @@ class Router {
         openFragment(EpisodesRootFragment.newInstance(), EPISODES_TAG, EPISODES_NAME)
     }
 
-    fun openCharacterDetailFragment(id: Int){
-        val fragment = CharacterDetailsFragment.newInstance(id)
-        openFragment(fragment, CHARACTER_DETAIL_TAG, CHARACTER_DETAIL_NAME)
-    }
 
     private fun openFragment(fragmentIfNotFound: Fragment, tag: String?, name: String?) {
         if (mainActivity == null) return

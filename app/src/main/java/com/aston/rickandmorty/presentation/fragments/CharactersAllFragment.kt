@@ -104,7 +104,7 @@ class CharactersAllFragment : Fragment() {
 
     private fun startCharacterDetailsFragment(id: Int) {
         parentFragmentManager.beginTransaction()
-            .replace(R.id.charactersFragmentContainerRoot, CharacterDetailsFragment.newInstance(id))
+            .replace(R.id.charactersFragmentContainerRoot, CharacterDetailsFragment.newInstance(id, R.id.charactersFragmentContainerRoot))
             .addToBackStack(null)
             .commit()
     }

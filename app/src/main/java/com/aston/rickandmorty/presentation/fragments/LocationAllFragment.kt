@@ -66,7 +66,7 @@ class LocationAllFragment : Fragment() {
         binding.locationsRecyclerView.layoutManager = gridLayoutManager
         adapter.clickListener = {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.locationFragmentContainerRoot, LocationDetailsFragment.newInstance(it))
+                .replace(R.id.locationFragmentContainerRoot, LocationDetailsFragment.newInstance(it, R.id.locationFragmentContainerRoot))
                 .addToBackStack(null)
                 .commit()
         }

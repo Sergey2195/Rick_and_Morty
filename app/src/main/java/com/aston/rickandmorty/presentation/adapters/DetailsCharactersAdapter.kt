@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.adapters
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
@@ -11,10 +12,11 @@ import com.aston.rickandmorty.presentation.viewHolders.CharacterViewHolder
 class DetailsCharactersAdapter: Adapter<CharacterViewHolder>() {
 
     private var data = emptyList<CharacterModel>()
-    var clickListener: ((id: Int)-> Unit)? = null
+    var clickListener: ((id: Int) -> Unit)? = null
 
     @SuppressLint("NotifyDataSetChanged")
-    fun submitData(list: List<CharacterModel>){
+    fun submitData(list: List<CharacterModel>) {
+        Log.d("SSV_REC", "submitData")
         data = list
         notifyDataSetChanged()
     }
@@ -30,6 +32,7 @@ class DetailsCharactersAdapter: Adapter<CharacterViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: CharacterViewHolder, position: Int) {
+        Log.d("SSV_REC", "onBindViewHolder")
         holder.populate(data[position], clickListener)
     }
 }
