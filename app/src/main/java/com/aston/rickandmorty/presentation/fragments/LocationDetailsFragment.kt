@@ -1,21 +1,18 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentLocationDetailsBinding
 import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.domain.entity.LocationDetailsModel
-import com.aston.rickandmorty.presentation.adapterModels.DetailsModelAdapter
 import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
-import com.aston.rickandmorty.presentation.adapters.DetailsCharactersAdapter
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
@@ -23,6 +20,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.*
+
 
 class LocationDetailsFragment : Fragment() {
 
@@ -34,7 +32,6 @@ class LocationDetailsFragment : Fragment() {
     private val viewModel by lazy {
         ViewModelProvider(requireActivity())[LocationsViewModel::class.java]
     }
-    private val charactersAdapter = DetailsCharactersAdapter()
     private val detailsAdapter = DetailsAdapter()
     private var _binding: FragmentLocationDetailsBinding? = null
     private val binding
@@ -74,10 +71,9 @@ class LocationDetailsFragment : Fragment() {
     }
 
     private fun prepareRecyclersView() {
-        binding.locationDetailsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.locationDetailsRecyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.locationDetailsRecyclerView.adapter = detailsAdapter
-        detailsAdapter.internalCharactersAdapter = charactersAdapter
-        charactersAdapter.clickListener = {openCharacterDetailsFragment(it)}
+        detailsAdapter.clickListener = {openCharacterDetailsFragment(it)}
     }
 
     private fun openCharacterDetailsFragment(id: Int){

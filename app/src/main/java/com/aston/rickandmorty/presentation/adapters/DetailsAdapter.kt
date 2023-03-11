@@ -1,40 +1,33 @@
 package com.aston.rickandmorty.presentation.adapters
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aston.rickandmorty.R
-import com.aston.rickandmorty.databinding.DetailsCharactersTypeBinding
-import com.aston.rickandmorty.databinding.DetailsTitleValueBinding
+import com.aston.rickandmorty.databinding.CharacterItemBinding
+import com.aston.rickandmorty.databinding.DetailsTextBinding
 import com.aston.rickandmorty.presentation.adapterModels.DetailsModelAdapter
-import com.aston.rickandmorty.presentation.viewHolders.DetailsCharactersViewHolder
-import com.aston.rickandmorty.presentation.viewHolders.DetailsTitleValueViewHolder
+import com.aston.rickandmorty.presentation.viewHolders.DetailsCharacterViewHolder
+import com.aston.rickandmorty.presentation.viewHolders.DetailsTextViewHolder
 import com.aston.rickandmorty.presentation.viewHolders.DetailsViewHolder
 
-class DetailsAdapter: RecyclerView.Adapter<DetailsViewHolder>() {
+class DetailsAdapter : RecyclerView.Adapter<DetailsViewHolder>() {
 
     private var data = emptyList<DetailsModelAdapter>()
-    var internalCharactersAdapter: DetailsCharactersAdapter? = null
+    var clickListener: ((id: Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DetailsViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return when (viewType){
-            R.layout.details_title_value ->{
-                val binding = DetailsTitleValueBinding.inflate(inflater, parent, false)
-                DetailsTitleValueViewHolder(binding)
+        return when (viewType) {
+            R.layout.details_text -> {
+                val binding = DetailsTextBinding.inflate(inflater, parent, false)
+                DetailsTextViewHolder(binding)
             }
-            R.layout.details_characters_type->{
-                val binding = DetailsCharactersTypeBinding.inflate(inflater, parent, false)
-                binding.detailsCharactersRecyclerView.adapter = internalCharactersAdapter
-                binding.detailsCharactersRecyclerView.layoutManager = GridLayoutManager(
-                    parent.context,
-                    2
-                )
-                binding.detailsCharactersRecyclerView.hasFixedSize()
-                binding.detailsCharactersRecyclerView.isNestedScrollingEnabled = false
-                DetailsCharactersViewHolder(binding)
+            R.layout.character_item -> {
+                val binding = CharacterItemBinding.inflate(inflater, parent, false)
+                DetailsCharacterViewHolder(binding)
             }
             else -> throw RuntimeException("DetailsAdapter unknown view type")
         }
@@ -45,13 +38,16 @@ class DetailsAdapter: RecyclerView.Adapter<DetailsViewHolder>() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun submitList(list: List<DetailsModelAdapter>){
+    fun submitList(list: List<DetailsModelAdapter>) {
         data = list
         notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: DetailsViewHolder, position: Int) {
-        holder.populate(data[position])
+        Log.d("RECYCLER", "onBindViewHolder")
+        val typeClickListener =
+            if (data[position].viewType == R.layout.character_item) clickListener else null
+        holder.populate(data[position], typeClickListener)
     }
 
     override fun getItemViewType(position: Int): Int {

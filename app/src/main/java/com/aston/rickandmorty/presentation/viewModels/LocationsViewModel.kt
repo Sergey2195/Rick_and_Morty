@@ -13,9 +13,6 @@ import com.aston.rickandmorty.domain.useCases.LocationDetailsUseCase
 import com.aston.rickandmorty.domain.useCases.LocationsAllFlowUseCase
 import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.presentation.adapterModels.DetailsModelAdapter
-import com.aston.rickandmorty.presentation.adapterModels.DetailsModelCharacterList
-import com.aston.rickandmorty.presentation.adapterModels.DetailsModelTitleValue
-import com.aston.rickandmorty.utils.Utils
 import io.reactivex.Single
 
 class LocationsViewModel: ViewModel() {

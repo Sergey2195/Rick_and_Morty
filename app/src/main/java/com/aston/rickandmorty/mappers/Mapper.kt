@@ -95,54 +95,36 @@ object Mapper {
         src: EpisodeDetailsModel,
         context: Context
     ): List<DetailsModelAdapter> {
-        return listOf(
-            DetailsModelTitleValue(
-                title = context.getString(R.string.character_name_title),
-                value = src.name,
-                viewType = R.layout.details_title_value
-            ),
-            DetailsModelTitleValue(
-                title = context.getString(R.string.air_date_title),
-                value = src.airDate,
-                viewType = R.layout.details_title_value
-            ),
-            DetailsModelTitleValue(
-                title = context.getString(R.string.episode_number_title),
-                value = src.episodeNumber,
-                viewType = R.layout.details_title_value
-            ),
-            DetailsModelCharacterList(
-                viewType = R.layout.details_characters_type,
-                listCharacters = src.characters
-            )
+        val list = mutableListOf<DetailsModelAdapter>(
+            DetailsModelText(context.getString(R.string.character_name_title)),
+            DetailsModelText(src.name),
+            DetailsModelText( context.getString(R.string.air_date_title)),
+            DetailsModelText(src.airDate,),
+            DetailsModelText( context.getString(R.string.episode_number_title)),
+            DetailsModelText(src.episodeNumber)
         )
+        for (character in src.characters){
+            list.add(DetailsModelCharacter(character))
+        }
+        return list.toList()
     }
 
     fun transformLocationDetailsModelToDetailsModelAdapter(
         data: LocationDetailsModel,
         context: Context
     ): List<DetailsModelAdapter> {
-        return listOf(
-            DetailsModelTitleValue(
-                title = context.getString(R.string.character_location_title),
-                value = data.locationName,
-                viewType = R.layout.details_title_value
-            ),
-            DetailsModelTitleValue(
-                title = context.getString(R.string.character_type_title),
-                value = data.locationType,
-                viewType = R.layout.details_title_value
-            ),
-            DetailsModelTitleValue(
-                title = context.getString(R.string.dimension_title),
-                value = data.dimension,
-                viewType = R.layout.details_title_value
-            ),
-            DetailsModelCharacterList(
-                viewType = R.layout.details_characters_type,
-                listCharacters = data.characters
-            )
+        val list = mutableListOf<DetailsModelAdapter>(
+            DetailsModelText(context.getString(R.string.character_location_title)),
+            DetailsModelText(data.locationName),
+            DetailsModelText( context.getString(R.string.character_type_title)),
+            DetailsModelText(data.locationType),
+            DetailsModelText(context.getString(R.string.dimension_title)),
+            DetailsModelText(data.dimension)
         )
+        for (character in data.characters){
+            list.add(DetailsModelCharacter(character))
+        }
+        return list.toList()
     }
 
     fun transformListCharacterInfoRemoteIntoCharacterModel(src: List<CharacterInfoRemote>): List<CharacterModel> {

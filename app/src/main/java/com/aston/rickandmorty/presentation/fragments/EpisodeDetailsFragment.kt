@@ -7,10 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.aston.rickandmorty.R
+import androidx.recyclerview.widget.GridLayoutManager
 import com.aston.rickandmorty.databinding.FragmentEpisodeDetailsBinding
-import com.aston.rickandmorty.presentation.adapters.DetailsCharactersAdapter
 import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
@@ -32,7 +30,6 @@ class EpisodeDetailsFragment : Fragment() {
     private val viewModel by lazy {
         ViewModelProvider(requireActivity())[EpisodesViewModel::class.java]
     }
-    private val charactersAdapter = DetailsCharactersAdapter()
     private val detailsAdapter = DetailsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +50,7 @@ class EpisodeDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        prepareRecyclersView()
+        prepareRecyclerView()
         loadAndSubmitData()
     }
 
@@ -62,14 +59,15 @@ class EpisodeDetailsFragment : Fragment() {
         detailsAdapter.submitList(data)
     }
 
-    private fun prepareRecyclersView() {
-        binding.episodeDetailsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+    private fun prepareRecyclerView() {
+        binding.episodeDetailsRecyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.episodeDetailsRecyclerView.adapter = detailsAdapter
-        detailsAdapter.internalCharactersAdapter = charactersAdapter
-        charactersAdapter.clickListener = {openCharacterDetailsFragment(it)}
+        detailsAdapter.clickListener = {
+            openCharacterDetailsFragment(it)
+        }
     }
 
-    private fun openCharacterDetailsFragment(id: Int){
+    private fun openCharacterDetailsFragment(id: Int) {
         parentFragmentManager.beginTransaction()
             .replace(container!!, CharacterDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
@@ -92,7 +90,7 @@ class EpisodeDetailsFragment : Fragment() {
         mainViewModel.setIsOnParentLiveData(false)
     }
 
-    private fun setToolBarTitleText(text: String){
+    private fun setToolBarTitleText(text: String) {
         (requireActivity() as ToolbarAndSearchManager).setToolbarText(text)
     }
 
