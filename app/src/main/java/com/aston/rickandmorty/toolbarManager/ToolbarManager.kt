@@ -4,5 +4,7 @@ import android.view.View.OnClickListener
 
 interface ToolbarManager {
     fun setToolbarText(text: String)
-    fun setBackButtonClickLister(clickListener: OnClickListener?)
+    fun setBackButtonClickListener(clickListener: OnClickListener?)
+    fun setSearchButtonClickListener(clickListener: OnClickListener?)
+    fun setFilterButtonClickListener(clickListener: OnClickListener?)
 }

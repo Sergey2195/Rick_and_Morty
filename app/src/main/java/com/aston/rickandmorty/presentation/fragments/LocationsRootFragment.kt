@@ -38,7 +38,7 @@ class LocationsRootFragment : Fragment() {
     }
 
     private fun setupBackButtonClickListener() {
-        (requireActivity() as ToolbarManager).setBackButtonClickLister {
+        (requireActivity() as ToolbarManager).setBackButtonClickListener {
             childFragmentManager.popBackStack()
         }
     }

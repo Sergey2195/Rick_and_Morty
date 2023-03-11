@@ -35,11 +35,41 @@ class CharactersRootFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        setupClickListeners()
+    }
+
+    private fun setupClickListeners() {
         setupBackButtonClickListener()
+        setupSearchClickListener()
+        setupFilterClickListener()
+    }
+
+    private fun setupSearchClickListener() {
+        (requireActivity() as ToolbarManager).setSearchButtonClickListener {
+            childFragmentManager.beginTransaction()
+                .replace(
+                    R.id.charactersFragmentContainerRoot,
+                    SearchAndFilterFragment.newInstance(SearchAndFilterFragment.SEARCH_MODE)
+                )
+                .addToBackStack(null)
+                .commit()
+        }
+    }
+
+    private fun setupFilterClickListener() {
+        (requireActivity() as ToolbarManager).setFilterButtonClickListener {
+            childFragmentManager.beginTransaction()
+                .replace(
+                    R.id.charactersFragmentContainerRoot,
+                    SearchAndFilterFragment.newInstance(SearchAndFilterFragment.FILTER_MODE)
+                )
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     private fun setupBackButtonClickListener() {
-        (requireActivity() as ToolbarManager).setBackButtonClickLister {
+        (requireActivity() as ToolbarManager).setBackButtonClickListener {
             childFragmentManager.popBackStack()
         }
     }

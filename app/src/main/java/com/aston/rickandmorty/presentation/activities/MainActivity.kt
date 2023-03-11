@@ -110,9 +110,17 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         binding.toolbarTextView.text = text
     }
 
-    override fun setBackButtonClickLister(clickListener: OnClickListener?) {
+    override fun setBackButtonClickListener(clickListener: OnClickListener?) {
         toolBarBackButtonClickListener = clickListener
         binding.backButtonOnToolbar.setOnClickListener(clickListener)
+    }
+
+    override fun setSearchButtonClickListener(clickListener: OnClickListener?) {
+        binding.searchButton.setOnClickListener(clickListener)
+    }
+
+    override fun setFilterButtonClickListener(clickListener: OnClickListener?) {
+        binding.filterButton.setOnClickListener(clickListener)
     }
 
     private fun changeVisibilityToolBarElements(

@@ -24,4 +24,11 @@
     <string name="dimension_title">Измерение:</string>
     <string name="episode_number_title">Эпизод:</string>
     <string name="air_date_title">Дата релиза:</string>
+    <string name="status_alive">Alive</string>
+    <string name="status_dead">Dead</string>
+    <string name="status_unknown">Unknown</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_genderless">Genderless</string>
+    <string name="gender_unknown">Unknown</string>
 </resources>
