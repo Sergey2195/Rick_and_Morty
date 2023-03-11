@@ -15,7 +15,7 @@ import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.adapters.EpisodesAdapter
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 
 class EpisodesAllFragment : Fragment() {
 
@@ -80,7 +80,7 @@ class EpisodesAllFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         mainViewModel.setIsOnParentLiveData(true)
-        (requireActivity() as ToolbarAndSearchManager).setToolbarText(
+        (requireActivity() as ToolbarManager).setToolbarText(
             requireContext().getString(R.string.bottom_navigation_menu_episodes_title)
         )
     }

@@ -11,11 +11,11 @@ import androidx.core.view.isVisible
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.ActivityMainBinding
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
 import kotlin.math.abs
 
-class MainActivity : AppCompatActivity(), ToolbarAndSearchManager {
+class MainActivity : AppCompatActivity(), ToolbarManager {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
     private var isOnParentScreen = true
@@ -108,10 +108,6 @@ class MainActivity : AppCompatActivity(), ToolbarAndSearchManager {
 
     override fun setToolbarText(text: String) {
         binding.toolbarTextView.text = text
-    }
-
-    override fun setSearchClickListener(clickListener: OnClickListener?) {
-        binding.searchButton.setOnClickListener(clickListener)
     }
 
     override fun setBackButtonClickLister(clickListener: OnClickListener?) {

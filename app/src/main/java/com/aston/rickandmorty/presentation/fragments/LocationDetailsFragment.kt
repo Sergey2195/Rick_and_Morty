@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,12 +9,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.aston.rickandmorty.databinding.FragmentLocationDetailsBinding
-import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.domain.entity.LocationDetailsModel
 import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -106,7 +104,7 @@ class LocationDetailsFragment : Fragment() {
         }
 
     private fun setToolBarText(str: String) {
-        (requireActivity() as ToolbarAndSearchManager).setToolbarText(str)
+        (requireActivity() as ToolbarManager).setToolbarText(str)
     }
 
     override fun onDetach() {

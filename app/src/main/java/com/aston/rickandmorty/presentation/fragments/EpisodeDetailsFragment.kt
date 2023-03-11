@@ -12,7 +12,7 @@ import com.aston.rickandmorty.databinding.FragmentEpisodeDetailsBinding
 import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -91,7 +91,7 @@ class EpisodeDetailsFragment : Fragment() {
     }
 
     private fun setToolBarTitleText(text: String) {
-        (requireActivity() as ToolbarAndSearchManager).setToolbarText(text)
+        (requireActivity() as ToolbarManager).setToolbarText(text)
     }
 
     companion object {

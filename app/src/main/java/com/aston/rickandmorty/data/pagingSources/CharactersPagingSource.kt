@@ -2,22 +2,22 @@ package com.aston.rickandmorty.data.pagingSources
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.aston.rickandmorty.data.apiCalls.ApiCall
+import com.aston.rickandmorty.data.models.AllCharactersResponse
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.mappers.Mapper
-import com.aston.rickandmorty.utils.Utils.getLastIntAfterEquals
+import com.aston.rickandmorty.utils.Utils
 import java.io.IOException
 
-class CharactersPagingSource(private val apiCall: ApiCall) :
+class CharactersPagingSource(private val loader: suspend (pageIndex: Int)-> AllCharactersResponse) :
     PagingSource<Int, CharacterModel>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CharacterModel> {
         val pageIndex = params.key ?: START_PAGE
         return try {
-            val response = apiCall.getAllCharacterData(pageIndex)
+            val response = loader.invoke(pageIndex)
             val resultData = response.listCharactersInfo ?: throw IOException()
-            val prevPage = getLastIntAfterEquals(response.pageInfo?.prevPageUrl)
-            val nextPage = getLastIntAfterEquals(response.pageInfo?.nextPageUrl)
+            val prevPage = Utils.findPage(response.pageInfo?.prevPageUrl)
+            val nextPage = Utils.findPage(response.pageInfo?.nextPageUrl)
             val mappedList = Mapper.transformListCharacterInfoRemoteIntoListCharacterModel(resultData)
             return LoadResult.Page(mappedList, prevPage, nextPage)
         } catch (e: Exception) {

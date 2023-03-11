@@ -1,12 +1,10 @@
 package com.aston.rickandmorty.data
 
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.apiCalls.RetrofitApiCall
 import com.aston.rickandmorty.data.models.CharacterInfoRemote
-import com.aston.rickandmorty.data.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.models.LocationInfoRemote
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
 import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
@@ -22,10 +20,27 @@ object RepositoryImpl : Repository {
 
     val apiCall = RetrofitApiCall.getCharacterApiCall()
 
-    override fun getFlowAllCharacters(): Flow<PagingData<CharacterModel>> {
+    override fun getFlowAllCharacters(
+        nameFilter: String?,
+        statusFilter: String?,
+        speciesFilter: String?,
+        typeFilter: String?,
+        genderFilter: String?
+    ): Flow<PagingData<CharacterModel>> {
         return Pager(
             config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
-            pagingSourceFactory = { CharactersPagingSource(apiCall) }
+            pagingSourceFactory = {
+                CharactersPagingSource { pageIndex ->
+                    apiCall.getAllCharacterData(
+                        pageIndex,
+                        nameFilter,
+                        statusFilter,
+                        speciesFilter,
+                        typeFilter,
+                        genderFilter
+                    )
+                }
+            }
         ).flow
     }
 
@@ -104,20 +119,20 @@ object RepositoryImpl : Repository {
         return try {
             val response = apiCall.getSingleLocationDataCoroutine(id)
             Mapper.transformLocationInfoRemoteIntoLocationModel(response)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             null
         }
     }
 
     override suspend fun getListEpisodeModel(multiId: String): List<EpisodeModel>? {
         return try {
-            val list = if (multiId.contains(',')){
+            val list = if (multiId.contains(',')) {
                 apiCall.getMultiEpisodesData(multiId)
-            }else{
-                listOf( apiCall.getSingleEpisodeData(multiId.toInt()))
+            } else {
+                listOf(apiCall.getSingleEpisodeData(multiId.toInt()))
             }
             list?.map { Mapper.transformEpisodeInfoRemoteIntoEpisodeModel(it) }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             null
         }
     }

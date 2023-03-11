@@ -15,7 +15,7 @@ import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsTitleVa
 import com.aston.rickandmorty.presentation.adapters.CharacterDetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 
 class CharacterDetailsFragment : Fragment() {
 
@@ -99,7 +99,7 @@ class CharacterDetailsFragment : Fragment() {
     }
 
     private fun setToolBarText(str: String) {
-        (requireActivity() as ToolbarAndSearchManager).setToolbarText(str)
+        (requireActivity() as ToolbarManager).setToolbarText(str)
     }
 
     override fun onDestroyView() {

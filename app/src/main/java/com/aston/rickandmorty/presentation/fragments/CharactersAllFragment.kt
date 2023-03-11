@@ -12,12 +12,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharactersAllBinding
-import com.aston.rickandmorty.presentation.BottomSheetInputData
 import com.aston.rickandmorty.presentation.adapters.CharactersAdapter
 import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 
 class CharactersAllFragment : Fragment() {
     private val viewModel: CharactersViewModel by viewModels()
@@ -28,8 +27,15 @@ class CharactersAllFragment : Fragment() {
     private var _binding: FragmentCharactersAllBinding? = null
     private val binding
         get() = _binding!!
-    private var prevSearch: String? = null
     private var gridLayoutManager: GridLayoutManager? = null
+    private var arrayFilter: Array<String?> = Array(5) { null }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,46 +49,45 @@ class CharactersAllFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
         setupObservers()
-        setupToolBarClickListener()
-    }
-
-    private fun setupToolBarClickListener() {
-        setupSearchButtonClickListener()
-    }
-
-    private fun setupSearchButtonClickListener() {
-        (requireActivity() as ToolbarAndSearchManager).setSearchClickListener {
-            val bottomSheetFragment = BottomSheetFragment.newInstance(
-                BottomSheetFragment.MODE_SEARCH,
-                BottomSheetInputData(prevSearch)
-            )
-            bottomSheetFragment.show(parentFragmentManager, null)
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        (requireActivity() as ToolbarAndSearchManager).setSearchClickListener(null)
-        mainViewModel.clearSearchCharacterLiveData()
     }
 
     override fun onStart() {
         super.onStart()
+        when (allFiltersIsNull()) {
+            true -> standardMode()
+            false -> filterMode()
+        }
+    }
+
+    private fun standardMode() {
         mainViewModel.setIsOnParentLiveData(true)
-        (requireActivity() as ToolbarAndSearchManager).setToolbarText(
+        (requireActivity() as ToolbarManager).setToolbarText(
             requireContext().getString(R.string.bottom_navigation_menu_characters_title)
         )
     }
 
-    private fun setupObservers() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.charactersFlow.collect { pagingData ->
-                adapter.submitData(pagingData)
-            }
-        }
-        mainViewModel.searchCharacterLiveData.observe(viewLifecycleOwner) { search ->
-            if (search.isEmpty()) return@observe
-            //todo search
+    private fun filterMode() {
+        mainViewModel.setIsOnParentLiveData(false)
+        (requireActivity() as ToolbarManager).setToolbarText(getTitleFiltering())
+    }
+
+    private fun getTitleFiltering(): String {
+        return arrayFilter.filterNotNull().joinToString()
+    }
+
+    private fun allFiltersIsNull(): Boolean {
+        return arrayFilter.all { it == null }
+    }
+
+    private fun setupObservers() = lifecycleScope.launchWhenStarted {
+        viewModel.getFlowCharacters(
+            arrayFilter[0],
+            arrayFilter[1],
+            arrayFilter[2],
+            arrayFilter[3],
+            arrayFilter[4]
+        ).collect { pagingData ->
+            adapter.submitData(pagingData)
         }
     }
 
@@ -104,7 +109,10 @@ class CharactersAllFragment : Fragment() {
 
     private fun startCharacterDetailsFragment(id: Int) {
         parentFragmentManager.beginTransaction()
-            .replace(R.id.charactersFragmentContainerRoot, CharacterDetailsFragment.newInstance(id, R.id.charactersFragmentContainerRoot))
+            .replace(
+                R.id.charactersFragmentContainerRoot,
+                CharacterDetailsFragment.newInstance(id, R.id.charactersFragmentContainerRoot)
+            )
             .addToBackStack(null)
             .commit()
     }
@@ -115,6 +123,22 @@ class CharactersAllFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance() = CharactersAllFragment()
+        const val FILTER_ARRAY = "filter array"
+
+        fun newInstance(
+            nameFilter: String? = null,
+            statusFilter: String? = null,
+            speciesFilter: String? = null,
+            typeFilter: String? = null,
+            genderFilter: String? = null
+        ): CharactersAllFragment {
+            return CharactersAllFragment().apply {
+                arguments = Bundle().apply {
+                    val arrayFilter =
+                        arrayOf(nameFilter, statusFilter, speciesFilter, typeFilter, genderFilter)
+                    putStringArray(FILTER_ARRAY, arrayFilter)
+                }
+            }
+        }
     }
 }

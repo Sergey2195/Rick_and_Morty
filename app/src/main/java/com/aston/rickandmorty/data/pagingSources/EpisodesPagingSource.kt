@@ -18,8 +18,8 @@ class EpisodesPagingSource(private val apiCall: ApiCall) : PagingSource<Int, Epi
         return try {
             val response = apiCall.getAllEpisodes(pageIndex)
             val resultData = response.listEpisodeInfo ?: throw IOException()
-            val prevPage = Utils.getLastIntAfterEquals(response.pageInfo?.prevPageUrl)
-            val nextPage = Utils.getLastIntAfterEquals(response.pageInfo?.nextPageUrl)
+            val prevPage = Utils.findPage(response.pageInfo?.prevPageUrl)
+            val nextPage = Utils.findPage(response.pageInfo?.nextPageUrl)
             val mappedList = Mapper.transformListEpisodeInfoRemoteIntoListEpisodeModel(resultData)
             return LoadResult.Page(mappedList, prevPage, nextPage)
         }catch (e: Exception){

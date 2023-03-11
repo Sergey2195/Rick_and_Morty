@@ -7,9 +7,14 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiCall {
-    @GET("character")
+    @GET("character/")
     suspend fun getAllCharacterData(
-        @Query("page") page: Int
+        @Query("page") page: Int,
+        @Query("name") name: String? = null,
+        @Query("status") status: String? = null,
+        @Query("species") species: String? = null,
+        @Query("type") type: String? = null,
+        @Query("gender") gender: String? = null
     ): AllCharactersResponse
 
     @GET("character/{id}")

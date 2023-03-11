@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharactersRootBinding
-import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 
 class CharactersRootFragment : Fragment() {
 
@@ -39,7 +39,7 @@ class CharactersRootFragment : Fragment() {
     }
 
     private fun setupBackButtonClickListener() {
-        (requireActivity() as ToolbarAndSearchManager).setBackButtonClickLister {
+        (requireActivity() as ToolbarManager).setBackButtonClickLister {
             childFragmentManager.popBackStack()
         }
     }
@@ -50,7 +50,6 @@ class CharactersRootFragment : Fragment() {
     }
 
     companion object {
-
         fun newInstance() = CharactersRootFragment()
     }
 }

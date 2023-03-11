@@ -30,13 +30,21 @@ class CharactersViewModel : ViewModel() {
     private val characterDetailsUseCase = CharacterDetailsUseCase(repository)
     private val locationModelsUseCase = LocationModelUseCase(repository)
     private val listEpisodesModelUseCase = EpisodesListWithIdsUseCase(repository)
-
-    val charactersFlow: Flow<PagingData<CharacterModel>> =
-        characterAllFlowUseCase.invoke().cachedIn(viewModelScope)
     private val _dataForAdapter: MutableStateFlow<List<CharacterDetailsModelAdapter>> =
         MutableStateFlow(emptyList())
     val dataForAdapter
         get() = _dataForAdapter.asStateFlow()
+
+    fun getFlowCharacters(
+        nameFilter: String? = null,
+        statusFilter: String? = null,
+        speciesFilter: String? = null,
+        typeFilter: String? = null,
+        genderFilter: String? = null
+    ): Flow<PagingData<CharacterModel>>{
+        return characterAllFlowUseCase.invoke(nameFilter, statusFilter, speciesFilter, typeFilter, genderFilter)
+            .cachedIn(viewModelScope)
+    }
 
     fun loadInfoAboutCharacter(id: Int, context: Context) = viewModelScope.launch(Dispatchers.IO) {
         val data = characterDetailsUseCase.invoke(id) ?: return@launch
