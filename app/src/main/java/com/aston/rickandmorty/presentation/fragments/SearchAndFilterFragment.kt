@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -66,8 +67,12 @@ class SearchAndFilterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         when (mode) {
-            SEARCH_MODE -> {}
-            FILTER_MODE -> {}
+            SEARCH_MODE -> {
+                binding.filterGroup.visibility = View.GONE
+            }
+            FILTER_MODE -> {
+                binding.filterGroup.visibility = View.VISIBLE
+            }
             else -> throw RuntimeException("SearchAndFilterFragment unknown mode")
         }
         setupClickListeners()
@@ -77,16 +82,18 @@ class SearchAndFilterFragment : Fragment() {
 
     private fun setupObservers() = lifecycleScope.launchWhenCreated {
         searchAndFilterViewModel.charactersCountStateFlow.collect {
-            val text = when (it){
+            val text = when (it) {
                 -1 -> requireContext().getString(R.string.search_not_found)
-                0 -> requireContext().getString(R.string.search_initial)
+                0 -> requireContext().getString(
+                    if (mode == FILTER_MODE) R.string.filter_initial else R.string.search_initial
+                )
                 else -> requireContext().getString(R.string.search_count, it)
             }
             binding.countResultTextView.text = text
         }
     }
 
-    private fun sendCheckCountOfCharactersWithInterval(){
+    private fun sendCheckCountOfCharactersWithInterval() {
         val disposable = publishSubject.debounce(1, TimeUnit.SECONDS)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -161,7 +168,6 @@ class SearchAndFilterFragment : Fragment() {
 
     private fun saveResult() {
         charactersViewModel.setCharacterFilter(resultFilter)
-        parentFragmentManager.popBackStack()
     }
 
     override fun onDestroy() {

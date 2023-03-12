@@ -48,8 +48,8 @@
             android:id="@+id/allStatusRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:checked="true" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -130,19 +130,19 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/status_all"/>
+            android:text="@string/status_all" />
 
         <RadioButton
             android:id="@+id/allGenderRadioButton"
-            android:checked="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:checked="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/gender_female"/>
+            android:text="@string/gender_female" />
 
         <RadioButton
             android:id="@+id/femaleGenderRadioButton"
@@ -153,7 +153,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/gender_male"/>
+            android:text="@string/gender_male" />
 
         <RadioButton
             android:id="@+id/maleGenderRadioButton"
@@ -164,7 +164,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/gender_genderless"/>
+            android:text="@string/gender_genderless" />
 
         <RadioButton
             android:id="@+id/genderlessGenderRadioButton"
@@ -175,7 +175,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/gender_unknown"/>
+            android:text="@string/gender_unknown" />
 
         <RadioButton
             android:id="@+id/genderUnknownRadioButton"
@@ -183,24 +183,32 @@
             android:layout_height="wrap_content"
             android:layout_weight="1" />
     </RadioGroup>
+
     <TextView
+        android:id="@+id/countResultTextView"
+        style="@style/TitleStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/search_count"
-        android:id="@+id/countResultTextView"
-        style="@style/TitleStyle"
         android:textSize="30sp"
-        app:layout_constraintTop_toBottomOf="@+id/genderRadioGroup"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@+id/genderRadioGroup" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/filterGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="statusTextView,statusRadioGroup,speciesInputLayout,typeInputLayout,genderTitle,genderRadioGroup" />
     <Button
         android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/countResultTextView"
         android:text="@string/save_button_title"
-        app:layout_constraintVertical_bias="0"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/countResultTextView"
+        app:layout_constraintVertical_bias="0" />
 </androidx.constraintlayout.widget.ConstraintLayout>

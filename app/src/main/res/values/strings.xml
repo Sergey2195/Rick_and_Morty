@@ -30,5 +30,6 @@
     <string name="save_button_title">Save</string>
     <string name="search_count">Found %d elements</string>
     <string name="search_not_found">Not found</string>
-    <string name="search_initial">Filter</string>
+    <string name="search_initial">Search mode</string>
+    <string name="filter_initial">Filter mode</string>
 </resources>

@@ -77,4 +77,8 @@ class CharactersViewModel : ViewModel() {
     fun setCharacterFilter(filter: CharacterFilterModel){
         _characterFilter.value = filter
     }
+
+    fun clearCharacterFilter(){
+        _characterFilter.value = null
+    }
 }

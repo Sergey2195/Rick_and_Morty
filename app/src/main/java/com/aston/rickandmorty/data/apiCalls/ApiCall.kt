@@ -33,7 +33,17 @@ interface ApiCall {
 
     @GET("location")
     suspend fun getAllLocations(
-        @Query("page") page: Int
+        @Query("page") page: Int,
+        @Query("name") name: String? = null,
+        @Query("type") type: String? = null,
+        @Query("dimension") dimension: String? = null
+    ): AllLocationsResponse
+
+    @GET("location")
+    suspend fun getCountOfLocations(
+        @Query("name") name: String? = null,
+        @Query("type") type: String? = null,
+        @Query("dimension") dimension: String? = null
     ): AllLocationsResponse
 
     @GET("location/{id}")
