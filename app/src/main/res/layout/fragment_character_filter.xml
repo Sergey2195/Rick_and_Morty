@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.fragments.SearchAndFilterFragment">
+    tools:context=".presentation.fragments.CharacterFilterFragment">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nameInputLayout"
@@ -14,7 +14,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/nameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

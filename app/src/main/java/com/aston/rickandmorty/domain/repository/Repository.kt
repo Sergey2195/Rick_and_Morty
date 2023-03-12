@@ -13,7 +13,13 @@ interface Repository {
         typeFilter: String? = null,
         genderFilter: String? = null
     ): Flow<PagingData<CharacterModel>>
-    fun getFlowAllLocations(): Flow<PagingData<LocationModel>>
+
+    fun getFlowAllLocations(
+        nameFilter: String? = null,
+        typeFilter: String? = null,
+        dimensionFilter: String? = null
+    ): Flow<PagingData<LocationModel>>
+
     suspend fun getSingleCharacterData(id: Int): CharacterDetailsModel?
     fun getSingleLocationData(id: Int): Single<LocationDetailsModel>
     fun getFlowAllEpisodes(): Flow<PagingData<EpisodeModel>>

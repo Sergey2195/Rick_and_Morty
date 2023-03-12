@@ -44,10 +44,23 @@ object RepositoryImpl : Repository {
         ).flow
     }
 
-    override fun getFlowAllLocations(): Flow<PagingData<LocationModel>> {
+    override fun getFlowAllLocations(
+        nameFilter: String?,
+        typeFilter: String?,
+        dimensionFilter: String?
+    ): Flow<PagingData<LocationModel>> {
         return Pager(
             config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
-            pagingSourceFactory = { LocationsPagingSource(apiCall) }
+            pagingSourceFactory = {
+                LocationsPagingSource { pageIndex ->
+                    apiCall.getAllLocations(
+                        pageIndex,
+                        nameFilter,
+                        typeFilter,
+                        dimensionFilter
+                    )
+                }
+            }
         ).flow
     }
 
@@ -144,7 +157,13 @@ object RepositoryImpl : Repository {
         typeFilter: String?,
         genderFilter: String?
     ): Single<Int> {
-        return apiCall.getCountOfCharacters(nameFilter,statusFilter,speciesFilter,typeFilter,genderFilter)
+        return apiCall.getCountOfCharacters(
+            nameFilter,
+            statusFilter,
+            speciesFilter,
+            typeFilter,
+            genderFilter
+        )
             .map { it.pageInfo?.countCharacters }
     }
 }

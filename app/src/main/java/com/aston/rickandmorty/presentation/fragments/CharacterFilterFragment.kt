@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,21 +10,21 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
-import com.aston.rickandmorty.databinding.FragmentSearchAndFilterBinding
+import com.aston.rickandmorty.databinding.FragmentCharacterFilterBinding
 import com.aston.rickandmorty.domain.entity.CharacterFilterModel
+import com.aston.rickandmorty.presentation.viewModels.CharacterFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.presentation.viewModels.SearchAndFilterViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
-class SearchAndFilterFragment : Fragment() {
+class CharacterFilterFragment : Fragment() {
 
     private var mode = -1
-    private var _binding: FragmentSearchAndFilterBinding? = null
+    private var _binding: FragmentCharacterFilterBinding? = null
     private val binding
         get() = _binding!!
     private val mainViewModel by lazy {
@@ -34,7 +33,7 @@ class SearchAndFilterFragment : Fragment() {
     private val charactersViewModel: CharactersViewModel by lazy {
         ViewModelProvider(requireActivity())[CharactersViewModel::class.java]
     }
-    private val searchAndFilterViewModel: SearchAndFilterViewModel by viewModels()
+    private val characterFilterViewModel: CharacterFilterViewModel by viewModels()
     private val resultFilter = CharacterFilterModel()
     private val publishSubject = PublishSubject.create<Unit>()
     private val compositeDisposable = CompositeDisposable()
@@ -60,7 +59,7 @@ class SearchAndFilterFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentSearchAndFilterBinding.inflate(inflater, container, false)
+        _binding = FragmentCharacterFilterBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -81,7 +80,7 @@ class SearchAndFilterFragment : Fragment() {
     }
 
     private fun setupObservers() = lifecycleScope.launchWhenCreated {
-        searchAndFilterViewModel.charactersCountStateFlow.collect {
+        characterFilterViewModel.charactersCountStateFlow.collect {
             val text = when (it) {
                 -1 -> requireContext().getString(R.string.search_not_found)
                 0 -> requireContext().getString(
@@ -98,7 +97,7 @@ class SearchAndFilterFragment : Fragment() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                searchAndFilterViewModel.sendFilters(resultFilter)
+                characterFilterViewModel.sendFilters(resultFilter)
             }
         compositeDisposable.add(disposable)
     }
@@ -182,7 +181,7 @@ class SearchAndFilterFragment : Fragment() {
         const val FILTER_MODE = 1
 
         fun newInstance(mode: Int) =
-            SearchAndFilterFragment().apply {
+            CharacterFilterFragment().apply {
                 arguments = Bundle().apply {
                     putInt(MODE, mode)
                 }

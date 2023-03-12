@@ -125,7 +125,7 @@ class CharactersAllFragment : Fragment() {
     }
 
     companion object {
-        const val FILTER_ARRAY = "filter array"
+        private const val FILTER_ARRAY = "filter array"
 
         fun newInstance(
             nameFilter: String? = null,

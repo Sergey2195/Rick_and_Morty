@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +13,6 @@ import com.aston.rickandmorty.domain.entity.CharacterFilterModel
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
@@ -86,7 +83,7 @@ class CharactersRootFragment : Fragment() {
             childFragmentManager.beginTransaction()
                 .replace(
                     R.id.charactersFragmentContainerRoot,
-                    SearchAndFilterFragment.newInstance(SearchAndFilterFragment.SEARCH_MODE)
+                    CharacterFilterFragment.newInstance(CharacterFilterFragment.SEARCH_MODE)
                 )
                 .addToBackStack(null)
                 .commit()
@@ -98,7 +95,7 @@ class CharactersRootFragment : Fragment() {
             childFragmentManager.beginTransaction()
                 .replace(
                     R.id.charactersFragmentContainerRoot,
-                    SearchAndFilterFragment.newInstance(SearchAndFilterFragment.FILTER_MODE)
+                    CharacterFilterFragment.newInstance(CharacterFilterFragment.FILTER_MODE)
                 )
                 .addToBackStack(null)
                 .commit()

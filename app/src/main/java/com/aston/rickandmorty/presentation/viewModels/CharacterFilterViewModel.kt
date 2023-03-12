@@ -10,7 +10,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class SearchAndFilterViewModel : ViewModel() {
+class CharacterFilterViewModel : ViewModel() {
     private val repository = RepositoryImpl
     private val countOfCharactersUseCase = CountOfCharactersUseCase(repository)
     private val compositeDisposable = CompositeDisposable()

@@ -16,16 +16,17 @@ import com.google.android.material.appbar.AppBarLayout
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity(), ToolbarManager {
-    private lateinit var binding: ActivityMainBinding
+    private val binding: ActivityMainBinding by lazy {
+        ActivityMainBinding.inflate(layoutInflater)
+    }
     private val viewModel: MainViewModel by viewModels()
     private var isOnParentScreen = true
     private var toolBarBackButtonClickListener: OnClickListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        connectToRouter()
-        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        connectToRouter()
         if (savedInstanceState == null) {
             viewModel.openCharacterFragment()
         }

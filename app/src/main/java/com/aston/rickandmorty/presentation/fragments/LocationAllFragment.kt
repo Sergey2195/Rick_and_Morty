@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +30,7 @@ class LocationAllFragment : Fragment() {
     }
     private val adapter = LocationsAdapter()
     private var gridLayoutManager: GridLayoutManager? = null
+    private var arrayFilter: Array<String?> = Array(5) { null }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -40,14 +40,18 @@ class LocationAllFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("SSV_location", "LocationAllFragment on Create")
+        arguments?.let {
+            arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
+        }
     }
 
-    private fun setupObservers() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.locationsAllFlow.collect { pagingData ->
-                adapter.submitData(pagingData)
-            }
+    private fun setupObservers() = lifecycleScope.launchWhenStarted {
+        viewModel.getLocationAllFlow(
+            arrayFilter[0],
+            arrayFilter[1],
+            arrayFilter[2]
+        ).collect {
+            adapter.submitData(it)
         }
     }
 
@@ -90,14 +94,37 @@ class LocationAllFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        mainViewModel.setIsOnParentLiveData(true)
-        (requireActivity() as ToolbarManager).setToolbarText(
+        val filtersInNull = allFiltersIsNull()
+        mainViewModel.setIsOnParentLiveData(filtersInNull)
+        val title = if (filtersInNull) {
             requireContext().getString(R.string.bottom_navigation_menu_location_title)
-        )
+        } else {
+            getTitleFiltering()
+        }
+        (requireActivity() as ToolbarManager).setToolbarText(title)
+    }
+
+    private fun getTitleFiltering(): String {
+        return arrayFilter.filterNotNull().joinToString()
+    }
+
+    private fun allFiltersIsNull(): Boolean {
+        return arrayFilter.all { it == null }
     }
 
 
     companion object {
-        fun newInstance() = LocationAllFragment()
+
+        private const val FILTER_ARRAY = "filter array"
+
+        fun newInstance(
+            nameFilter: String? = null,
+            typeFilter: String? = null,
+            dimensionFilter: String? = null
+        ) = LocationAllFragment().apply {
+            arguments = Bundle().apply {
+                putStringArray(FILTER_ARRAY, arrayOf(nameFilter, typeFilter, dimensionFilter))
+            }
+        }
     }
 }
