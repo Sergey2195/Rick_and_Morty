@@ -17,6 +17,15 @@ interface ApiCall {
         @Query("gender") gender: String? = null
     ): AllCharactersResponse
 
+    @GET("character/")
+    fun getCountOfCharacters(
+        @Query("name") name: String? = null,
+        @Query("status") status: String? = null,
+        @Query("species") species: String? = null,
+        @Query("type") type: String? = null,
+        @Query("gender") gender: String? = null
+    ): Single<AllCharactersResponse>
+
     @GET("character/{id}")
     suspend fun getSingleCharacterData(
         @Path("id") id: Int

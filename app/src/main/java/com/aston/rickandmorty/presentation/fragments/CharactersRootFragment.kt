@@ -5,15 +5,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharactersRootBinding
+import com.aston.rickandmorty.domain.entity.CharacterFilterModel
+import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 
 class CharactersRootFragment : Fragment() {
 
     private var _binding: FragmentCharactersRootBinding? = null
     private val binding
         get() = _binding!!
+    private val viewModel: CharactersViewModel by lazy {
+        ViewModelProvider(requireActivity())[CharactersViewModel::class.java]
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,6 +43,29 @@ class CharactersRootFragment : Fragment() {
                 .commit()
         }
         setupBackButtonClickListener()
+        setupObservers()
+    }
+
+    private fun setupObservers() = lifecycleScope.launch{
+        viewModel.characterFilter.filterNotNull().collect{
+            childFragmentManager.popBackStack()
+            delay(500)
+            startFragmentWithFiltering(it)
+        }
+    }
+
+    private fun startFragmentWithFiltering(filter: CharacterFilterModel){
+        val fragment = CharactersAllFragment.newInstance(
+            filter.nameFilter,
+            filter.statusFilter,
+            filter.speciesFilter,
+            filter.typeFilter,
+            filter.genderFilter
+        )
+        childFragmentManager.beginTransaction()
+            .replace(R.id.charactersFragmentContainerRoot, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onStart() {

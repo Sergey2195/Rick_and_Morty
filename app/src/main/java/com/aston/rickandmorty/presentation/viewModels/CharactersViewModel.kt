@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.aston.rickandmorty.data.RepositoryImpl
+import com.aston.rickandmorty.domain.entity.CharacterFilterModel
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.domain.entity.LocationModel
 import com.aston.rickandmorty.domain.useCases.CharacterAllFlowUseCase
@@ -34,6 +35,8 @@ class CharactersViewModel : ViewModel() {
         MutableStateFlow(emptyList())
     val dataForAdapter
         get() = _dataForAdapter.asStateFlow()
+    private val _characterFilter: MutableStateFlow<CharacterFilterModel?> = MutableStateFlow(null)
+        val characterFilter = _characterFilter.asStateFlow()
 
     fun getFlowCharacters(
         nameFilter: String? = null,
@@ -69,5 +72,9 @@ class CharactersViewModel : ViewModel() {
         withContext(Dispatchers.Main) {
             _dataForAdapter.value = resultList
         }
+    }
+
+    fun setCharacterFilter(filter: CharacterFilterModel){
+        _characterFilter.value = filter
     }
 }

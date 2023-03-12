@@ -136,4 +136,15 @@ object RepositoryImpl : Repository {
             null
         }
     }
+
+    override fun getCountOfCharacters(
+        nameFilter: String?,
+        statusFilter: String?,
+        speciesFilter: String?,
+        typeFilter: String?,
+        genderFilter: String?
+    ): Single<Int> {
+        return apiCall.getCountOfCharacters(nameFilter,statusFilter,speciesFilter,typeFilter,genderFilter)
+            .map { it.pageInfo?.countCharacters }
+    }
 }

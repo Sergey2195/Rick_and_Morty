@@ -19,7 +19,9 @@ import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 
 class CharactersAllFragment : Fragment() {
-    private val viewModel: CharactersViewModel by viewModels()
+    private val viewModel: CharactersViewModel by lazy {
+        ViewModelProvider(requireActivity())[CharactersViewModel::class.java]
+    }
     private val mainViewModel by lazy {
         ViewModelProvider(requireActivity())[MainViewModel::class.java]
     }

@@ -20,4 +20,11 @@ interface Repository {
     suspend fun getSingleEpisodeData(id: Int): EpisodeDetailsModel?
     suspend fun getLocationModel(id: Int): LocationModel?
     suspend fun getListEpisodeModel(multiId: String): List<EpisodeModel>?
+    fun getCountOfCharacters(
+        nameFilter: String? = null,
+        statusFilter: String? = null,
+        speciesFilter: String? = null,
+        typeFilter: String? = null,
+        genderFilter: String? = null
+    ): Single<Int>
 }
