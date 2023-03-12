@@ -10,9 +10,6 @@ import java.io.IOException
 
 class LocationsPagingSource(private val loader: suspend (pageIndex: Int)-> AllLocationsResponse) :
     PagingSource<Int, LocationModel>() {
-    override fun getRefreshKey(state: PagingState<Int, LocationModel>): Int? {
-        return null
-    }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LocationModel> {
         val pageIndex = params.key ?: START_PAGE
@@ -26,6 +23,10 @@ class LocationsPagingSource(private val loader: suspend (pageIndex: Int)-> AllLo
         }catch (e:Exception){
             LoadResult.Error(e)
         }
+    }
+
+    override fun getRefreshKey(state: PagingState<Int, LocationModel>): Int? {
+        return null
     }
 
     companion object {

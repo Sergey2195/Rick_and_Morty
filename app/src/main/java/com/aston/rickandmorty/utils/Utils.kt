@@ -3,14 +3,15 @@ package com.aston.rickandmorty.utils
 object Utils {
     fun findPage(str: String?): Int?{
         if (str == null) return null
-        val lastSlash = str.lastIndexOf('/')
-        val startNumber = lastSlash + 7
-        var endNumber = startNumber
-        while (endNumber <= str.lastIndex && str[endNumber] <= '9' && str[endNumber] >= '0'){
-            endNumber++
+        var index = str.indexOf("page=")
+        if (index == -1) throw RuntimeException("findPage error")
+        index += 5
+        var endIndex = index
+        while (endIndex < str.length && str[endIndex] >= '0' && str[endIndex] <= '9'){
+            endIndex++
         }
         return try {
-            str.substring(startNumber, endNumber).toInt()
+            str.substring(index until endIndex).toInt()
         }catch (e: Exception){
             null
         }

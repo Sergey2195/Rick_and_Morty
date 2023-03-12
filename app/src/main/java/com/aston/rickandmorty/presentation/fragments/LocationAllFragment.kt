@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,13 +46,15 @@ class LocationAllFragment : Fragment() {
         }
     }
 
-    private fun setupObservers() = lifecycleScope.launchWhenStarted {
-        viewModel.getLocationAllFlow(
-            arrayFilter[0],
-            arrayFilter[1],
-            arrayFilter[2]
-        ).collect {
-            adapter.submitData(it)
+    private fun setupObservers() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.getLocationAllFlow(
+                arrayFilter[0],
+                arrayFilter[1],
+                arrayFilter[2]
+            ).collect {
+                adapter.submitData(it)
+            }
         }
     }
 
