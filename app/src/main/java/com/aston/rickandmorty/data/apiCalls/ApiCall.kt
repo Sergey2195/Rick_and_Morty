@@ -40,11 +40,11 @@ interface ApiCall {
     ): AllLocationsResponse
 
     @GET("location")
-    suspend fun getCountOfLocations(
+    fun getCountOfLocations(
         @Query("name") name: String? = null,
         @Query("type") type: String? = null,
         @Query("dimension") dimension: String? = null
-    ): AllLocationsResponse
+    ): Single<AllLocationsResponse>
 
     @GET("location/{id}")
     fun getSingleLocationData(

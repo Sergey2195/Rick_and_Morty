@@ -33,4 +33,10 @@ interface Repository {
         typeFilter: String? = null,
         genderFilter: String? = null
     ): Single<Int>
+
+    fun getCountOfLocations(
+        nameFilter: String? = null,
+        typeFilter: String? = null,
+        dimensionFilter: String? = null
+    ): Single<Int>
 }

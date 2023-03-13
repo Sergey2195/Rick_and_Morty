@@ -166,4 +166,13 @@ object RepositoryImpl : Repository {
         )
             .map { it.pageInfo?.countCharacters }
     }
+
+    override fun getCountOfLocations(
+        nameFilter: String?,
+        typeFilter: String?,
+        dimensionFilter: String?
+    ): Single<Int> {
+        return apiCall.getCountOfLocations(nameFilter, typeFilter, dimensionFilter)
+            .map { it.pageInfo?.countCharacters }
+    }
 }
