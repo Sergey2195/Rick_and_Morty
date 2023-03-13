@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentEpisodesBinding
-import com.aston.rickandmorty.toolbarManager.ToolbarManager
 
 class EpisodesFragment : Fragment() {
 
@@ -22,37 +21,6 @@ class EpisodesFragment : Fragment() {
     ): View {
         _binding = FragmentEpisodesBinding.inflate(inflater, container, false)
         return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setupBackButtonClickListener()
-        binding.episodesOpenChild.setOnClickListener {
-            startEpisodesDetailsFragment()
-        }
-    }
-
-    private fun setupBackButtonClickListener() {
-        (requireActivity() as ToolbarManager).setBackButtonClickLister {
-            backFromEpisodesDetailsFragment()
-        }
-    }
-
-    private fun backFromEpisodesDetailsFragment() {
-        childFragmentManager.popBackStack()
-        binding.episodesFragmentContainer.visibility = View.GONE
-        binding.episodesContentLayout.visibility = View.VISIBLE
-        (requireActivity() as ToolbarManager).onParentScreen()
-    }
-
-    private fun startEpisodesDetailsFragment() {
-        binding.episodesContentLayout.visibility = View.GONE
-        childFragmentManager.beginTransaction()
-            .add(R.id.episodesFragmentContainer, EpisodeDetailsFragment.newInstance())
-            .addToBackStack(null)
-            .commit()
-        binding.episodesFragmentContainer.visibility = View.VISIBLE
-        (requireActivity() as ToolbarManager).onChildScreen()
     }
 
     override fun onDestroy() {

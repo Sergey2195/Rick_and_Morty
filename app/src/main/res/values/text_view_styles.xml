@@ -1,13 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="TitleStyle" parent="Widget.AppCompat.TextView">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:layout_marginStart">10dp</item>
+        <item name="android:layout_marginStart">6dp</item>
     </style>
     <style name="ValueStyle" parent="Widget.AppCompat.TextView">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/black</item>
+        <item name="android:layout_marginEnd">6dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+    </style>
+    <style name="TitleDetailsStyle" parent="TitleStyle">
+        <item name="android:layout_marginStart">20dp</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    <style name="ValueDetailsStyle" parent="ValueStyle">
+        <item name="android:layout_marginEnd">20dp</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="ValueLocation" parent="ValueStyle">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/variantFirst</item>
+        <item name="android:textStyle">bold</item>
     </style>
 </resources>

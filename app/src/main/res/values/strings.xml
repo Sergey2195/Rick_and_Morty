@@ -10,4 +10,15 @@
     <string name="character_status_title">Status:</string>
     <string name="character_gender_title">Gender:</string>
     <string name="character_example_value">Example</string>
+    <string name="load_error_text">Load error</string>
+    <string name="try_again">Try again</string>
+    <string name="filter_title">Filter</string>
+    <string name="search_title">Search</string>
+    <string name="search_position">%d/%d</string>
+    <string name="snackbar_not_found">Not Found</string>
+    <string name="character_type_title">Type:</string>
+    <string name="character_origin_title">Origin:</string>
+    <string name="character_location_title">Location:</string>
+    <string name="episodes_title">Episodes:</string>
+    <string name="dimension_title">Dimension:</string>
 </resources>

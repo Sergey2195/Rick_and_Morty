@@ -1,12 +1,15 @@
 package com.aston.rickandmorty.presentation.viewModels
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.router.Router
 
-class MainViewModel: ViewModel() {
+class MainViewModel : ViewModel() {
     private var router: Router? = null
     private var onParentFragment = true
+    val searchCharacterLiveData = MutableLiveData<String>()
+    val isOnParentLiveData = MutableLiveData(true)
 
     init {
         router = Router()
@@ -20,23 +23,37 @@ class MainViewModel: ViewModel() {
         router?.onDestroy()
     }
 
-    fun isOnParentFragment():Boolean{
+    fun isOnParentFragment(): Boolean {
         return onParentFragment
     }
 
-    fun setIsOnParentFragment(isOnParentFragment: Boolean){
-        onParentFragment = isOnParentFragment
-    }
-
-    fun openCharacterFragment(){
+    fun openCharacterFragment() {
         router?.openCharactersFragment()
     }
 
-    fun openLocationFragment(){
+    fun openLocationFragment() {
         router?.openLocationFragment()
     }
 
-    fun openEpisodesFragment(){
+    fun openEpisodesFragment() {
         router?.openEpisodesFragment()
+    }
+
+    fun setIsOnParentLiveData(isOnParent: Boolean){
+        isOnParentLiveData.postValue(isOnParent)
+    }
+
+    fun addSearchCharacterLiveData(search: String) {
+        searchCharacterLiveData.value = search
+    }
+
+    fun clearSearchCharacterLiveData() {
+        searchCharacterLiveData.value = ""
+    }
+
+    companion object{
+        const val CHARACTER_SCREEN = 1
+        const val LOCATION_SCREEN = 2
+        const val EPISODES_SCREEN = 3
     }
 }

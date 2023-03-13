@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/characterDetailsRecyclerView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".presentation.fragments.CharacterDetailsFragment">
-    <TextView
-        android:id="@+id/tmpDetailsID"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/example_largeText" />
-
-</androidx.core.widget.NestedScrollView>
+    android:background="@drawable/rounded_shape"
+    android:layout_marginHorizontal="20dp"
+    android:layout_marginVertical="4dp"
+    tools:context=".presentation.fragments.CharacterDetailsFragment" />

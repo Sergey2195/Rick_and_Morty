@@ -1,27 +1,28 @@
 package com.aston.rickandmorty.presentation.viewModels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.aston.rickandmorty.data.RepositoryImpl
+import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.domain.entity.CharacterModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.aston.rickandmorty.domain.useCases.CharacterAllFlowUseCase
+import com.aston.rickandmorty.domain.useCases.CharacterDetailsUseCase
+import kotlinx.coroutines.flow.Flow
 
-class CharactersViewModel: ViewModel() {
-    private val _charactersDataStateFlow = MutableStateFlow<List<CharacterModel>>(emptyList())
-    val charactersDataStateFlow: StateFlow<List<CharacterModel>>
-        get() = _charactersDataStateFlow.asStateFlow()
+class CharactersViewModel : ViewModel() {
+    private val repository = RepositoryImpl
+    private val characterAllFlowUseCase = CharacterAllFlowUseCase(repository)
+    private val characterDetailsUseCase = CharacterDetailsUseCase(repository)
+    val charactersFlow: Flow<PagingData<CharacterModel>> =
+        characterAllFlowUseCase.invoke().cachedIn(viewModelScope)
 
-    fun updateData(){
-        getHardcodedData()
+    suspend fun getCharacterDetailsInfo(id: Int): CharacterDetailsModel?{
+        return characterDetailsUseCase.invoke(id)
     }
 
-    private fun getHardcodedData() {
-        val list = mutableListOf<CharacterModel>()
-        for (i in 0..30){
-            list.add(
-                CharacterModel(i, "name$i", "species$i", "status$i", "gender$i")
-            )
-        }
-        _charactersDataStateFlow.value = list
+    fun updateData() {
+        //todo
     }
 }
