@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -114,7 +113,6 @@ class LocationAllFragment : Fragment() {
     private fun allFiltersIsNull(): Boolean {
         return arrayFilter.all { it == null }
     }
-
 
     companion object {
 

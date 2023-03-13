@@ -22,7 +22,11 @@ interface Repository {
 
     suspend fun getSingleCharacterData(id: Int): CharacterDetailsModel?
     fun getSingleLocationData(id: Int): Single<LocationDetailsModel>
-    fun getFlowAllEpisodes(): Flow<PagingData<EpisodeModel>>
+    fun getFlowAllEpisodes(
+        nameFilter: String? = null,
+        episodeFilter: String? = null
+    ): Flow<PagingData<EpisodeModel>>
+
     suspend fun getSingleEpisodeData(id: Int): EpisodeDetailsModel?
     suspend fun getLocationModel(id: Int): LocationModel?
     suspend fun getListEpisodeModel(multiId: String): List<EpisodeModel>?
@@ -38,5 +42,10 @@ interface Repository {
         nameFilter: String? = null,
         typeFilter: String? = null,
         dimensionFilter: String? = null
+    ): Single<Int>
+
+    fun getCountOfEpisodes(
+        nameFilter: String? = null,
+        episodeFilter: String? = null
     ): Single<Int>
 }

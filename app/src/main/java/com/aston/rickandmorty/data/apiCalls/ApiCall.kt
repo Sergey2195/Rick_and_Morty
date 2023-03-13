@@ -58,8 +58,16 @@ interface ApiCall {
 
     @GET("episode")
     suspend fun getAllEpisodes(
-        @Query("page") page: Int
+        @Query("page") page: Int,
+        @Query("name") name: String? = null,
+        @Query("episode") episode: String? = null
     ): AllEpisodesResponse
+
+    @GET("episode")
+    fun getCountOfEpisodes(
+        @Query("name") name: String? = null,
+        @Query("episode") episode: String? = null
+    ): Single<AllEpisodesResponse>
 
     @GET("episode/{id}")
     suspend fun getSingleEpisodeData(

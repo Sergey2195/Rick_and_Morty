@@ -6,7 +6,10 @@ import com.aston.rickandmorty.domain.repository.Repository
 import kotlinx.coroutines.flow.Flow
 
 class EpisodesAllFlowUseCase(private val repository: Repository) {
-    operator fun invoke(): Flow<PagingData<EpisodeModel>> {
-        return repository.getFlowAllEpisodes()
+    operator fun invoke(
+        nameFilter: String? = null,
+        episodeFilter: String? = null
+    ): Flow<PagingData<EpisodeModel>> {
+        return repository.getFlowAllEpisodes(nameFilter, episodeFilter)
     }
 }

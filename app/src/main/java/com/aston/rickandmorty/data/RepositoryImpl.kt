@@ -73,6 +73,18 @@ object RepositoryImpl : Repository {
         }
     }
 
+    override fun getFlowAllEpisodes(
+        nameFilter: String?,
+        episodeFilter: String?
+    ): Flow<PagingData<EpisodeModel>> {
+        return Pager(
+            config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
+            pagingSourceFactory = { EpisodesPagingSource{
+                apiCall.getAllEpisodes(it, nameFilter, episodeFilter)
+            } }
+        ).flow
+    }
+
     override fun getSingleLocationData(id: Int): Single<LocationDetailsModel> {
         var locationInfoRemote: LocationInfoRemote? = null
         return apiCall.getSingleLocationData(id)
@@ -97,14 +109,6 @@ object RepositoryImpl : Repository {
                     list
                 )
             }
-    }
-
-
-    override fun getFlowAllEpisodes(): Flow<PagingData<EpisodeModel>> {
-        return Pager(
-            config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
-            pagingSourceFactory = { EpisodesPagingSource(apiCall) }
-        ).flow
     }
 
     override suspend fun getSingleEpisodeData(id: Int): EpisodeDetailsModel? {
@@ -164,7 +168,7 @@ object RepositoryImpl : Repository {
             typeFilter,
             genderFilter
         )
-            .map { it.pageInfo?.countCharacters }
+            .map { it.pageInfo?.countOfElements }
     }
 
     override fun getCountOfLocations(
@@ -173,6 +177,10 @@ object RepositoryImpl : Repository {
         dimensionFilter: String?
     ): Single<Int> {
         return apiCall.getCountOfLocations(nameFilter, typeFilter, dimensionFilter)
-            .map { it.pageInfo?.countCharacters }
+            .map { it.pageInfo?.countOfElements }
+    }
+
+    override fun getCountOfEpisodes(nameFilter: String?, episodeFilter: String?): Single<Int> {
+        return apiCall.getCountOfEpisodes(nameFilter, episodeFilter).map { it.pageInfo?.countOfElements }
     }
 }

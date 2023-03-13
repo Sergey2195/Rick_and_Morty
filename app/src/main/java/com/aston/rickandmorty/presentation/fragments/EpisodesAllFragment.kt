@@ -30,6 +30,14 @@ class EpisodesAllFragment : Fragment() {
     }
     private val adapter = EpisodesAdapter()
     private var gridLayoutManager: GridLayoutManager? = null
+    private var arrayFilter: Array<String?> = Array(2) { null }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,7 +79,7 @@ class EpisodesAllFragment : Fragment() {
 
     private fun setupObservers() {
         lifecycleScope.launchWhenStarted {
-            viewModel.episodesAllFlow.collect { pagingData ->
+            viewModel.getEpisodesAllFlow(arrayFilter[0], arrayFilter[1]).collect { pagingData ->
                 adapter.submitData(pagingData)
             }
         }
@@ -79,10 +87,22 @@ class EpisodesAllFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        mainViewModel.setIsOnParentLiveData(true)
-        (requireActivity() as ToolbarManager).setToolbarText(
+        val filtersInNull = allFiltersIsNull()
+        mainViewModel.setIsOnParentLiveData(filtersInNull)
+        val title = if (filtersInNull) {
             requireContext().getString(R.string.bottom_navigation_menu_episodes_title)
-        )
+        } else {
+            getTitleFiltering()
+        }
+        (requireActivity() as ToolbarManager).setToolbarText(title)
+    }
+
+    private fun getTitleFiltering(): String {
+        return arrayFilter.filterNotNull().joinToString()
+    }
+
+    private fun allFiltersIsNull(): Boolean {
+        return arrayFilter.all { it == null }
     }
 
     override fun onDestroy() {
@@ -92,6 +112,15 @@ class EpisodesAllFragment : Fragment() {
 
     companion object {
 
-        fun newInstance() = EpisodesAllFragment()
+        private const val FILTER_ARRAY = "filter array"
+
+        fun newInstance(
+            nameFilter: String? = null,
+            episodeFilter: String? = null
+        ) = EpisodesAllFragment().apply {
+            arguments = Bundle().apply {
+                putStringArray(FILTER_ARRAY, arrayOf(nameFilter, episodeFilter))
+            }
+        }
     }
 }
