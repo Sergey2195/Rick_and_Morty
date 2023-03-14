@@ -4,8 +4,9 @@ import androidx.paging.PagingData
 import com.aston.rickandmorty.domain.entity.EpisodeModel
 import com.aston.rickandmorty.domain.repository.Repository
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class EpisodesAllFlowUseCase(private val repository: Repository) {
+class EpisodesAllFlowUseCase @Inject constructor(private val repository: Repository) {
     operator fun invoke(
         nameFilter: String? = null,
         episodeFilter: String? = null

@@ -10,10 +10,12 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class LocationFilterViewModel: ViewModel() {
-    private val repository = RepositoryImpl
-    private val countOfLocationsUseCase = CountOfLocationUseCase(repository)
+class LocationFilterViewModel @Inject constructor(
+    private val countOfLocationsUseCase: CountOfLocationUseCase
+): ViewModel() {
+
     private val _locationCountStateFlow = MutableStateFlow(0)
     val locationCountStateFlow = _locationCountStateFlow.asStateFlow()
     private val compositeDisposable = CompositeDisposable()

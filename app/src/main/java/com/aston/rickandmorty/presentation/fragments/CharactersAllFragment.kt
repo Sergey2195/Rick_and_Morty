@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,18 +13,28 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharactersAllBinding
+import com.aston.rickandmorty.presentation.App
+import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.adapters.CharactersAdapter
 import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import javax.inject.Inject
 
 class CharactersAllFragment : Fragment() {
-    private val viewModel: CharactersViewModel by lazy {
-        ViewModelProvider(requireActivity())[CharactersViewModel::class.java]
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private val component by lazy {
+        ((requireActivity().application) as App).component
     }
-    private val mainViewModel by lazy {
-        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
+        viewModelFactory
+    }
+    private val charactersViewModel: CharactersViewModel by viewModels({activity as MainActivity }) {
+        viewModelFactory
     }
     private val adapter = CharactersAdapter()
     private var _binding: FragmentCharactersAllBinding? = null
@@ -31,6 +42,11 @@ class CharactersAllFragment : Fragment() {
         get() = _binding!!
     private var gridLayoutManager: GridLayoutManager? = null
     private var arrayFilter: Array<String?> = Array(5) { null }
+
+    override fun onAttach(context: Context) {
+        component.injectCharactersAllFragment(this)
+        super.onAttach(context)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,7 +98,7 @@ class CharactersAllFragment : Fragment() {
     }
 
     private fun setupObservers() = lifecycleScope.launchWhenStarted {
-        viewModel.getFlowCharacters(
+        charactersViewModel.getFlowCharacters(
             arrayFilter[0],
             arrayFilter[1],
             arrayFilter[2],

@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.aston.rickandmorty.data.RepositoryImpl
 import com.aston.rickandmorty.domain.entity.LocationDetailsModel
 import com.aston.rickandmorty.domain.entity.LocationFilterModel
 import com.aston.rickandmorty.domain.useCases.LocationDetailsUseCase
@@ -14,11 +13,12 @@ import com.aston.rickandmorty.presentation.adapterModels.DetailsModelAdapter
 import io.reactivex.Single
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class LocationsViewModel : ViewModel() {
-    private val repository = RepositoryImpl
-    private val locationsAllFlowUseCase = LocationsAllFlowUseCase(repository)
-    private val locationDetailsUseCase = LocationDetailsUseCase(repository)
+class LocationsViewModel @Inject constructor(
+    private val locationsAllFlowUseCase: LocationsAllFlowUseCase,
+    private val locationDetailsUseCase: LocationDetailsUseCase
+) : ViewModel() {
     private val _locationFilterStateFlow: MutableStateFlow<LocationFilterModel?> =
         MutableStateFlow(null)
     val locationFilterStateFlow = _locationFilterStateFlow.asStateFlow()
@@ -41,11 +41,11 @@ class LocationsViewModel : ViewModel() {
         return Mapper.transformLocationDetailsModelToDetailsModelAdapter(data, context)
     }
 
-    fun clearFilter(){
+    fun clearFilter() {
         _locationFilterStateFlow.value = null
     }
 
-    fun setFilter(filter: LocationFilterModel){
+    fun setFilter(filter: LocationFilterModel) {
         _locationFilterStateFlow.value = filter
     }
 }

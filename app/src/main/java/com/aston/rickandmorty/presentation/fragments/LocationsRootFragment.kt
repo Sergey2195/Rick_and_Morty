@@ -1,27 +1,39 @@
 package com.aston.rickandmorty.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentLocationsRootBinding
 import com.aston.rickandmorty.domain.entity.LocationFilterModel
+import com.aston.rickandmorty.presentation.App
+import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
+import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
+import javax.inject.Inject
 
 class LocationsRootFragment : Fragment() {
 
     private var _binding: FragmentLocationsRootBinding? = null
     private val binding
         get() = _binding!!
-    private val locationViewModel by lazy {
-        ViewModelProvider(requireActivity())[LocationsViewModel::class.java]
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private val component by lazy {
+        ((requireActivity().application) as App).component
+    }
+    private val locationViewModel: LocationsViewModel by viewModels({ activity as MainActivity }) {
+        viewModelFactory
     }
 
     override fun onCreateView(
@@ -30,6 +42,11 @@ class LocationsRootFragment : Fragment() {
     ): View {
         _binding = FragmentLocationsRootBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onAttach(context: Context) {
+        component.injectLocationsRootFragment(this)
+        super.onAttach(context)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
