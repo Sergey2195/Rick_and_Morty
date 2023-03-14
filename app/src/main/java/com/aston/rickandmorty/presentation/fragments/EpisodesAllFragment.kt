@@ -1,36 +1,53 @@
 package com.aston.rickandmorty.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentEpisodesAllBinding
+import com.aston.rickandmorty.presentation.App
+import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.adapters.EpisodesAdapter
+import com.aston.rickandmorty.presentation.viewModels.EpisodeFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import javax.inject.Inject
 
 class EpisodesAllFragment : Fragment() {
 
     private var _binding: FragmentEpisodesAllBinding? = null
     private val binding
         get() = _binding!!
-    private val mainViewModel by lazy {
-        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
+        viewModelFactory
     }
-    private val viewModel by lazy {
-        ViewModelProvider(requireActivity())[EpisodesViewModel::class.java]
+    private val viewModel: EpisodesViewModel by viewModels({activity as MainActivity }) {
+        viewModelFactory
+    }
+    private val component by lazy {
+        ((requireActivity().application) as App).component
     }
     private val adapter = EpisodesAdapter()
     private var gridLayoutManager: GridLayoutManager? = null
     private var arrayFilter: Array<String?> = Array(2) { null }
+
+    override fun onAttach(context: Context) {
+        component.injectEpisodesAllFragment(this)
+        super.onAttach(context)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

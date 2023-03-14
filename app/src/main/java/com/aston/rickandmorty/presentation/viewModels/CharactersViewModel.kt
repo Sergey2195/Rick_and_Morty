@@ -23,14 +23,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class CharactersViewModel : ViewModel() {
+class CharactersViewModel @Inject constructor(
+    private val characterAllFlowUseCase: CharacterAllFlowUseCase,
+    private val characterDetailsUseCase: CharacterDetailsUseCase,
+    private val locationModelsUseCase: LocationModelUseCase,
+    private val listEpisodesModelUseCase: EpisodesListWithIdsUseCase
+): ViewModel() {
 
-    private val repository = RepositoryImpl
-    private val characterAllFlowUseCase = CharacterAllFlowUseCase(repository)
-    private val characterDetailsUseCase = CharacterDetailsUseCase(repository)
-    private val locationModelsUseCase = LocationModelUseCase(repository)
-    private val listEpisodesModelUseCase = EpisodesListWithIdsUseCase(repository)
     private val _dataForAdapter: MutableStateFlow<List<CharacterDetailsModelAdapter>> =
         MutableStateFlow(emptyList())
     val dataForAdapter

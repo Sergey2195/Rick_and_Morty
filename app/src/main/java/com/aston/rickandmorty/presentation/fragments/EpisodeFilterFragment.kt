@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,14 +13,18 @@ import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentEpisodeFilterBinding
 import com.aston.rickandmorty.domain.entity.EpisodeFilterModel
+import com.aston.rickandmorty.presentation.App
+import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.EpisodeFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 class EpisodeFilterFragment : Fragment() {
 
@@ -27,16 +32,28 @@ class EpisodeFilterFragment : Fragment() {
     private var _binding: FragmentEpisodeFilterBinding? = null
     private val binding
         get() = _binding!!
-    private val mainViewModel by lazy {
-        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
+        viewModelFactory
     }
-    private val episodeViewModel by lazy {
-        ViewModelProvider(requireActivity())[EpisodesViewModel::class.java]
+    private val viewModel: EpisodesViewModel by viewModels({activity as MainActivity }) {
+        viewModelFactory
+    }
+    private val filterViewModel: EpisodeFilterViewModel by viewModels{
+        viewModelFactory
+    }
+    private val component by lazy {
+        ((requireActivity().application) as App).component
     }
     private val resultFilter = EpisodeFilterModel()
-    private val filterViewModel: EpisodeFilterViewModel by viewModels()
     private val publishSubject = PublishSubject.create<Unit>()
     private val compositeDisposable = CompositeDisposable()
+
+    override fun onAttach(context: Context) {
+        component.injectEpisodeFilterFragment(this)
+        super.onAttach(context)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,7 +98,7 @@ class EpisodeFilterFragment : Fragment() {
     }
 
     private fun setupClickListener() {
-        binding.saveButton.setOnClickListener { episodeViewModel.setFilter(resultFilter) }
+        binding.saveButton.setOnClickListener { viewModel.setFilter(resultFilter) }
         binding.nameEditText.doOnTextChanged { text, _, _, _ ->
             resultFilter.name = textFilter(text)
             publishSubject.onNext(Unit)

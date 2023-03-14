@@ -9,10 +9,12 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class EpisodeFilterViewModel : ViewModel() {
-    private val repository = RepositoryImpl
-    private val countOfEpisodesUseCase = CountOfEpisodesUseCase(repository)
+class EpisodeFilterViewModel @Inject constructor(
+    private val countOfEpisodesUseCase: CountOfEpisodesUseCase
+) : ViewModel() {
+
     private val _countOfEpisodesStateFlow = MutableStateFlow(0)
     val countOfEpisodesStateFlow = _countOfEpisodesStateFlow.asStateFlow()
     private val compositeDisposable = CompositeDisposable()

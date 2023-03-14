@@ -1,28 +1,45 @@
 package com.aston.rickandmorty.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharactersRootBinding
 import com.aston.rickandmorty.domain.entity.CharacterFilterModel
+import com.aston.rickandmorty.presentation.App
+import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
+import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class CharactersRootFragment : Fragment() {
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private val component by lazy {
+        ((requireActivity().application) as App).component
+    }
+    private val charactersViewModel: CharactersViewModel by viewModels({activity as MainActivity }) {
+        viewModelFactory
+    }
     private var _binding: FragmentCharactersRootBinding? = null
     private val binding
         get() = _binding!!
-    private val viewModel: CharactersViewModel by lazy {
-        ViewModelProvider(requireActivity())[CharactersViewModel::class.java]
+
+    override fun onAttach(context: Context) {
+        component.injectCharactersRootFragment(this)
+        super.onAttach(context)
     }
 
     override fun onCreateView(
@@ -45,11 +62,11 @@ class CharactersRootFragment : Fragment() {
     }
 
     private fun setupObservers() = lifecycleScope.launch{
-        viewModel.characterFilter.filterNotNull().collect{
+        charactersViewModel.characterFilter.filterNotNull().collect{
             childFragmentManager.popBackStack()
             delay(500)
             startFragmentWithFiltering(it)
-            viewModel.clearCharacterFilter()
+            charactersViewModel.clearCharacterFilter()
         }
     }
 

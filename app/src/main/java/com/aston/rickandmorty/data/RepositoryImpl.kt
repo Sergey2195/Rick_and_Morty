@@ -3,22 +3,25 @@ package com.aston.rickandmorty.data
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.aston.rickandmorty.data.apiCalls.RetrofitApiCall
+import com.aston.rickandmorty.data.apiCalls.ApiCall
 import com.aston.rickandmorty.data.models.CharacterInfoRemote
 import com.aston.rickandmorty.data.models.LocationInfoRemote
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
 import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
 import com.aston.rickandmorty.data.pagingSources.LocationsPagingSource
+import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.domain.repository.Repository
 import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.utils.Utils
 import io.reactivex.Single
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-object RepositoryImpl : Repository {
-
-    val apiCall = RetrofitApiCall.getCharacterApiCall()
+@ApplicationScope
+class RepositoryImpl @Inject constructor(
+    private val apiCall: ApiCall
+) : Repository {
 
     override fun getFlowAllCharacters(
         nameFilter: String?,

@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,15 +13,19 @@ import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentLocationFilterBinding
 import com.aston.rickandmorty.domain.entity.LocationFilterModel
+import com.aston.rickandmorty.presentation.App
+import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.LocationFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 class LocationFilterFragment : Fragment() {
 
@@ -28,16 +33,28 @@ class LocationFilterFragment : Fragment() {
     private var _binding: FragmentLocationFilterBinding? = null
     private val binding
         get() = _binding!!
-    private val mainViewModel by lazy {
-        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private val component by lazy {
+        ((requireActivity().application) as App).component
     }
-    private val locationViewModel by lazy {
-        ViewModelProvider(requireActivity())[LocationsViewModel::class.java]
+    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
+        viewModelFactory
     }
-    private val locationFilterViewModel: LocationFilterViewModel by viewModels()
+    private val locationViewModel: LocationsViewModel by viewModels({ activity as MainActivity }) {
+        viewModelFactory
+    }
+    private val locationFilterViewModel: LocationFilterViewModel by viewModels(){
+        viewModelFactory
+    }
     private val resultFilter = LocationFilterModel()
     private val publishSubject = PublishSubject.create<Unit>()
     private val compositeDisposable = CompositeDisposable()
+
+    override fun onAttach(context: Context) {
+        component.injectLocationFilterFragment(this)
+        super.onAttach(context)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

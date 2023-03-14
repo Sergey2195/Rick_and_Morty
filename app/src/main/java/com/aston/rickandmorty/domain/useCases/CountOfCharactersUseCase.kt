@@ -2,8 +2,9 @@ package com.aston.rickandmorty.domain.useCases
 
 import com.aston.rickandmorty.domain.repository.Repository
 import io.reactivex.Single
+import javax.inject.Inject
 
-class CountOfCharactersUseCase(private val repository: Repository) {
+class CountOfCharactersUseCase @Inject constructor(private val repository: Repository) {
     operator fun invoke(
         nameFilter: String? = null,
         statusFilter: String? = null,

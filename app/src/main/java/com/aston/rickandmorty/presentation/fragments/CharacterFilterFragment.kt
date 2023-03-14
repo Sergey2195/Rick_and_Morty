@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,14 +13,18 @@ import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharacterFilterBinding
 import com.aston.rickandmorty.domain.entity.CharacterFilterModel
+import com.aston.rickandmorty.presentation.App
+import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.CharacterFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 class CharacterFilterFragment : Fragment() {
 
@@ -27,17 +32,28 @@ class CharacterFilterFragment : Fragment() {
     private var _binding: FragmentCharacterFilterBinding? = null
     private val binding
         get() = _binding!!
-    private val mainViewModel by lazy {
-        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
+        viewModelFactory
     }
-    private val charactersViewModel: CharactersViewModel by lazy {
-        ViewModelProvider(requireActivity())[CharactersViewModel::class.java]
+    private val charactersViewModel: CharactersViewModel by viewModels({activity as MainActivity }) {
+        viewModelFactory
     }
-    private val characterFilterViewModel: CharacterFilterViewModel by viewModels()
+    private val characterFilterViewModel: CharacterFilterViewModel by viewModels{
+        viewModelFactory
+    }
     private val resultFilter = CharacterFilterModel()
     private val publishSubject = PublishSubject.create<Unit>()
     private val compositeDisposable = CompositeDisposable()
+    private val component by lazy {
+        ((requireActivity().application) as App).component
+    }
 
+    override fun onAttach(context: Context) {
+        component.injectCharacterFilterFragment(this)
+        super.onAttach(context)
+    }
     override fun onDetach() {
         super.onDetach()
         compositeDisposable.dispose()

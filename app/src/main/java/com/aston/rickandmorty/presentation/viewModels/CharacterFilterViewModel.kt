@@ -3,16 +3,20 @@ package com.aston.rickandmorty.presentation.viewModels
 import androidx.lifecycle.ViewModel
 import com.aston.rickandmorty.data.RepositoryImpl
 import com.aston.rickandmorty.domain.entity.CharacterFilterModel
+import com.aston.rickandmorty.domain.repository.Repository
 import com.aston.rickandmorty.domain.useCases.CountOfCharactersUseCase
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class CharacterFilterViewModel : ViewModel() {
-    private val repository = RepositoryImpl
-    private val countOfCharactersUseCase = CountOfCharactersUseCase(repository)
+class CharacterFilterViewModel @Inject constructor(
+    private val countOfCharactersUseCase: CountOfCharactersUseCase
+) : ViewModel() {
+
+
     private val compositeDisposable = CompositeDisposable()
     private val _charactersCountStateFlow = MutableStateFlow(0)
     val charactersCountStateFlow = _charactersCountStateFlow.asStateFlow()
