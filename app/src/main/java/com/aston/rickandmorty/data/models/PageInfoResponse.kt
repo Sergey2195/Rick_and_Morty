@@ -10,7 +10,7 @@ data class PageInfoResponse(
     val countPages: Int? = null,
 
     @SerializedName("next")
-    val nextPageUrl: String? = null,
+    var nextPageUrl: String? = null,
 
     @SerializedName("prev")
     val prevPageUrl: String? = null

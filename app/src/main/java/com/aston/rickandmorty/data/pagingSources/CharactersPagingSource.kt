@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.data.pagingSources
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.aston.rickandmorty.data.models.AllCharactersResponse
@@ -17,7 +18,8 @@ class CharactersPagingSource(private val loader: suspend (pageIndex: Int)-> AllC
             val response = loader.invoke(pageIndex)
             val resultData = response.listCharactersInfo ?: throw IOException()
             val prevPage = Utils.findPage(response.pageInfo?.prevPageUrl)
-            val nextPage = Utils.findPage(response.pageInfo?.nextPageUrl)
+            val nextPage = pageIndex + 1
+            Log.d("SSV_L", "$prevPage $nextPage")
             val mappedList = Mapper.transformListCharacterInfoRemoteIntoListCharacterModel(resultData)
             return LoadResult.Page(mappedList, prevPage, nextPage)
         } catch (e: Exception) {
@@ -26,7 +28,9 @@ class CharactersPagingSource(private val loader: suspend (pageIndex: Int)-> AllC
     }
 
     override fun getRefreshKey(state: PagingState<Int, CharacterModel>): Int? {
-        return null
+        val anchorPosition = state.anchorPosition ?: return null
+        val page = state.closestPageToPosition(anchorPosition) ?: return null
+        return page.prevKey?.plus(1) ?: page.nextKey?.minus(1)
     }
 
     companion object{

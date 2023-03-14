@@ -2,6 +2,7 @@ package com.aston.rickandmorty.mappers
 
 import android.content.Context
 import com.aston.rickandmorty.R
+import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
 import com.aston.rickandmorty.data.models.CharacterInfoRemote
 import com.aston.rickandmorty.data.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.models.LocationInfoRemote
@@ -225,6 +226,15 @@ object Mapper {
             }
         }
         return listCharacterDetails
+    }
+
+    fun transformCharacterInfoRemoteIntoLocal(src: CharacterInfoRemote): CharacterInfoDto{
+        return CharacterInfoDto(
+            src.characterId, src.characterName, src.characterStatus, src.characterSpecies, src.characterType,
+            src.characterGender, src.characterOriginRemote?.characterOriginName, src.characterOriginRemote?.characterOriginUrl,
+            src.characterLocationRemote?.characterLocationName, src.characterLocationRemote?.characterLocationUrl,
+            src.characterImage, src.characterEpisodes, src.characterUrl, src.characterCreated
+        )
     }
 
     private const val EMPTY = "placeholder"

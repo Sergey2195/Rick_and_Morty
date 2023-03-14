@@ -8,7 +8,7 @@ import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.utils.Utils
 import java.io.IOException
 
-class LocationsPagingSource(private val loader: suspend (pageIndex: Int)-> AllLocationsResponse) :
+class LocationsPagingSource(private val loader: suspend (pageIndex: Int) -> AllLocationsResponse) :
     PagingSource<Int, LocationModel>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LocationModel> {
@@ -20,7 +20,7 @@ class LocationsPagingSource(private val loader: suspend (pageIndex: Int)-> AllLo
             val nextPage = Utils.findPage(response.pageInfo?.nextPageUrl)
             val mappedList = Mapper.transformListLocationInfoRemoteIntoListLocationModel(resultData)
             LoadResult.Page(mappedList, prevPage, nextPage)
-        }catch (e:Exception){
+        } catch (e: Exception) {
             LoadResult.Error(e)
         }
     }
