@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.addCallback
@@ -8,22 +9,37 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.ActivityMainBinding
+import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
+import kotlinx.coroutines.flow.collect
+import javax.inject.Inject
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity(), ToolbarManager {
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
-    private val viewModel: MainViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private val viewModel: MainViewModel by viewModels() {
+        viewModelFactory
+    }
+    private val component by lazy {
+        (application as App).component
+    }
     private var isOnParentScreen = true
     private var toolBarBackButtonClickListener: OnClickListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.injectMainActivity(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         connectToRouter()
@@ -35,6 +51,13 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         onBackPressedHandling()
         setBottomNavigationBarClickListeners()
         observeLiveData()
+        observeLoadingState()
+    }
+
+    private fun observeLoadingState() = lifecycleScope.launchWhenStarted {
+        viewModel.getLoadingStateFlow().collect{ isLoading->
+            binding.swipeRefreshLayout.isRefreshing = isLoading
+        }
     }
 
     private fun observeLiveData(){
@@ -101,10 +124,6 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
             ContextCompat.getColor(this, R.color.variantSecond),
             ContextCompat.getColor(this, R.color.variantSecond),
         )
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            //todo refresh logic
-            binding.swipeRefreshLayout.isRefreshing = false
-        }
     }
 
     override fun setToolbarText(text: String) {
@@ -122,6 +141,10 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     override fun setFilterButtonClickListener(clickListener: OnClickListener?) {
         binding.filterButton.setOnClickListener(clickListener)
+    }
+
+    override fun setRefreshClickListener(swipeRefreshListener: SwipeRefreshLayout.OnRefreshListener?) {
+        binding.swipeRefreshLayout.setOnRefreshListener(swipeRefreshListener)
     }
 
     private fun changeVisibilityToolBarElements(

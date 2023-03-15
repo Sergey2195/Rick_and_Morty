@@ -2,11 +2,14 @@ package com.aston.rickandmorty.presentation.viewModels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.aston.rickandmorty.domain.useCases.GetLoadingProgressStateFlow
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.router.Router
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor() : ViewModel() {
+class MainViewModel @Inject constructor(
+    private val loadingStateFlowUseCase: GetLoadingProgressStateFlow
+) : ViewModel() {
     private var router: Router? = null
     val isOnParentLiveData = MutableLiveData(true)
 
@@ -37,4 +40,6 @@ class MainViewModel @Inject constructor() : ViewModel() {
     fun setIsOnParentLiveData(isOnParent: Boolean){
         isOnParentLiveData.postValue(isOnParent)
     }
+
+    fun getLoadingStateFlow() = loadingStateFlowUseCase.invoke()
 }

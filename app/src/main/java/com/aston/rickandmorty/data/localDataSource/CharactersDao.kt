@@ -13,4 +13,7 @@ interface CharactersDao {
 
     @Query("SELECT * FROM CharactersTable")
     suspend fun getAllFromDb(): List<CharacterInfoDto>
+
+    @Query("DELETE FROM CharactersTable")
+    suspend fun deleteAllCharactersData()
 }

@@ -1,6 +1,5 @@
 package com.aston.rickandmorty.data.localDataSource
 
-import android.util.Log
 import com.aston.rickandmorty.data.models.AllCharactersResponse
 import com.aston.rickandmorty.data.models.PageInfoResponse
 import com.aston.rickandmorty.mappers.Mapper
@@ -48,20 +47,23 @@ class LocalRepositoryImpl @Inject constructor(
         return response
     }
 
-    fun checkTwoStrings(filter: String, src: String?): Boolean {
+    private fun checkTwoStrings(filter: String, src: String?): Boolean {
         return src?.lowercase()?.contains(filter.lowercase()) ?: false
     }
 
     override suspend fun writeResponse(response: AllCharactersResponse) {
         val listCharacters = response.listCharactersInfo ?: return
         listCharacters.forEach { character ->
-            Log.d("SSV_REP", "writeResponse $character")
             charactersDao.addCharacter(
                 Mapper.transformCharacterInfoRemoteIntoCharacterInfoDto(
                     character
                 )
             )
         }
+    }
+
+    override suspend fun deleteAllCharactersData() {
+        charactersDao.deleteAllCharactersData()
     }
 
     companion object {

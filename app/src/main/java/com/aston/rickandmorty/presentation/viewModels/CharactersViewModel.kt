@@ -10,10 +10,7 @@ import com.aston.rickandmorty.data.RepositoryImpl
 import com.aston.rickandmorty.domain.entity.CharacterFilterModel
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.domain.entity.LocationModel
-import com.aston.rickandmorty.domain.useCases.CharacterAllFlowUseCase
-import com.aston.rickandmorty.domain.useCases.CharacterDetailsUseCase
-import com.aston.rickandmorty.domain.useCases.EpisodesListWithIdsUseCase
-import com.aston.rickandmorty.domain.useCases.LocationModelUseCase
+import com.aston.rickandmorty.domain.useCases.*
 import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
 import com.aston.rickandmorty.utils.Utils
@@ -29,7 +26,8 @@ class CharactersViewModel @Inject constructor(
     private val characterAllFlowUseCase: CharacterAllFlowUseCase,
     private val characterDetailsUseCase: CharacterDetailsUseCase,
     private val locationModelsUseCase: LocationModelUseCase,
-    private val listEpisodesModelUseCase: EpisodesListWithIdsUseCase
+    private val listEpisodesModelUseCase: EpisodesListWithIdsUseCase,
+    private val deleteAllCharactersDataUseCase: DeleteAllCharactersDataUseCase
 ): ViewModel() {
 
     private val _dataForAdapter: MutableStateFlow<List<CharacterDetailsModelAdapter>> =
@@ -81,5 +79,9 @@ class CharactersViewModel @Inject constructor(
 
     fun clearCharacterFilter(){
         _characterFilter.value = null
+    }
+
+    suspend fun invalidateCharactersData(){
+        deleteAllCharactersDataUseCase.invoke()
     }
 }

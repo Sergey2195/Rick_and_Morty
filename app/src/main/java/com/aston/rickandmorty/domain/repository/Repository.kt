@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import com.aston.rickandmorty.domain.entity.*
 import io.reactivex.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface Repository {
     fun getFlowAllCharacters(
@@ -48,4 +49,7 @@ interface Repository {
         nameFilter: String? = null,
         episodeFilter: String? = null
     ): Single<Int>
+
+    fun getLoadingProgressStateFlow(): StateFlow<Boolean>
+    suspend fun invalidateCharactersData()
 }

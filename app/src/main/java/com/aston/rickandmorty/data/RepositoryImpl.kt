@@ -5,6 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.apiCalls.ApiCall
 import com.aston.rickandmorty.data.localDataSource.LocalRepository
+import com.aston.rickandmorty.data.models.AllCharactersResponse
 import com.aston.rickandmorty.data.models.CharacterInfoRemote
 import com.aston.rickandmorty.data.models.LocationInfoRemote
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
@@ -18,6 +19,9 @@ import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.utils.Utils
 import io.reactivex.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @ApplicationScope
@@ -27,6 +31,20 @@ class RepositoryImpl @Inject constructor(
     private val apiCall: ApiCall
 ) : Repository {
 
+    private val loadingProgressStateFlow = MutableStateFlow(false)
+
+    override fun getLoadingProgressStateFlow(): StateFlow<Boolean> {
+        return loadingProgressStateFlow.asStateFlow()
+    }
+
+    override suspend fun invalidateCharactersData() {
+        localRepository.deleteAllCharactersData()
+    }
+
+    private fun setLoading(isLoading: Boolean) {
+        loadingProgressStateFlow.value = isLoading
+    }
+
     override fun getFlowAllCharacters(
         nameFilter: String?,
         statusFilter: String?,
@@ -35,26 +53,45 @@ class RepositoryImpl @Inject constructor(
         genderFilter: String?
     ): Flow<PagingData<CharacterModel>> {
         return Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false, initialLoadSize = PAGE_SIZE),
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                enablePlaceholders = false,
+                initialLoadSize = PAGE_SIZE
+            ),
             pagingSourceFactory = {
                 CharactersPagingSource { pageIndex ->
-                    val localResponse = localRepository.getAllCharacters(
-                        pageIndex, nameFilter, statusFilter, speciesFilter, typeFilter, genderFilter)
-                    if (localResponse.listCharactersInfo == null) {
-                        remoteRepository.getAllCharacters(
-                            pageIndex,
-                            nameFilter,
-                            statusFilter,
-                            speciesFilter,
-                            typeFilter,
-                            genderFilter
-                        ).also { localRepository.writeResponse(it) }
-                    } else {
-                        localResponse
-                    }
+                    loadCharacters(pageIndex, nameFilter, statusFilter, speciesFilter, typeFilter, genderFilter)
                 }
             }
         ).flow
+    }
+
+    private suspend fun loadCharacters(
+        pageIndex: Int,
+        nameFilter: String?,
+        statusFilter: String?,
+        speciesFilter: String?,
+        typeFilter: String?,
+        genderFilter: String?
+    ): AllCharactersResponse {
+        setLoading(true)
+        val localResponse = localRepository.getAllCharacters(
+            pageIndex, nameFilter, statusFilter, speciesFilter, typeFilter, genderFilter
+        )
+        val resultResponse = if (localResponse.listCharactersInfo == null) {
+            remoteRepository.getAllCharacters(
+                pageIndex,
+                nameFilter,
+                statusFilter,
+                speciesFilter,
+                typeFilter,
+                genderFilter
+            ).also { localRepository.writeResponse(it) }
+        } else {
+            localResponse
+        }
+        setLoading(false)
+        return resultResponse
     }
 
     override fun getFlowAllLocations(
@@ -63,7 +100,11 @@ class RepositoryImpl @Inject constructor(
         dimensionFilter: String?
     ): Flow<PagingData<LocationModel>> {
         return Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false, initialLoadSize = PAGE_SIZE),
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                enablePlaceholders = false,
+                initialLoadSize = PAGE_SIZE
+            ),
             pagingSourceFactory = {
                 LocationsPagingSource { pageIndex ->
                     apiCall.getAllLocations(
@@ -91,7 +132,11 @@ class RepositoryImpl @Inject constructor(
         episodeFilter: String?
     ): Flow<PagingData<EpisodeModel>> {
         return Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false, initialLoadSize = PAGE_SIZE),
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                enablePlaceholders = false,
+                initialLoadSize = PAGE_SIZE
+            ),
             pagingSourceFactory = {
                 EpisodesPagingSource {
                     apiCall.getAllEpisodes(it, nameFilter, episodeFilter)

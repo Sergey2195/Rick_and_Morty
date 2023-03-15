@@ -13,4 +13,5 @@ interface LocalRepository {
     ): AllCharactersResponse
 
     suspend fun writeResponse(response: AllCharactersResponse)
+    suspend fun deleteAllCharactersData()
 }

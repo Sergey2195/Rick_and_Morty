@@ -2,6 +2,7 @@ package com.aston.rickandmorty.presentation.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,10 @@ import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class CharactersAllFragment : Fragment() {
@@ -53,6 +58,11 @@ class CharactersAllFragment : Fragment() {
         arguments?.let {
             arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
         }
+//        lifecycleScope.launch{
+//            delay(10000)
+//            Log.d("SSV", "REFRESH")
+//            adapter.refresh()
+//        }
     }
 
     override fun onCreateView(
@@ -67,6 +77,18 @@ class CharactersAllFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
         setupObservers()
+        setupSwipeListener()
+    }
+
+    private fun setupSwipeListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener{
+            lifecycleScope.launch(Dispatchers.IO){
+                charactersViewModel.invalidateCharactersData()
+                withContext(Dispatchers.Main){
+                    adapter.refresh()
+                }
+            }
+        }
     }
 
     override fun onStart() {
