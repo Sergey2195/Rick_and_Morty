@@ -2,11 +2,11 @@ package com.aston.rickandmorty.mappers
 
 import android.content.Context
 import com.aston.rickandmorty.R
-import com.aston.rickandmorty.data.models.CharacterInfoRemote
-import com.aston.rickandmorty.data.models.EpisodeInfoRemote
-import com.aston.rickandmorty.data.models.LocationInfoRemote
+import com.aston.rickandmorty.data.localDataSource.CharacterInfoDto
+import com.aston.rickandmorty.data.models.*
 import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.presentation.adapterModels.*
+import com.aston.rickandmorty.utils.Utils
 
 object Mapper {
     private fun transformCharacterInfoRemoteIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
@@ -225,6 +225,58 @@ object Mapper {
             }
         }
         return listCharacterDetails
+    }
+
+    private fun transformListStringsToIds(src: List<String>?): String?{
+        if (src == null) return null
+        return src.map { "/${Utils.getLastIntAfterSlash(it)}"}.joinToString()
+    }
+
+    fun transformCharacterEpisodesIdToList(src: String?): List<String>?{
+        if (src == null) return null
+        return src.split(",").map { it.trim() }
+    }
+
+    fun transformCharacterInfoDtoIntoCharacterInfoRemote(src: CharacterInfoDto): CharacterInfoRemote{
+        return CharacterInfoRemote(
+            characterId = src.characterId,
+            characterName = src.characterName,
+            characterStatus = src.characterStatus,
+            characterSpecies = src.characterSpecies,
+            characterType = src.characterType,
+            characterGender = src.characterGender,
+            characterOriginRemote = CharacterOriginRemote(
+                characterOriginName = src.characterOriginName,
+                characterOriginUrl = src.characterOriginUrl
+            ),
+            characterLocationRemote = CharacterLocationRemote(
+                characterLocationName = src.characterLocationName,
+                characterLocationUrl = src.characterLocationUrl
+            ),
+            characterImage = src.characterImage,
+            characterEpisodes = transformCharacterEpisodesIdToList(src.characterEpisodesIds),
+            characterUrl = src.characterUrl,
+            characterCreated = src.characterCreated
+        )
+    }
+
+    fun transformCharacterInfoRemoteIntoCharacterInfoDto(src: CharacterInfoRemote): CharacterInfoDto{
+        return CharacterInfoDto(
+            characterId = src.characterId,
+            characterName = src.characterName,
+            characterStatus = src.characterStatus,
+            characterSpecies = src.characterSpecies,
+            characterType = src.characterType,
+            characterGender = src.characterGender,
+            characterOriginName = src.characterOriginRemote?.characterOriginName,
+            characterOriginUrl = src.characterOriginRemote?.characterOriginUrl,
+            characterLocationName = src.characterLocationRemote?.characterLocationName,
+            characterLocationUrl = src.characterLocationRemote?.characterLocationUrl,
+            characterImage = src.characterImage,
+            characterEpisodesIds = transformListStringsToIds(src.characterEpisodes),
+            characterUrl = src.characterUrl,
+            characterCreated = src.characterCreated
+        )
     }
 
     private const val EMPTY = "placeholder"

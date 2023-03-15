@@ -4,11 +4,13 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.apiCalls.ApiCall
+import com.aston.rickandmorty.data.localDataSource.LocalRepository
 import com.aston.rickandmorty.data.models.CharacterInfoRemote
 import com.aston.rickandmorty.data.models.LocationInfoRemote
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
 import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
 import com.aston.rickandmorty.data.pagingSources.LocationsPagingSource
+import com.aston.rickandmorty.data.remoteDataSource.RemoteRepository
 import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.domain.repository.Repository
@@ -20,6 +22,8 @@ import javax.inject.Inject
 
 @ApplicationScope
 class RepositoryImpl @Inject constructor(
+    private val remoteRepository: RemoteRepository,
+    private val localRepository: LocalRepository,
     private val apiCall: ApiCall
 ) : Repository {
 
@@ -34,14 +38,20 @@ class RepositoryImpl @Inject constructor(
             config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
             pagingSourceFactory = {
                 CharactersPagingSource { pageIndex ->
-                    apiCall.getAllCharacterData(
-                        pageIndex,
-                        nameFilter,
-                        statusFilter,
-                        speciesFilter,
-                        typeFilter,
-                        genderFilter
-                    )
+                    val localResponse = localRepository.getAllCharacters(
+                        pageIndex, nameFilter, statusFilter, speciesFilter, typeFilter, genderFilter)
+                    if (localResponse.listCharactersInfo == null) {
+                        remoteRepository.getAllCharacters(
+                            pageIndex,
+                            nameFilter,
+                            statusFilter,
+                            speciesFilter,
+                            typeFilter,
+                            genderFilter
+                        ).also { localRepository.writeResponse(it) }
+                    } else {
+                        localResponse
+                    }
                 }
             }
         ).flow
@@ -82,9 +92,11 @@ class RepositoryImpl @Inject constructor(
     ): Flow<PagingData<EpisodeModel>> {
         return Pager(
             config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
-            pagingSourceFactory = { EpisodesPagingSource{
-                apiCall.getAllEpisodes(it, nameFilter, episodeFilter)
-            } }
+            pagingSourceFactory = {
+                EpisodesPagingSource {
+                    apiCall.getAllEpisodes(it, nameFilter, episodeFilter)
+                }
+            }
         ).flow
     }
 
@@ -184,6 +196,7 @@ class RepositoryImpl @Inject constructor(
     }
 
     override fun getCountOfEpisodes(nameFilter: String?, episodeFilter: String?): Single<Int> {
-        return apiCall.getCountOfEpisodes(nameFilter, episodeFilter).map { it.pageInfo?.countOfElements }
+        return apiCall.getCountOfEpisodes(nameFilter, episodeFilter)
+            .map { it.pageInfo?.countOfElements }
     }
 }

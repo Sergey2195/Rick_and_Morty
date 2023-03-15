@@ -7,7 +7,7 @@ import dagger.BindsInstance
 import dagger.Component
 
 @ApplicationScope
-@Component(modules = [ViewModelsModule::class, DataModule::class, NetworkModule::class])
+@Component(modules = [ViewModelsModule::class, DataModule::class, NetworkModule::class, LocalModule::class])
 interface ApplicationComponent {
     fun injectCharacterDetailsFragment(fragment: CharacterDetailsFragment)
     fun injectCharacterFilterFragment(fragment: CharacterFilterFragment)
