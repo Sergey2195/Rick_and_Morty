@@ -35,7 +35,7 @@ class RepositoryImpl @Inject constructor(
         genderFilter: String?
     ): Flow<PagingData<CharacterModel>> {
         return Pager(
-            config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
+            config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false, initialLoadSize = PAGE_SIZE),
             pagingSourceFactory = {
                 CharactersPagingSource { pageIndex ->
                     val localResponse = localRepository.getAllCharacters(
@@ -63,7 +63,7 @@ class RepositoryImpl @Inject constructor(
         dimensionFilter: String?
     ): Flow<PagingData<LocationModel>> {
         return Pager(
-            config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
+            config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false, initialLoadSize = PAGE_SIZE),
             pagingSourceFactory = {
                 LocationsPagingSource { pageIndex ->
                     apiCall.getAllLocations(
@@ -91,7 +91,7 @@ class RepositoryImpl @Inject constructor(
         episodeFilter: String?
     ): Flow<PagingData<EpisodeModel>> {
         return Pager(
-            config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
+            config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false, initialLoadSize = PAGE_SIZE),
             pagingSourceFactory = {
                 EpisodesPagingSource {
                     apiCall.getAllEpisodes(it, nameFilter, episodeFilter)
@@ -198,5 +198,9 @@ class RepositoryImpl @Inject constructor(
     override fun getCountOfEpisodes(nameFilter: String?, episodeFilter: String?): Single<Int> {
         return apiCall.getCountOfEpisodes(nameFilter, episodeFilter)
             .map { it.pageInfo?.countOfElements }
+    }
+
+    companion object {
+        private const val PAGE_SIZE = 20
     }
 }
