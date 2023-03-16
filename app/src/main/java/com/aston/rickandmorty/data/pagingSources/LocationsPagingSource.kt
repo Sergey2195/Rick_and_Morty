@@ -6,6 +6,7 @@ import com.aston.rickandmorty.data.models.AllLocationsResponse
 import com.aston.rickandmorty.domain.entity.LocationModel
 import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.utils.Utils
+import retrofit2.HttpException
 import java.io.IOException
 
 class LocationsPagingSource(private val loader: suspend (pageIndex: Int)-> AllLocationsResponse) :
@@ -21,6 +22,9 @@ class LocationsPagingSource(private val loader: suspend (pageIndex: Int)-> AllLo
             val mappedList = Mapper.transformListLocationInfoRemoteIntoListLocationModel(resultData)
             LoadResult.Page(mappedList, prevPage, nextPage)
         }catch (e:Exception){
+            if (e is HttpException && e.code() == 404) {
+                return LoadResult.Page(emptyList(), pageIndex - 1, null)
+            }
             LoadResult.Error(e)
         }
     }

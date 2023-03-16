@@ -22,7 +22,7 @@ interface Repository {
     ): Flow<PagingData<LocationModel>>
 
     suspend fun getSingleCharacterData(id: Int): CharacterDetailsModel?
-    fun getSingleLocationData(id: Int): Single<LocationDetailsModel>
+    fun getSingleLocationData(id: Int): Single<LocationDetailsModelWithId>
     fun getFlowAllEpisodes(
         nameFilter: String? = null,
         episodeFilter: String? = null

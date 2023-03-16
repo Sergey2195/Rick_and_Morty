@@ -45,7 +45,6 @@ class LocationDetailsFragment : Fragment() {
     private var _binding: FragmentLocationDetailsBinding? = null
     private val binding
         get() = _binding!!
-    private val compositeDisposable = CompositeDisposable()
 
     override fun onAttach(context: Context) {
         component.injectLocationDetailsFragment(this)
@@ -97,35 +96,17 @@ class LocationDetailsFragment : Fragment() {
             .commit()
     }
 
-    private fun loadData() {
-        val observable = viewModel.getLocationDetails(id ?: 1)
-        val disposable = observable
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ data ->
-                parsingData(data)
-            }, {
-
-            })
-        compositeDisposable.add(disposable)
-    }
-
-    private fun parsingData(data: LocationDetailsModel) =
-        lifecycleScope.launch(Dispatchers.Default) {
-            val dataForAdapter = viewModel.prepareDataForAdapter(data, requireContext())
-            withContext(Dispatchers.Main) {
-                detailsAdapter.submitList(dataForAdapter)
-                setToolBarText(data.locationName)
-            }
+    private fun loadData() = lifecycleScope.launch(Dispatchers.IO){
+        val response = viewModel.getLocationDetails(id ?: 1)
+        val dataForAdapter = viewModel.prepareDataForAdapter(response, requireContext())
+        withContext(Dispatchers.Main) {
+            detailsAdapter.submitList(dataForAdapter)
+            setToolBarText(response.locationName)
         }
+    }
 
     private fun setToolBarText(str: String) {
         (requireActivity() as ToolbarManager).setToolbarText(str)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        compositeDisposable.dispose()
     }
 
     companion object {

@@ -1,14 +1,12 @@
 package com.aston.rickandmorty.data
 
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.apiCalls.ApiCall
 import com.aston.rickandmorty.data.localDataSource.LocalRepository
 import com.aston.rickandmorty.data.models.AllCharactersResponse
-import com.aston.rickandmorty.data.models.CharacterInfoRemote
-import com.aston.rickandmorty.data.models.LocationInfoRemote
+import com.aston.rickandmorty.data.models.AllLocationsResponse
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
 import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
 import com.aston.rickandmorty.data.pagingSources.LocationsPagingSource
@@ -61,7 +59,33 @@ class RepositoryImpl @Inject constructor(
             ),
             pagingSourceFactory = {
                 CharactersPagingSource { pageIndex ->
-                    loadCharacters(pageIndex, nameFilter, statusFilter, speciesFilter, typeFilter, genderFilter)
+                    loadCharacters(
+                        pageIndex,
+                        nameFilter,
+                        statusFilter,
+                        speciesFilter,
+                        typeFilter,
+                        genderFilter
+                    )
+                }
+            }
+        ).flow
+    }
+
+    override fun getFlowAllLocations(
+        nameFilter: String?,
+        typeFilter: String?,
+        dimensionFilter: String?
+    ): Flow<PagingData<LocationModel>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                enablePlaceholders = false,
+                initialLoadSize = PAGE_SIZE
+            ),
+            pagingSourceFactory = {
+                LocationsPagingSource { pageIndex ->
+                    loadLocations(pageIndex, nameFilter, typeFilter, dimensionFilter)
                 }
             }
         ).flow
@@ -95,35 +119,31 @@ class RepositoryImpl @Inject constructor(
         return resultResponse
     }
 
-    override fun getFlowAllLocations(
+    private suspend fun loadLocations(
+        pageIndex: Int,
         nameFilter: String?,
         typeFilter: String?,
         dimensionFilter: String?
-    ): Flow<PagingData<LocationModel>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = PAGE_SIZE,
-                enablePlaceholders = false,
-                initialLoadSize = PAGE_SIZE
-            ),
-            pagingSourceFactory = {
-                LocationsPagingSource { pageIndex ->
-                    apiCall.getAllLocations(
-                        pageIndex,
-                        nameFilter,
-                        typeFilter,
-                        dimensionFilter
-                    )
-                }
+    ): AllLocationsResponse {
+        setLoading(true)
+        val localResponse =
+            localRepository.getAllLocations(pageIndex, nameFilter, typeFilter, dimensionFilter)
+        val resultResponse = if (localResponse.listLocationsInfo == null) {
+            apiCall.getAllLocations(pageIndex, nameFilter, typeFilter, dimensionFilter).also {
+                localRepository.writeResponseLocation(it)
             }
-        ).flow
+        } else {
+            localResponse
+        }
+        setLoading(false)
+        return resultResponse
     }
 
     override suspend fun getSingleCharacterData(id: Int): CharacterDetailsModel? {
         return try {
             val localResult = localRepository.getSingleCharacterInfo(id)
-            if (localResult == null){
-                val remoteResult = apiCall.getSingleCharacterData(id)
+            if (localResult == null) {
+                val remoteResult = remoteRepository.getSingleCharacterInfo(id)
                 localRepository.writeSingleCharacterInfo(remoteResult)
                 return Mapper.transformCharacterInfoRemoteIntoCharacterDetailsModel(remoteResult)
             }
@@ -131,6 +151,11 @@ class RepositoryImpl @Inject constructor(
         } catch (e: java.lang.Exception) {
             null
         }
+    }
+
+    override fun getSingleLocationData(id: Int): Single<LocationDetailsModelWithId> {
+        return apiCall.getSingleLocationData(id)
+            .map {Mapper.transformLocationInfoRemoteInfoLocationDetailsModelWithIds(it)}
     }
 
     override fun getFlowAllEpisodes(
@@ -149,32 +174,6 @@ class RepositoryImpl @Inject constructor(
                 }
             }
         ).flow
-    }
-
-    override fun getSingleLocationData(id: Int): Single<LocationDetailsModel> {
-        var locationInfoRemote: LocationInfoRemote? = null
-        return apiCall.getSingleLocationData(id)
-            .flatMap { data ->
-                locationInfoRemote = data
-                val listId =
-                    data.locationResidents?.map { Utils.getLastIntAfterSlash(it) } ?: emptyList()
-                val requestStr = Utils.getStringForMultiId(listId)
-                if (requestStr.contains(',')) {
-                    apiCall.getMultiCharactersDataRx(requestStr)
-                } else {
-                    apiCall.getCharactersDataRx(requestStr)
-                }
-            }.map { data ->
-                val inputList: List<CharacterInfoRemote> = when (data) {
-                    is List<*> -> data as List<CharacterInfoRemote>
-                    else -> listOf(data) as List<CharacterInfoRemote>
-                }
-                val list = Mapper.transformListCharacterInfoRemoteIntoCharacterModel(inputList)
-                Mapper.transformLocationInfoRemoteIntoLocationDetailsModel(
-                    locationInfoRemote!!,
-                    list
-                )
-            }
     }
 
     override suspend fun getSingleEpisodeData(id: Int): EpisodeDetailsModel? {

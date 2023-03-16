@@ -3,6 +3,7 @@ package com.aston.rickandmorty.mappers
 import android.content.Context
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
+import com.aston.rickandmorty.data.localDataSource.models.LocationInfoDto
 import com.aston.rickandmorty.data.models.*
 import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.presentation.adapterModels.*
@@ -135,6 +136,16 @@ object Mapper {
         }
     }
 
+    fun transformLocationInfoRemoteInfoLocationDetailsModelWithIds(src: LocationInfoRemote): LocationDetailsModelWithId{
+        return LocationDetailsModelWithId(
+            locationId = src.locationId ?: 0,
+            locationName = src.locationName ?: "",
+            locationType = src.locationType ?: "",
+            dimension = src.locationDimension ?: "",
+            characters = src.locationResidents?.map { Utils.getLastIntAfterSlash(it) ?: 0 } ?: emptyList()
+        )
+    }
+
     fun transformEpisodeInfoRemoteIntoEpisodeDetailsModel(
         src: EpisodeInfoRemote,
         listCharacters: List<CharacterModel>
@@ -232,9 +243,33 @@ object Mapper {
         return src.map { "/${Utils.getLastIntAfterSlash(it)}"}.joinToString()
     }
 
-    private fun transformCharacterEpisodesIdToList(src: String?): List<String>?{
+    private fun transformStringIdToList(src: String?): List<String>?{
         if (src == null) return null
         return src.split(",").map { it.trim() }
+    }
+
+    fun transformLocationInfoDtoIntoLocationInfoRemote(src: LocationInfoDto): LocationInfoRemote{
+        return LocationInfoRemote(
+            locationId = src.locationId,
+            locationName = src.locationName,
+            locationType = src.locationType,
+            locationDimension = src.locationDimension,
+            locationResidents = transformStringIdToList(src.locationResidentsIds),
+            locationUrl = src.locationUrl,
+            locationCreated = src.locationCreated
+        )
+    }
+
+    fun transformLocationInfoRemoteIntoLocationInfoDto(src: LocationInfoRemote): LocationInfoDto{
+        return LocationInfoDto(
+            locationId = src.locationId,
+            locationName = src.locationName,
+            locationType = src.locationType,
+            locationDimension = src.locationDimension,
+            locationResidentsIds = transformListStringsToIds(src.locationResidents),
+            locationUrl = src.locationUrl,
+            locationCreated = src.locationCreated
+        )
     }
 
     fun transformCharacterInfoDtoIntoCharacterInfoRemote(src: CharacterInfoDto): CharacterInfoRemote{
@@ -254,7 +289,7 @@ object Mapper {
                 characterLocationUrl = src.characterLocationUrl
             ),
             characterImage = src.characterImage,
-            characterEpisodes = transformCharacterEpisodesIdToList(src.characterEpisodesIds),
+            characterEpisodes = transformStringIdToList(src.characterEpisodesIds),
             characterUrl = src.characterUrl,
             characterCreated = src.characterCreated
         )
@@ -278,7 +313,7 @@ object Mapper {
                 characterLocationUrl = src.characterLocationUrl
             ),
             characterImage = src.characterImage,
-            characterEpisodes = transformCharacterEpisodesIdToList(src.characterEpisodesIds) ?: emptyList(),
+            characterEpisodes = transformStringIdToList(src.characterEpisodesIds) ?: emptyList(),
             characterUrl = src.characterUrl,
             characterCreated = src.characterCreated ?: ""
         )
