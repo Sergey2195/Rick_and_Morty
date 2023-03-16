@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.data
 
+import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -120,8 +121,13 @@ class RepositoryImpl @Inject constructor(
 
     override suspend fun getSingleCharacterData(id: Int): CharacterDetailsModel? {
         return try {
-            val result = apiCall.getSingleCharacterData(id)
-            return Mapper.transformCharacterInfoRemoteIntoCharacterDetailsModel(result)
+            val localResult = localRepository.getSingleCharacterInfo(id)
+            if (localResult == null){
+                val remoteResult = apiCall.getSingleCharacterData(id)
+                localRepository.writeSingleCharacterInfo(remoteResult)
+                return Mapper.transformCharacterInfoRemoteIntoCharacterDetailsModel(remoteResult)
+            }
+            return localResult
         } catch (e: java.lang.Exception) {
             null
         }

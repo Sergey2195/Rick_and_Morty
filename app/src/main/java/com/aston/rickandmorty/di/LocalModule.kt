@@ -2,9 +2,8 @@ package com.aston.rickandmorty.di
 
 import android.app.Application
 import androidx.room.Room
-import com.aston.rickandmorty.data.localDataSource.CharactersDao
-import com.aston.rickandmorty.data.localDataSource.CharactersDatabase
-import dagger.Binds
+import com.aston.rickandmorty.data.localDataSource.dao.CharactersDao
+import com.aston.rickandmorty.data.localDataSource.database.CharactersDatabase
 import dagger.Module
 import dagger.Provides
 
@@ -24,7 +23,7 @@ interface LocalModule {
 
         @ApplicationScope
         @Provides
-        fun provideCharacterDao(charactersDatabase: CharactersDatabase): CharactersDao{
+        fun provideCharacterDao(charactersDatabase: CharactersDatabase): CharactersDao {
             return charactersDatabase.getDao()
         }
     }

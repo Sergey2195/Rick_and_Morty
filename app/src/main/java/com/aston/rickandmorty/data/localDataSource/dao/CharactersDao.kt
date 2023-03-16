@@ -1,10 +1,11 @@
-package com.aston.rickandmorty.data.localDataSource
+package com.aston.rickandmorty.data.localDataSource.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CharactersDao {
@@ -12,8 +13,11 @@ interface CharactersDao {
     suspend fun addCharacter(data: CharacterInfoDto)
 
     @Query("SELECT * FROM CharactersTable")
-    suspend fun getAllFromDb(): List<CharacterInfoDto>
+    fun getAllFromDb(): Flow<List<CharacterInfoDto>>
 
     @Query("DELETE FROM CharactersTable")
     suspend fun deleteAllCharactersData()
+
+    @Query("SELECT * FROM CharactersTable WHERE characterId == :id LIMIT 1")
+    suspend fun getSingleCharacter(id: Int): CharacterInfoDto?
 }

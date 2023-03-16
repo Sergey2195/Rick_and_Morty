@@ -1,13 +1,31 @@
 package com.aston.rickandmorty.data.localDataSource
 
+import com.aston.rickandmorty.data.localDataSource.dao.CharactersDao
+import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
 import com.aston.rickandmorty.data.models.AllCharactersResponse
+import com.aston.rickandmorty.data.models.CharacterInfoRemote
 import com.aston.rickandmorty.data.models.PageInfoResponse
+import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.mappers.Mapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class LocalRepositoryImpl @Inject constructor(
     private val charactersDao: CharactersDao,
 ) : LocalRepository {
+
+    private var allCharactersData: List<CharacterInfoDto> = emptyList()
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            charactersDao.getAllFromDb().collect {
+                allCharactersData = it
+            }
+        }
+    }
+
     override suspend fun getAllCharacters(
         pageIndex: Int,
         nameFilter: String?,
@@ -17,9 +35,8 @@ class LocalRepositoryImpl @Inject constructor(
         genderFilter: String?
     ): AllCharactersResponse {
         var response = AllCharactersResponse(null, null)
-        val allDataCharacters = charactersDao.getAllFromDb()
         val filtered =
-            allDataCharacters.filter {
+            allCharactersData.filter {
                 val filteredName =
                     if (nameFilter == null) true else checkTwoStrings(nameFilter, it.characterName)
                 val filteredStatus = if (statusFilter == null) true else checkTwoStrings(
@@ -62,8 +79,18 @@ class LocalRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun writeSingleCharacterInfo(data: CharacterInfoRemote) {
+        charactersDao.addCharacter(Mapper.transformCharacterInfoRemoteIntoCharacterInfoDto(data))
+    }
+
     override suspend fun deleteAllCharactersData() {
         charactersDao.deleteAllCharactersData()
+    }
+
+    override suspend fun getSingleCharacterInfo(id: Int): CharacterDetailsModel? {
+        return Mapper.transformCharacterInfoDtoIntoCharacterDetailsModel(
+            charactersDao.getSingleCharacter(id)
+        )
     }
 
     companion object {

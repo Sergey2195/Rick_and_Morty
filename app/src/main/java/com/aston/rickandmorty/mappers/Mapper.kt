@@ -2,7 +2,7 @@ package com.aston.rickandmorty.mappers
 
 import android.content.Context
 import com.aston.rickandmorty.R
-import com.aston.rickandmorty.data.localDataSource.CharacterInfoDto
+import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
 import com.aston.rickandmorty.data.models.*
 import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.presentation.adapterModels.*
@@ -232,7 +232,7 @@ object Mapper {
         return src.map { "/${Utils.getLastIntAfterSlash(it)}"}.joinToString()
     }
 
-    fun transformCharacterEpisodesIdToList(src: String?): List<String>?{
+    private fun transformCharacterEpisodesIdToList(src: String?): List<String>?{
         if (src == null) return null
         return src.split(",").map { it.trim() }
     }
@@ -260,7 +260,31 @@ object Mapper {
         )
     }
 
-    fun transformCharacterInfoRemoteIntoCharacterInfoDto(src: CharacterInfoRemote): CharacterInfoDto{
+    fun transformCharacterInfoDtoIntoCharacterDetailsModel(src: CharacterInfoDto?): CharacterDetailsModel?{
+        if (src == null) return null
+        return CharacterDetailsModel(
+            characterId = src.characterId ?: 0,
+            characterName = src.characterName ?: "",
+            characterStatus = src.characterStatus ?: "",
+            characterSpecies = src.characterSpecies ?: "",
+            characterType = src.characterType ?: "",
+            characterGender = src.characterGender ?: "",
+            characterOrigin = CharacterOrigin(
+                characterOriginName = src.characterOriginName ?: "",
+                characterOriginUrl = src.characterOriginUrl
+            ),
+            characterLocation = CharacterLocation(
+                characterLocationName = src.characterLocationName ?: "",
+                characterLocationUrl = src.characterLocationUrl
+            ),
+            characterImage = src.characterImage,
+            characterEpisodes = transformCharacterEpisodesIdToList(src.characterEpisodesIds) ?: emptyList(),
+            characterUrl = src.characterUrl,
+            characterCreated = src.characterCreated ?: ""
+        )
+    }
+
+    fun transformCharacterInfoRemoteIntoCharacterInfoDto(src: CharacterInfoRemote): CharacterInfoDto {
         return CharacterInfoDto(
             characterId = src.characterId,
             characterName = src.characterName,

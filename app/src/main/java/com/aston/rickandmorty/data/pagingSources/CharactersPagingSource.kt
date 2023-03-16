@@ -6,9 +6,10 @@ import com.aston.rickandmorty.data.models.AllCharactersResponse
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.utils.Utils
+import retrofit2.HttpException
 import java.io.IOException
 
-class CharactersPagingSource(private val loader: suspend (pageIndex: Int)-> AllCharactersResponse) :
+class CharactersPagingSource(private val loader: suspend (pageIndex: Int) -> AllCharactersResponse) :
     PagingSource<Int, CharacterModel>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CharacterModel> {
@@ -18,9 +19,13 @@ class CharactersPagingSource(private val loader: suspend (pageIndex: Int)-> AllC
             val resultData = response.listCharactersInfo ?: throw IOException()
             val prevPage = Utils.findPage(response.pageInfo?.prevPageUrl)
             val nextPage = Utils.findPage(response.pageInfo?.nextPageUrl)
-            val mappedList = Mapper.transformListCharacterInfoRemoteIntoListCharacterModel(resultData)
+            val mappedList =
+                Mapper.transformListCharacterInfoRemoteIntoListCharacterModel(resultData)
             return LoadResult.Page(mappedList, prevPage, nextPage)
         } catch (e: Exception) {
+            if (e is HttpException && e.code() == 404) {
+                return LoadResult.Page(emptyList(), pageIndex - 1, null)
+            }
             LoadResult.Error(e)
         }
     }
@@ -29,7 +34,7 @@ class CharactersPagingSource(private val loader: suspend (pageIndex: Int)-> AllC
         return null
     }
 
-    companion object{
+    companion object {
         private const val START_PAGE = 1
     }
 }

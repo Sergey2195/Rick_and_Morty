@@ -1,4 +1,4 @@
-package com.aston.rickandmorty.data.localDataSource
+package com.aston.rickandmorty.data.localDataSource.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
