@@ -85,8 +85,10 @@ class EpisodeDetailsFragment : Fragment() {
     }
 
     private fun openCharacterDetailsFragment(id: Int) {
+        //todo contrainer
+        if (container == null) throw RuntimeException("openCharacterDetailsFragment")
         parentFragmentManager.beginTransaction()
-            .replace(container!!, CharacterDetailsFragment.newInstance(id, container!!))
+            .replace(container ?: throw RuntimeException("openCharacterDetailsFragment"), CharacterDetailsFragment.newInstance(id, container ?: throw RuntimeException("openCharacterDetailsFragment")))
             .addToBackStack(null)
             .commit()
     }

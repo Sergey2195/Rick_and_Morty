@@ -6,7 +6,9 @@ import androidx.paging.PagingData
 import com.aston.rickandmorty.data.apiCalls.ApiCall
 import com.aston.rickandmorty.data.localDataSource.LocalRepository
 import com.aston.rickandmorty.data.models.AllCharactersResponse
+import com.aston.rickandmorty.data.models.AllEpisodesResponse
 import com.aston.rickandmorty.data.models.AllLocationsResponse
+import com.aston.rickandmorty.data.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
 import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
 import com.aston.rickandmorty.data.pagingSources.LocationsPagingSource
@@ -17,6 +19,8 @@ import com.aston.rickandmorty.domain.repository.Repository
 import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.utils.Utils
 import io.reactivex.Single
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,6 +35,7 @@ class RepositoryImpl @Inject constructor(
 ) : Repository {
 
     private val loadingProgressStateFlow = MutableStateFlow(false)
+    private var invalidData = false
 
     override fun getLoadingProgressStateFlow(): StateFlow<Boolean> {
         return loadingProgressStateFlow.asStateFlow()
@@ -51,6 +56,8 @@ class RepositoryImpl @Inject constructor(
         typeFilter: String?,
         genderFilter: String?
     ): Flow<PagingData<CharacterModel>> {
+        val arrayFilters =
+            arrayOf(nameFilter, statusFilter, speciesFilter, typeFilter, genderFilter)
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -61,11 +68,7 @@ class RepositoryImpl @Inject constructor(
                 CharactersPagingSource { pageIndex ->
                     loadCharacters(
                         pageIndex,
-                        nameFilter,
-                        statusFilter,
-                        speciesFilter,
-                        typeFilter,
-                        genderFilter
+                        arrayFilters
                     )
                 }
             }
@@ -91,32 +94,78 @@ class RepositoryImpl @Inject constructor(
         ).flow
     }
 
-    private suspend fun loadCharacters(
+    override fun getFlowAllEpisodes(
+        nameFilter: String?,
+        episodeFilter: String?
+    ): Flow<PagingData<EpisodeModel>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                enablePlaceholders = false,
+                initialLoadSize = PAGE_SIZE
+            ),
+            pagingSourceFactory = {
+                EpisodesPagingSource { pageIndex ->
+                    loadEpisodes(pageIndex, nameFilter, episodeFilter)
+                }
+            }
+        ).flow
+    }
+
+    private suspend fun loadEpisodes(
         pageIndex: Int,
         nameFilter: String?,
-        statusFilter: String?,
-        speciesFilter: String?,
-        typeFilter: String?,
-        genderFilter: String?
-    ): AllCharactersResponse {
+        episodeFilter: String?
+    ): AllEpisodesResponse {
         setLoading(true)
-        val localResponse = localRepository.getAllCharacters(
-            pageIndex, nameFilter, statusFilter, speciesFilter, typeFilter, genderFilter
-        )
-        val resultResponse = if (localResponse.listCharactersInfo == null) {
-            remoteRepository.getAllCharacters(
-                pageIndex,
-                nameFilter,
-                statusFilter,
-                speciesFilter,
-                typeFilter,
-                genderFilter
-            ).also { localRepository.writeResponse(it) }
+        val localResponse = localRepository.getAllEpisodes(pageIndex, nameFilter, episodeFilter)
+        val resultResponse = if (localResponse.listEpisodeInfo == null) {
+            remoteRepository.getAllEpisodes(pageIndex, nameFilter, episodeFilter).also {
+                localRepository.writeResponseEpisodes(it)
+            }
         } else {
             localResponse
         }
         setLoading(false)
-        return resultResponse
+        return resultResponse ?: throw RuntimeException("loadEpisodes")
+    }
+
+    private suspend fun loadCharacters(
+        pageIndex: Int,
+        arrayFilters: Array<String?>
+    ): AllCharactersResponse {
+        setLoading(true)
+        val localResponse = localRepository.getAllCharacters(pageIndex, arrayFilters)
+        if (pageIndex == 1) {
+            checkInvalidData(arrayFilters, localResponse)
+        }
+        val resultResponse = if (invalidData) {
+            remoteRepository.getAllCharacters(
+                pageIndex,
+                arrayFilters
+            ).also {
+                localRepository.writeResponseCharacters(
+                    it ?: throw RuntimeException("loadCharacters")
+                )
+            }
+        } else {
+            localResponse
+        }
+        setLoading(false)
+        return resultResponse ?: throw RuntimeException("loadCharacters")
+    }
+
+    private suspend fun checkInvalidData(
+        arrayFilters: Array<String?>,
+        localResponse: AllCharactersResponse
+    ) {
+        val firstPage = remoteRepository.getAllCharacters(
+            1,
+            arrayFilters
+        )
+        val remoteItems = firstPage?.pageInfo?.countOfElements ?: -1
+        val localItems = localResponse.pageInfo?.countOfElements ?: -1
+        invalidData = localItems < remoteItems
     }
 
     private suspend fun loadLocations(
@@ -124,14 +173,15 @@ class RepositoryImpl @Inject constructor(
         nameFilter: String?,
         typeFilter: String?,
         dimensionFilter: String?
-    ): AllLocationsResponse {
+    ): AllLocationsResponse? {
         setLoading(true)
         val localResponse =
             localRepository.getAllLocations(pageIndex, nameFilter, typeFilter, dimensionFilter)
         val resultResponse = if (localResponse.listLocationsInfo == null) {
-            apiCall.getAllLocations(pageIndex, nameFilter, typeFilter, dimensionFilter).also {
-                localRepository.writeResponseLocation(it)
-            }
+            remoteRepository.getAllLocations(pageIndex, nameFilter, typeFilter, dimensionFilter)
+                .also {
+                    localRepository.writeResponseLocation(it)
+                }
         } else {
             localResponse
         }
@@ -144,7 +194,7 @@ class RepositoryImpl @Inject constructor(
             val localResult = localRepository.getSingleCharacterInfo(id)
             if (localResult == null) {
                 val remoteResult = remoteRepository.getSingleCharacterInfo(id)
-                localRepository.writeSingleCharacterInfo(remoteResult)
+                localRepository.writeSingleCharacterInfo(remoteResult ?: return null)
                 return Mapper.transformCharacterInfoRemoteIntoCharacterDetailsModel(remoteResult)
             }
             return localResult
@@ -154,43 +204,45 @@ class RepositoryImpl @Inject constructor(
     }
 
     override fun getSingleLocationData(id: Int): Single<LocationDetailsModelWithId> {
-        return apiCall.getSingleLocationData(id)
-            .map {Mapper.transformLocationInfoRemoteInfoLocationDetailsModelWithIds(it)}
-    }
-
-    override fun getFlowAllEpisodes(
-        nameFilter: String?,
-        episodeFilter: String?
-    ): Flow<PagingData<EpisodeModel>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = PAGE_SIZE,
-                enablePlaceholders = false,
-                initialLoadSize = PAGE_SIZE
-            ),
-            pagingSourceFactory = {
-                EpisodesPagingSource {
-                    apiCall.getAllEpisodes(it, nameFilter, episodeFilter)
+        return localRepository.getSingleLocationInfoRx(id).flatMap { data ->
+            if (data.locationId == null) {
+                return@flatMap apiCall.getSingleLocationData(id).map {
+                    Mapper.transformLocationInfoRemoteInfoLocationDetailsModelWithIds(it)
+                }
+            } else {
+                Single.create {
+                    it.onSuccess(Mapper.transformLocationDtoIntoLocationDetailsWithIds(data))
                 }
             }
-        ).flow
+        }
     }
 
     override suspend fun getSingleEpisodeData(id: Int): EpisodeDetailsModel? {
         return try {
-            val result = apiCall.getSingleEpisodeData(id)
-            val listId =
-                result.episodeCharacters?.map { Utils.getLastIntAfterSlash(it) } ?: emptyList()
-            val requestStr = Utils.getStringForMultiId(listId)
-            var listCharactersModel = emptyList<CharacterModel>()
-            if (requestStr.isNotBlank()) {
-                val characters = apiCall.getMultiCharactersData(requestStr)
-                listCharactersModel =
-                    Mapper.transformListCharacterInfoRemoteIntoCharacterModel(characters)
+            val localResult = localRepository.getSingleEpisodeInfo(id)
+            var remote: EpisodeInfoRemote? = null
+            if (localResult == null) {
+                remote = remoteRepository.getSingleEpisodeInfo(id)
+                localRepository.writeSingleEpisodeInfo(remote)
             }
-            return Mapper.transformEpisodeInfoRemoteIntoEpisodeDetailsModel(
-                result,
-                listCharactersModel
+            val listId = if (localResult == null) {
+                val charactersString = Mapper.transformListStringsToIds(remote?.episodeCharacters)
+                Mapper.transformStringIdIntoListInt(charactersString)
+            } else {
+                localResult.characters
+            }
+            val charactersData = arrayListOf<CharacterModel>()
+            for (charId in listId){
+                val charData = getSingleCharacterData(charId)
+                val mappedData = Mapper.transformCharacterDetailsModelIntoCharacterModel(charData) ?: continue
+                if (charData != null) charactersData.add(mappedData)
+            }
+            return EpisodeDetailsModel(
+                id = localResult?.id ?: remote?.episodeId ?: return null,
+                name = localResult?.name ?: remote?.episodeName ?: return null,
+                airDate = localResult?.airDate ?: remote?.episodeAirDate ?: return null,
+                episodeNumber = localResult?.episodeNumber ?: remote?.episodeNumber ?: return null,
+                characters = charactersData
             )
         } catch (e: java.lang.Exception) {
             null
@@ -213,7 +265,7 @@ class RepositoryImpl @Inject constructor(
             } else {
                 listOf(apiCall.getSingleEpisodeData(multiId.toInt()))
             }
-            list?.map { Mapper.transformEpisodeInfoRemoteIntoEpisodeModel(it) }
+            list?.map { Mapper.transformEpisodeInfoRemoteIntoEpisodeModel(it ?: return null) }
         } catch (e: Exception) {
             null
         }

@@ -15,7 +15,7 @@ interface ApiCall {
         @Query("species") species: String? = null,
         @Query("type") type: String? = null,
         @Query("gender") gender: String? = null
-    ): AllCharactersResponse
+    ): AllCharactersResponse?
 
     @GET("character/")
     fun getCountOfCharacters(
@@ -29,7 +29,7 @@ interface ApiCall {
     @GET("character/{id}")
     suspend fun getSingleCharacterData(
         @Path("id") id: Int
-    ): CharacterInfoRemote
+    ): CharacterInfoRemote?
 
     @GET("location")
     suspend fun getAllLocations(
@@ -37,7 +37,7 @@ interface ApiCall {
         @Query("name") name: String? = null,
         @Query("type") type: String? = null,
         @Query("dimension") dimension: String? = null
-    ): AllLocationsResponse
+    ): AllLocationsResponse?
 
     @GET("location")
     fun getCountOfLocations(
@@ -61,7 +61,7 @@ interface ApiCall {
         @Query("page") page: Int,
         @Query("name") name: String? = null,
         @Query("episode") episode: String? = null
-    ): AllEpisodesResponse
+    ): AllEpisodesResponse?
 
     @GET("episode")
     fun getCountOfEpisodes(
@@ -72,25 +72,16 @@ interface ApiCall {
     @GET("episode/{id}")
     suspend fun getSingleEpisodeData(
         @Path("id") id: Int
-    ): EpisodeInfoRemote
+    ): EpisodeInfoRemote?
 
     @GET("character/{multiId}")
     suspend fun getMultiCharactersData(
         @Path("multiId") multiId: String
     ): List<CharacterInfoRemote>
 
-    @GET("character/{multiId}")
-    fun getMultiCharactersDataRx(
-        @Path("multiId") multiId: String
-    ): Single<List<CharacterInfoRemote>>
-
     @GET("episode/{multiId}")
     suspend fun getMultiEpisodesData(
         @Path("multiId") multiId: String
     ): List<EpisodeInfoRemote>?
 
-    @GET("character/{id}")
-    fun getCharactersDataRx(
-        @Path("id") id: String
-    ): Single<CharacterInfoRemote>
 }

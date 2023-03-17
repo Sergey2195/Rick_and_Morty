@@ -23,5 +23,5 @@ interface LocationsDao {
     suspend fun getSingleLocation(id: Int): LocationInfoDto?
 
     @Query("SELECT * FROM LocationsTable WHERE locationId == :id LIMIT 1")
-    fun getSingleLocationRx(id: Int): Single<LocationInfoDto?>
+    fun getSingleLocationRx(id: Int): Single<LocationInfoDto>
 }

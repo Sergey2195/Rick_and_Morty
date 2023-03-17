@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.viewModels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -16,9 +17,12 @@ import com.aston.rickandmorty.presentation.adapterModels.DetailsModelAdapter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class LocationsViewModel @Inject constructor(
@@ -29,6 +33,10 @@ class LocationsViewModel @Inject constructor(
     private val _locationFilterStateFlow: MutableStateFlow<LocationFilterModel?> =
         MutableStateFlow(null)
     val locationFilterStateFlow = _locationFilterStateFlow.asStateFlow()
+    private val _locationDetailsStateFlow: MutableStateFlow<LocationDetailsModelWithId?> =
+        MutableStateFlow(null)
+    val locationDetailsStateFlow
+        get() = _locationDetailsStateFlow
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCleared() {
@@ -43,33 +51,40 @@ class LocationsViewModel @Inject constructor(
     ) = locationsAllFlowUseCase.invoke(nameFilter, typeFilter, dimensionFilter)
         .cachedIn(viewModelScope)
 
-    suspend fun getLocationDetails(id: Int): LocationDetailsModel {
-        var locationDetailsModelWithId: LocationDetailsModelWithId? = null
+    fun sendIdToGetDetails(id: Int) {
         val disposable = locationDetailsUseCase.invoke(id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ data ->
-                locationDetailsModelWithId = data
-            }, {})
+            .subscribe({
+                locationDetailsStateFlow.value = it
+            }, {
+                locationDetailsStateFlow.value = null
+            })
         compositeDisposable.add(disposable)
-        while (locationDetailsModelWithId == null) {
-            delay(1)
-        }
+    }
+
+    fun resetLocationDetailsStateFlow(){
+        locationDetailsStateFlow.value = null
+    }
+
+    suspend fun getLocationDetails(data: LocationDetailsModelWithId): LocationDetailsModel{
         val listCharacters = mutableListOf<CharacterModel>()
         val listJob = arrayListOf<Job>()
-        for (characterId in locationDetailsModelWithId?.characters!!) {
-            val job = viewModelScope.launch(Dispatchers.IO){
+        for (characterId in data.characters) {
+            val job = viewModelScope.launch(Dispatchers.IO) {
                 val characterData = getCharactersInfo(characterId)
                 listCharacters.add(characterData)
             }
             listJob.add(job)
         }
-        listJob.joinAll()
+        if (data.characters.isNotEmpty()){
+            listJob.joinAll()
+        }
         return LocationDetailsModel(
-            locationId = locationDetailsModelWithId?.locationId ?: 0,
-            locationName = locationDetailsModelWithId?.locationName ?: "",
-            locationType = locationDetailsModelWithId?.locationType ?: "",
-            dimension = locationDetailsModelWithId?.dimension ?: "",
+            locationId = data.locationId,
+            locationName = data.locationName,
+            locationType = data.locationType,
+            dimension = data.dimension,
             characters = listCharacters
         )
     }
@@ -78,7 +93,7 @@ class LocationsViewModel @Inject constructor(
         val data = characterDetailsUseCase.invoke(id)
         return CharacterModel(
             data?.characterId ?: 0,
-            data?.characterSpecies ?: "",
+            data?.characterName ?: "",
             data?.characterSpecies ?: "",
             data?.characterStatus ?: "",
             data?.characterGender ?: "",

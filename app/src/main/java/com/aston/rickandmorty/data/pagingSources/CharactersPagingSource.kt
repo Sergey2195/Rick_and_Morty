@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.data.pagingSources
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.aston.rickandmorty.data.models.AllCharactersResponse
@@ -31,7 +32,9 @@ class CharactersPagingSource(private val loader: suspend (pageIndex: Int) -> All
     }
 
     override fun getRefreshKey(state: PagingState<Int, CharacterModel>): Int? {
-        return null
+        val anchorPosition = state.anchorPosition ?: return null
+        val page = state.closestPageToPosition(anchorPosition) ?: return null
+        return page.prevKey?.plus(1) ?: page.nextKey?.minus(1)
     }
 
     companion object {

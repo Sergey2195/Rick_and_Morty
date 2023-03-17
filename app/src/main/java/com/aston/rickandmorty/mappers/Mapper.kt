@@ -1,8 +1,10 @@
 package com.aston.rickandmorty.mappers
 
 import android.content.Context
+import android.util.Log
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
+import com.aston.rickandmorty.data.localDataSource.models.EpisodeInfoDto
 import com.aston.rickandmorty.data.localDataSource.models.LocationInfoDto
 import com.aston.rickandmorty.data.models.*
 import com.aston.rickandmorty.domain.entity.*
@@ -136,13 +138,46 @@ object Mapper {
         }
     }
 
-    fun transformLocationInfoRemoteInfoLocationDetailsModelWithIds(src: LocationInfoRemote): LocationDetailsModelWithId{
+    fun transformLocationInfoRemoteInfoLocationDetailsModelWithIds(src: LocationInfoRemote): LocationDetailsModelWithId {
         return LocationDetailsModelWithId(
             locationId = src.locationId ?: 0,
             locationName = src.locationName ?: "",
             locationType = src.locationType ?: "",
             dimension = src.locationDimension ?: "",
-            characters = src.locationResidents?.map { Utils.getLastIntAfterSlash(it) ?: 0 } ?: emptyList()
+            characters = src.locationResidents?.map { Utils.getLastIntAfterSlash(it) ?: 0 }
+                ?: emptyList()
+        )
+    }
+
+    fun transformStringIdIntoListInt(src: String?): List<Int> {
+        if (src == null) return emptyList()
+        return try {
+            src.split(",").map { (it.trim(' ', '/')).toInt() }
+        }catch (e: Exception){
+            emptyList()
+        }
+    }
+
+    fun transformCharacterDetailsModelIntoCharacterModel(src: CharacterDetailsModel?): CharacterModel?{
+        if (src == null) return null
+        return CharacterModel(
+            src.characterId,
+            src.characterName,
+            src.characterSpecies,
+            src.characterStatus,
+            src.characterGender,
+            src.characterImage ?: ""
+        )
+    }
+
+    fun transformLocationDtoIntoLocationDetailsWithIds(src: LocationInfoDto): LocationDetailsModelWithId {
+        Log.d("SSV", src.toString())
+        return LocationDetailsModelWithId(
+            locationId = src.locationId ?: 0,
+            locationName = src.locationName ?: "",
+            locationType = src.locationType ?: "",
+            dimension = src.locationDimension ?: "",
+            characters = transformStringIdIntoListInt(src.locationResidentsIds)
         )
     }
 
@@ -238,17 +273,17 @@ object Mapper {
         return listCharacterDetails
     }
 
-    private fun transformListStringsToIds(src: List<String>?): String?{
+    fun transformListStringsToIds(src: List<String>?): String? {
         if (src == null) return null
-        return src.map { "/${Utils.getLastIntAfterSlash(it)}"}.joinToString()
+        return src.map { "/${Utils.getLastIntAfterSlash(it)}" }.joinToString()
     }
 
-    private fun transformStringIdToList(src: String?): List<String>?{
+    private fun transformStringIdToList(src: String?): List<String>? {
         if (src == null) return null
         return src.split(",").map { it.trim() }
     }
 
-    fun transformLocationInfoDtoIntoLocationInfoRemote(src: LocationInfoDto): LocationInfoRemote{
+    fun transformLocationInfoDtoIntoLocationInfoRemote(src: LocationInfoDto): LocationInfoRemote {
         return LocationInfoRemote(
             locationId = src.locationId,
             locationName = src.locationName,
@@ -260,7 +295,7 @@ object Mapper {
         )
     }
 
-    fun transformLocationInfoRemoteIntoLocationInfoDto(src: LocationInfoRemote): LocationInfoDto{
+    fun transformLocationInfoRemoteIntoLocationInfoDto(src: LocationInfoRemote): LocationInfoDto {
         return LocationInfoDto(
             locationId = src.locationId,
             locationName = src.locationName,
@@ -272,7 +307,19 @@ object Mapper {
         )
     }
 
-    fun transformCharacterInfoDtoIntoCharacterInfoRemote(src: CharacterInfoDto): CharacterInfoRemote{
+    fun transformEpisodeInfoRemoteIntoEpisodeInfoDto(src: EpisodeInfoRemote): EpisodeInfoDto{
+        return EpisodeInfoDto(
+            episodeId = src.episodeId,
+            episodeName = src.episodeName,
+            episodeAirDate = src.episodeAirDate,
+            episodeNumber = src.episodeNumber,
+            episodeCharacters = transformListStringsToIds(src.episodeCharacters),
+            episodeUrl = src.episodeUrl,
+            episodeCreated = src.episodeCreated
+        )
+    }
+
+    fun transformCharacterInfoDtoIntoCharacterInfoRemote(src: CharacterInfoDto): CharacterInfoRemote {
         return CharacterInfoRemote(
             characterId = src.characterId,
             characterName = src.characterName,
@@ -295,7 +342,7 @@ object Mapper {
         )
     }
 
-    fun transformCharacterInfoDtoIntoCharacterDetailsModel(src: CharacterInfoDto?): CharacterDetailsModel?{
+    fun transformCharacterInfoDtoIntoCharacterDetailsModel(src: CharacterInfoDto?): CharacterDetailsModel? {
         if (src == null) return null
         return CharacterDetailsModel(
             characterId = src.characterId ?: 0,
@@ -319,6 +366,17 @@ object Mapper {
         )
     }
 
+    fun transformEpisodeInfoDtoIntoEpisodeDetailsModelWithId(src: EpisodeInfoDto?): EpisodeDetailsModelWithId?{
+        if (src == null) return null
+        return EpisodeDetailsModelWithId(
+            id = src.episodeId ?: return null,
+            name = src.episodeName ?: return null,
+            airDate = src.episodeAirDate ?: return null,
+            episodeNumber = src.episodeNumber ?: return null,
+            characters = transformStringIdIntoListInt(src.episodeCharacters)
+        )
+    }
+
     fun transformCharacterInfoRemoteIntoCharacterInfoDto(src: CharacterInfoRemote): CharacterInfoDto {
         return CharacterInfoDto(
             characterId = src.characterId,
@@ -335,6 +393,18 @@ object Mapper {
             characterEpisodesIds = transformListStringsToIds(src.characterEpisodes),
             characterUrl = src.characterUrl,
             characterCreated = src.characterCreated
+        )
+    }
+
+    fun transformEpisodeInfoDtoIntoEpisodeInfoRemote(src: EpisodeInfoDto): EpisodeInfoRemote{
+        return EpisodeInfoRemote(
+            episodeId = src.episodeId,
+            episodeName = src.episodeName,
+            episodeAirDate = src.episodeAirDate,
+            episodeNumber = src.episodeNumber,
+            episodeCharacters = transformStringIdToList(src.episodeCharacters),
+            episodeUrl = src.episodeUrl,
+            episodeCreated = src.episodeCreated
         )
     }
 

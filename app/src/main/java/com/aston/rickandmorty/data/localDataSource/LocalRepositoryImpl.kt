@@ -1,15 +1,15 @@
 package com.aston.rickandmorty.data.localDataSource
 
-import android.util.Log
 import com.aston.rickandmorty.data.localDataSource.dao.CharactersDao
+import com.aston.rickandmorty.data.localDataSource.dao.EpisodesDao
 import com.aston.rickandmorty.data.localDataSource.dao.LocationsDao
 import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
+import com.aston.rickandmorty.data.localDataSource.models.EpisodeInfoDto
 import com.aston.rickandmorty.data.localDataSource.models.LocationInfoDto
-import com.aston.rickandmorty.data.models.AllCharactersResponse
-import com.aston.rickandmorty.data.models.AllLocationsResponse
-import com.aston.rickandmorty.data.models.CharacterInfoRemote
-import com.aston.rickandmorty.data.models.PageInfoResponse
+import com.aston.rickandmorty.data.models.*
 import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
+import com.aston.rickandmorty.domain.entity.EpisodeDetailsModel
+import com.aston.rickandmorty.domain.entity.EpisodeDetailsModelWithId
 import com.aston.rickandmorty.mappers.Mapper
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
@@ -20,11 +20,13 @@ import javax.inject.Inject
 
 class LocalRepositoryImpl @Inject constructor(
     private val charactersDao: CharactersDao,
-    private val locationsDao: LocationsDao
+    private val locationsDao: LocationsDao,
+    private val episodesDao: EpisodesDao
 ) : LocalRepository {
 
     private var allCharactersData: List<CharacterInfoDto> = emptyList()
     private var allLocationsData: List<LocationInfoDto> = emptyList()
+    private var allEpisodesData: List<EpisodeInfoDto> = emptyList()
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
@@ -33,8 +35,13 @@ class LocalRepositoryImpl @Inject constructor(
             }
         }
         CoroutineScope(Dispatchers.IO).launch {
-            locationsDao.getAllFromDb().collect{
+            locationsDao.getAllFromDb().collect {
                 allLocationsData = it
+            }
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            episodesDao.getAllFromDb().collect{
+                allEpisodesData = it
             }
         }
     }
@@ -48,54 +55,106 @@ class LocalRepositoryImpl @Inject constructor(
         var response = AllLocationsResponse(null, null)
         val filtered =
             allLocationsData.filter {
-                val filteredName = if (nameFilter == null) true else checkTwoStrings(nameFilter, it.locationName)
-                val filteredType = if (typeFilter == null) true else checkTwoStrings(typeFilter, it.locationType)
-                val filteredDimension = if (dimensionFilter == null) true else checkTwoStrings(dimensionFilter, it.locationDimension)
-                filteredName &&filteredType && filteredDimension
-            }.take(pageIndex * PAGE_SIZE).drop((pageIndex-1) * PAGE_SIZE)
-                .map { Mapper.transformLocationInfoDtoIntoLocationInfoRemote(it) }
-        if (filtered.isEmpty()) return response
-        response = AllLocationsResponse(
-            pageInfo = PageInfoResponse(null, null, "/page=${pageIndex + 1}", "/page=${pageIndex - 1}"),
-            listLocationsInfo = filtered
+                val filteredName =
+                    if (nameFilter == null) true else checkTwoStrings(nameFilter, it.locationName)
+                val filteredType =
+                    if (typeFilter == null) true else checkTwoStrings(typeFilter, it.locationType)
+                val filteredDimension = if (dimensionFilter == null) true else checkTwoStrings(
+                    dimensionFilter,
+                    it.locationDimension
+                )
+                filteredName && filteredType && filteredDimension
+            }
+        val filteredItemsPage = filtered.take(pageIndex * PAGE_SIZE).drop((pageIndex - 1) * PAGE_SIZE)
+            .map { Mapper.transformLocationInfoDtoIntoLocationInfoRemote(it) }
+        if (filteredItemsPage.isEmpty()) return response
+        val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
+        val prevPage = if (pageIndex > 1) "/page=${pageIndex - 1}" else null
+        val nextPage = if (pageIndex == countPages) null else "/page=${pageIndex + 1}"
+        val pageInfoResponse = PageInfoResponse(
+            filtered.size,
+            countPages,
+            nextPage,
+            prevPage
         )
+        response = AllLocationsResponse(pageInfoResponse, filteredItemsPage)
+        return response
+    }
+
+    override suspend fun getAllEpisodes(
+        pageIndex: Int,
+        nameFilter: String?,
+        episodeFilter: String?
+    ): AllEpisodesResponse {
+        var response = AllEpisodesResponse(null, null)
+        val filtered = allEpisodesData.filter {
+            val filteredName =
+                if (nameFilter == null) true else checkTwoStrings(nameFilter, it.episodeName)
+            val filteredType =
+                if (episodeFilter == null) true else checkTwoStrings(episodeFilter, it.episodeNumber)
+            filteredName && filteredType
+        }
+        val filteredItemsPage = filtered.take(pageIndex * PAGE_SIZE).drop((pageIndex - 1) * PAGE_SIZE)
+            .map { Mapper.transformEpisodeInfoDtoIntoEpisodeInfoRemote(it) }
+        if (filteredItemsPage.isEmpty()) return response
+        val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
+        val prevPage = if (pageIndex > 1) "/page=${pageIndex - 1}" else null
+        val nextPage = if (pageIndex == countPages) null else "/page=${pageIndex + 1}"
+        val pageInfoResponse = PageInfoResponse(
+            filtered.size,
+            countPages,
+            nextPage,
+            prevPage
+        )
+        response = AllEpisodesResponse(pageInfoResponse, filteredItemsPage)
         return response
     }
 
     override suspend fun getAllCharacters(
         pageIndex: Int,
-        nameFilter: String?,
-        statusFilter: String?,
-        speciesFilter: String?,
-        typeFilter: String?,
-        genderFilter: String?
+        arrayFilter: Array<String?>
     ): AllCharactersResponse {
         var response = AllCharactersResponse(null, null)
         val filtered =
             allCharactersData.filter {
-                val filteredName =
-                    if (nameFilter == null) true else checkTwoStrings(nameFilter, it.characterName)
-                val filteredStatus = if (statusFilter == null) true else checkTwoStrings(
-                    statusFilter,
+                val filteredName = if (arrayFilter[0] == null) true else checkTwoStrings(
+                    arrayFilter[0]!!,
+                    it.characterName
+                )
+                val filteredStatus = if (arrayFilter[1] == null) true else checkTwoStrings(
+                    arrayFilter[1]!!,
                     it.characterStatus
                 )
-                val filteredSpecies = if (speciesFilter == null) true else checkTwoStrings(
-                    speciesFilter,
+                val filteredSpecies = if (arrayFilter[2] == null) true else checkTwoStrings(
+                    arrayFilter[2]!!,
                     it.characterSpecies
                 )
-                val filteredType =
-                    if (typeFilter == null) true else checkTwoStrings(typeFilter, it.characterType)
-                val filteredGender = if (genderFilter == null) true else checkTwoStrings(
-                    genderFilter,
+                val filteredType = if (arrayFilter[3] == null) true else checkTwoStrings(
+                    arrayFilter[3]!!,
+                    it.characterType
+                )
+                val filteredGender = if (arrayFilter[4] == null) true else checkTwoStrings(
+                    arrayFilter[4]!!,
                     it.characterGender
                 )
                 filteredName && filteredStatus && filteredSpecies && filteredType && filteredGender
-            }.take(pageIndex * PAGE_SIZE).drop((pageIndex - 1) * PAGE_SIZE)
+            }
+        val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
+        val prevPage = if (pageIndex > 1) "/page=${pageIndex - 1}" else null
+        val nextPage = "/page=${pageIndex + 1}"
+        val pageInfoResponse = PageInfoResponse(
+            filtered.size,
+            countPages,
+            nextPage,
+            prevPage
+        )
+        val filteredItemsPage =
+            filtered.take(pageIndex * PAGE_SIZE).drop((pageIndex - 1) * PAGE_SIZE)
                 .map { Mapper.transformCharacterInfoDtoIntoCharacterInfoRemote(it) }
-        if (filtered.isEmpty()) return response
+        if (filteredItemsPage.isEmpty()) return response
         response = AllCharactersResponse(
-            PageInfoResponse(null, null, "/page=${pageIndex + 1}", "/page=${pageIndex - 1}"),
-            filtered
+            pageInfoResponse,
+            filteredItemsPage
         )
         return response
     }
@@ -104,7 +163,7 @@ class LocalRepositoryImpl @Inject constructor(
         return src?.lowercase()?.contains(filter.lowercase()) ?: false
     }
 
-    override suspend fun writeResponse(response: AllCharactersResponse) {
+    override suspend fun writeResponseCharacters(response: AllCharactersResponse) {
         val listCharacters = response.listCharactersInfo ?: return
         listCharacters.forEach { character ->
             charactersDao.addCharacter(
@@ -115,17 +174,32 @@ class LocalRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun writeResponseLocation(response: AllLocationsResponse) {
-        val listLocations = response.listLocationsInfo ?: return
-        listLocations.forEach{ location->
+    override suspend fun writeResponseLocation(response: AllLocationsResponse?) {
+        val listLocations = response?.listLocationsInfo ?: return
+        listLocations.forEach { location ->
             locationsDao.addLocation(
                 Mapper.transformLocationInfoRemoteIntoLocationInfoDto(location)
             )
         }
     }
 
+    override suspend fun writeResponseEpisodes(response: AllEpisodesResponse?) {
+        val listEpisodes = response?.listEpisodeInfo ?: return
+        listEpisodes.forEach {episode->
+            episodesDao.addEpisode(
+                Mapper.transformEpisodeInfoRemoteIntoEpisodeInfoDto(episode)
+            )
+        }
+
+    }
+
     override suspend fun writeSingleCharacterInfo(data: CharacterInfoRemote) {
         charactersDao.addCharacter(Mapper.transformCharacterInfoRemoteIntoCharacterInfoDto(data))
+    }
+
+    override suspend fun writeSingleEpisodeInfo(data: EpisodeInfoRemote?) {
+        if (data == null) return
+        episodesDao.addEpisode(Mapper.transformEpisodeInfoRemoteIntoEpisodeInfoDto(data))
     }
 
     override suspend fun deleteAllCharactersData() {
@@ -138,11 +212,15 @@ class LocalRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun getSingleEpisodeInfo(id: Int): EpisodeDetailsModelWithId? {
+        return Mapper.transformEpisodeInfoDtoIntoEpisodeDetailsModelWithId(episodesDao.getEpisode(id))
+    }
+
     override suspend fun getSingleLocationInfo(id: Int): LocationInfoDto? {
         return locationsDao.getSingleLocation(id)
     }
 
-    override fun getSingleLocationInfoRx(id: Int): Single<LocationInfoDto?> {
+    override fun getSingleLocationInfoRx(id: Int): Single<LocationInfoDto> {
         return locationsDao.getSingleLocationRx(id)
     }
 

@@ -13,6 +13,6 @@ data class DetailsModelText(
 ) : DetailsModelAdapter()
 
 data class DetailsModelCharacter(
-    val characterData: CharacterModel,
+    val characterData: CharacterModel?,
     override val viewType: Int = R.layout.character_item
 ) : DetailsModelAdapter()
