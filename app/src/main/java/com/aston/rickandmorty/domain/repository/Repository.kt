@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 interface Repository {
+    fun getStateFlowIsConnected(): StateFlow<Boolean>
     fun getFlowAllCharacters(
         nameFilter: String? = null,
         statusFilter: String? = null,

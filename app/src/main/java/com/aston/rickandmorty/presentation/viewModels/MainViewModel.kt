@@ -3,12 +3,14 @@ package com.aston.rickandmorty.presentation.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.aston.rickandmorty.domain.useCases.GetLoadingProgressStateFlow
+import com.aston.rickandmorty.domain.useCases.GetNetworkStatusIsAvailable
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.router.Router
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
-    private val loadingStateFlowUseCase: GetLoadingProgressStateFlow
+    private val loadingStateFlowUseCase: GetLoadingProgressStateFlow,
+    private val getNetworkStatusIsAvailable: GetNetworkStatusIsAvailable
 ) : ViewModel() {
     private var router: Router? = null
     val isOnParentLiveData = MutableLiveData(true)
@@ -16,6 +18,8 @@ class MainViewModel @Inject constructor(
     init {
         router = Router()
     }
+
+    fun getNetworkStatusIsAvailableStateFlow() = getNetworkStatusIsAvailable.invoke()
 
     fun attachRouter(mainActivity: MainActivity) {
         router?.onCreate(mainActivity)

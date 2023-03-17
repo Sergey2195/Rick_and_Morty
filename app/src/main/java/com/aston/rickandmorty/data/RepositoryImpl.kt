@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.data
 
+import android.app.Application
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -17,7 +18,6 @@ import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.domain.repository.Repository
 import com.aston.rickandmorty.mappers.Mapper
-import com.aston.rickandmorty.utils.Utils
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,10 +25,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @ApplicationScope
 class RepositoryImpl @Inject constructor(
+    application: Application,
     private val remoteRepository: RemoteRepository,
     private val localRepository: LocalRepository,
     private val apiCall: ApiCall
@@ -36,6 +38,17 @@ class RepositoryImpl @Inject constructor(
 
     private val loadingProgressStateFlow = MutableStateFlow(false)
     private var invalidData = false
+    private val connectivityObserver = NetworkConnectivityObserver(application)
+    private val connectionStatusIsAvailable =
+        MutableStateFlow(connectivityObserver.isDeviceOnline(application.applicationContext))
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            connectivityObserver.observe().collect {
+                connectionStatusIsAvailable.value = it == ConnectivityObserver.Status.Available
+            }
+        }
+    }
 
     override fun getLoadingProgressStateFlow(): StateFlow<Boolean> {
         return loadingProgressStateFlow.asStateFlow()
@@ -47,6 +60,10 @@ class RepositoryImpl @Inject constructor(
 
     private fun setLoading(isLoading: Boolean) {
         loadingProgressStateFlow.value = isLoading
+    }
+
+    override fun getStateFlowIsConnected(): StateFlow<Boolean> {
+        return connectionStatusIsAvailable.asStateFlow()
     }
 
     override fun getFlowAllCharacters(
@@ -232,9 +249,10 @@ class RepositoryImpl @Inject constructor(
                 localResult.characters
             }
             val charactersData = arrayListOf<CharacterModel>()
-            for (charId in listId){
+            for (charId in listId) {
                 val charData = getSingleCharacterData(charId)
-                val mappedData = Mapper.transformCharacterDetailsModelIntoCharacterModel(charData) ?: continue
+                val mappedData =
+                    Mapper.transformCharacterDetailsModelIntoCharacterModel(charData) ?: continue
                 if (charData != null) charactersData.add(mappedData)
             }
             return EpisodeDetailsModel(

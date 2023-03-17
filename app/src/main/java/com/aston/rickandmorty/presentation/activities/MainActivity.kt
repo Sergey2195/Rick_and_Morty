@@ -19,6 +19,7 @@ import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 import kotlin.math.abs
@@ -52,6 +53,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         setBottomNavigationBarClickListeners()
         observeLiveData()
         observeLoadingState()
+        observeInternetConnection()
     }
 
     private fun observeLoadingState() = lifecycleScope.launchWhenStarted {
@@ -64,6 +66,14 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         viewModel.isOnParentLiveData.observe(this){ isOnParent->
             changeIsOnParentState(isOnParent)
             isOnParentScreen = isOnParent
+        }
+    }
+
+    private fun observeInternetConnection(){
+        lifecycleScope.launchWhenStarted {
+            viewModel.getNetworkStatusIsAvailableStateFlow().collect{
+                Snackbar.make(binding.toolbarTextView, "$it", Snackbar.LENGTH_LONG).show()
+            }
         }
     }
 
