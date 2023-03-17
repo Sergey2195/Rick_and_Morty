@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.activities
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.addCallback
@@ -9,7 +8,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.aston.rickandmorty.R
@@ -20,7 +18,7 @@ import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
 import javax.inject.Inject
 import kotlin.math.abs
 
@@ -28,6 +26,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
+
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private val viewModel: MainViewModel by viewModels() {
@@ -57,29 +56,33 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     }
 
     private fun observeLoadingState() = lifecycleScope.launchWhenStarted {
-        viewModel.getLoadingStateFlow().collect{ isLoading->
+        viewModel.getLoadingStateFlow().collect { isLoading ->
             binding.swipeRefreshLayout.isRefreshing = isLoading
         }
     }
 
-    private fun observeLiveData(){
-        viewModel.isOnParentLiveData.observe(this){ isOnParent->
+    private fun observeLiveData() {
+        viewModel.isOnParentLiveData.observe(this) { isOnParent ->
             changeIsOnParentState(isOnParent)
             isOnParentScreen = isOnParent
         }
     }
 
-    private fun observeInternetConnection(){
+    private fun observeInternetConnection() {
         lifecycleScope.launchWhenStarted {
-            viewModel.getNetworkStatusIsAvailableStateFlow().collect{
-                Snackbar.make(binding.toolbarTextView, "$it", Snackbar.LENGTH_LONG).show()
+            viewModel.getNetworkStatusIsAvailableStateFlow().filter { !it }.collect {
+                Snackbar.make(
+                    binding.toolbarTextView,
+                    getString(R.string.network_error),
+                    Snackbar.LENGTH_INDEFINITE
+                ).show()
             }
         }
     }
 
-    private fun changeIsOnParentState(isOnParent: Boolean){
+    private fun changeIsOnParentState(isOnParent: Boolean) {
         binding.appBarLayout.setExpanded(false)
-        when (isOnParent){
+        when (isOnParent) {
             true -> changeVisibilityToolBarElements(View.VISIBLE, View.GONE)
             false -> changeVisibilityToolBarElements(View.GONE, View.VISIBLE)
         }
@@ -103,7 +106,10 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     private fun setupToolbarListener() {
         binding.appBarLayout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
             when {
-                isCollapsed(verticalOffset, appBarLayout) -> collapsedToolBarChangedState(true, isOnParentScreen)
+                isCollapsed(verticalOffset, appBarLayout) -> collapsedToolBarChangedState(
+                    true,
+                    isOnParentScreen
+                )
                 isExpanded(verticalOffset) -> collapsedToolBarChangedState(false, isOnParentScreen)
                 else -> {}
             }
@@ -182,7 +188,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     }
 
     private fun setBottomNavigationBarClickListeners() {
-        if (!isOnParentScreen){
+        if (!isOnParentScreen) {
             onBackPressedDispatcher.onBackPressed()
             return
         }
