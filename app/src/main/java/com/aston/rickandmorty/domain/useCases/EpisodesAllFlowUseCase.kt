@@ -9,8 +9,9 @@ import javax.inject.Inject
 class EpisodesAllFlowUseCase @Inject constructor(private val repository: Repository) {
     operator fun invoke(
         nameFilter: String? = null,
-        episodeFilter: String? = null
+        episodeFilter: String? = null,
+        forceUpdate: Boolean
     ): Flow<PagingData<EpisodeModel>> {
-        return repository.getFlowAllEpisodes(nameFilter, episodeFilter)
+        return repository.getFlowAllEpisodes(nameFilter, episodeFilter, forceUpdate)
     }
 }

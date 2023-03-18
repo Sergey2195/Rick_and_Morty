@@ -27,7 +27,8 @@ interface Repository {
     fun getSingleLocationData(id: Int, forceUpdate: Boolean): Single<LocationDetailsModelWithId>
     fun getFlowAllEpisodes(
         nameFilter: String? = null,
-        episodeFilter: String? = null
+        episodeFilter: String? = null,
+        forceUpdate: Boolean
     ): Flow<PagingData<EpisodeModel>>
 
     suspend fun getSingleEpisodeData(id: Int, forceUpdate: Boolean): EpisodeDetailsModel?

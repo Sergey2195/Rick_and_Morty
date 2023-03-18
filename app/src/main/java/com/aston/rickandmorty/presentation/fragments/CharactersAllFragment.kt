@@ -128,7 +128,7 @@ class CharactersAllFragment : Fragment() {
 
     private fun prepareRecyclerView() {
         val footerAdapter = DefaultLoadStateAdapter {
-            //todo click listener
+            adapter.retry()
         }
         val adapterWithLoadFooter = adapter.withLoadStateFooter(footerAdapter)
         binding.charactersRecyclerView.adapter = adapterWithLoadFooter

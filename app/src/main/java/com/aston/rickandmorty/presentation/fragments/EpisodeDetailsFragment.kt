@@ -20,6 +20,8 @@ import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -68,12 +70,27 @@ class EpisodeDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
-        loadAndSubmitData()
+        setupObserver()
+        sendIdEpisode(false)
+        setupRefreshListener()
     }
 
-    private fun loadAndSubmitData() = lifecycleScope.launch {
-        val data = loadData()
-        detailsAdapter.submitList(data)
+    private fun setupRefreshListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener{
+            sendIdEpisode(true)
+        }
+    }
+
+    private fun sendIdEpisode(forceUpdate: Boolean) {
+        if (id == null) throw RuntimeException("sendIdEpisode")
+        if (id == null) return
+        viewModel.sendIdEpisode(id!!, forceUpdate)
+    }
+
+    private fun setupObserver() = lifecycleScope.launchWhenStarted{
+        viewModel.episodeDataForAdapter.filterNotNull().collect{ data->
+            detailsAdapter.submitList(data)
+        }
     }
 
     private fun prepareRecyclerView() {
@@ -91,12 +108,6 @@ class EpisodeDetailsFragment : Fragment() {
             .replace(container ?: throw RuntimeException("openCharacterDetailsFragment"), CharacterDetailsFragment.newInstance(id, container ?: throw RuntimeException("openCharacterDetailsFragment")))
             .addToBackStack(null)
             .commit()
-    }
-
-    private suspend fun loadData() = withContext(Dispatchers.IO) {
-        val data = viewModel.getEpisodeDetailsInfo(id ?: 1, false)
-        withContext(Dispatchers.Main){setToolBarTitleText(data?.name ?: "")}
-        viewModel.getDataToAdapter(data)
     }
 
     override fun onDestroy() {

@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.data.remoteDataSource
 
+import android.util.Log
 import com.aston.rickandmorty.data.apiCalls.ApiCall
 import com.aston.rickandmorty.data.models.*
 import io.reactivex.Single
