@@ -1,7 +1,5 @@
 package com.aston.rickandmorty.presentation.viewModels
 
-import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -28,12 +26,13 @@ import javax.inject.Inject
 class LocationsViewModel @Inject constructor(
     private val locationsAllFlowUseCase: LocationsAllFlowUseCase,
     private val locationDetailsUseCase: LocationDetailsUseCase,
-    private val characterDetailsUseCase: CharacterDetailsUseCase
+    private val characterDetailsUseCase: CharacterDetailsUseCase,
+    private val mapper: Mapper
 ) : ViewModel() {
     private val _locationFilterStateFlow: MutableStateFlow<LocationFilterModel?> =
         MutableStateFlow(null)
     val locationFilterStateFlow = _locationFilterStateFlow.asStateFlow()
-    private val _locationDetailsStateFlow: MutableStateFlow<LocationDetailsModelWithId?> =
+    private val _locationDetailsStateFlow: MutableStateFlow<List<DetailsModelAdapter>?> =
         MutableStateFlow(null)
     val locationDetailsStateFlow
         get() = _locationDetailsStateFlow
@@ -47,65 +46,69 @@ class LocationsViewModel @Inject constructor(
     fun getLocationAllFlow(
         nameFilter: String? = null,
         typeFilter: String? = null,
-        dimensionFilter: String? = null
-    ) = locationsAllFlowUseCase.invoke(nameFilter, typeFilter, dimensionFilter)
+        dimensionFilter: String? = null,
+        forceUpdate: Boolean = false
+    ) = locationsAllFlowUseCase.invoke(nameFilter, typeFilter, dimensionFilter, forceUpdate)
         .cachedIn(viewModelScope)
 
-    fun sendIdToGetDetails(id: Int) {
-        val disposable = locationDetailsUseCase.invoke(id)
+    fun sendIdToGetDetails(id: Int, forceUpdate: Boolean) {
+        val disposable = locationDetailsUseCase.invoke(id, forceUpdate)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                locationDetailsStateFlow.value = it
+            .subscribe({ dataWithId ->
+                gotResponseFromSingle(dataWithId, forceUpdate)
             }, {
                 locationDetailsStateFlow.value = null
             })
         compositeDisposable.add(disposable)
     }
 
-    fun resetLocationDetailsStateFlow(){
-        locationDetailsStateFlow.value = null
+    private fun gotResponseFromSingle(
+        dataWithId: LocationDetailsModelWithId,
+        forceUpdate: Boolean
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        val locationDetailsModel = getLocationDetails(dataWithId, forceUpdate)
+        val dataForAdapter = prepareDataForAdapter(locationDetailsModel)
+        _locationDetailsStateFlow.value = dataForAdapter
     }
 
-    suspend fun getLocationDetails(data: LocationDetailsModelWithId): LocationDetailsModel{
-        val listCharacters = mutableListOf<CharacterModel>()
+    private suspend fun getLocationDetails(
+        data: LocationDetailsModelWithId,
+        forceUpdate: Boolean
+    ): LocationDetailsModel {
+        val sortedCharacters = getCharacters(data.characters, forceUpdate)
+        return mapper.transformLocationDetailsModelWithIdIntoLocationDetailsModel(
+            data,
+            sortedCharacters
+        )
+    }
+
+    private suspend fun getCharacters(
+        listId: List<Int>,
+        forceUpdate: Boolean
+    ): List<CharacterModel> {
         val listJob = arrayListOf<Job>()
-        for (characterId in data.characters) {
+        val listCharacters = mutableListOf<CharacterModel>()
+        for (characterId in listId) {
             val job = viewModelScope.launch(Dispatchers.IO) {
-                val characterData = getCharactersInfo(characterId)
-                listCharacters.add(characterData)
+                val characterData = getCharactersInfo(characterId, forceUpdate)
+                listCharacters.add(characterData ?: throw RuntimeException("a"))
             }
             listJob.add(job)
         }
-        if (data.characters.isNotEmpty()){
-            listJob.joinAll()
-        }
-        return LocationDetailsModel(
-            locationId = data.locationId,
-            locationName = data.locationName,
-            locationType = data.locationType,
-            dimension = data.dimension,
-            characters = listCharacters
-        )
+        listJob.joinAll()
+        return listCharacters.sortedBy { it.id }
     }
 
-    private suspend fun getCharactersInfo(id: Int): CharacterModel {
-        val data = characterDetailsUseCase.invoke(id)
-        return CharacterModel(
-            data?.characterId ?: 0,
-            data?.characterName ?: "",
-            data?.characterSpecies ?: "",
-            data?.characterStatus ?: "",
-            data?.characterGender ?: "",
-            data?.characterImage ?: ""
-        )
+    private suspend fun getCharactersInfo(id: Int, forceUpdate: Boolean): CharacterModel? {
+        val data = characterDetailsUseCase.invoke(id, forceUpdate)
+        return mapper.transformCharacterDetailsModelIntoCharacterModel(data)
     }
 
-    fun prepareDataForAdapter(
-        data: LocationDetailsModel,
-        context: Context
+    private fun prepareDataForAdapter(
+        data: LocationDetailsModel
     ): List<DetailsModelAdapter> {
-        return Mapper.transformLocationDetailsModelToDetailsModelAdapter(data, context)
+        return mapper.transformLocationDetailsModelToDetailsModelAdapter(data)
     }
 
     fun clearFilter() {

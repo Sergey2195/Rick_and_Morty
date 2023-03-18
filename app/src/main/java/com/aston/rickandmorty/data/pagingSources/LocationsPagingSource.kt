@@ -9,7 +9,10 @@ import com.aston.rickandmorty.utils.Utils
 import retrofit2.HttpException
 import java.io.IOException
 
-class LocationsPagingSource(private val loader: suspend (pageIndex: Int)-> AllLocationsResponse?) :
+class LocationsPagingSource(
+    private val mapper: Mapper,
+    private val loader: suspend (pageIndex: Int)-> AllLocationsResponse?
+) :
     PagingSource<Int, LocationModel>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LocationModel> {
@@ -19,7 +22,7 @@ class LocationsPagingSource(private val loader: suspend (pageIndex: Int)-> AllLo
             val resultData = response?.listLocationsInfo ?: return LoadResult.Error(Exception())
             val prevPage = Utils.findPage(response.pageInfo?.prevPageUrl)
             val nextPage = Utils.findPage(response.pageInfo?.nextPageUrl)
-            val mappedList = Mapper.transformListLocationInfoRemoteIntoListLocationModel(resultData)
+            val mappedList = mapper.transformListLocationInfoRemoteIntoListLocationModel(resultData)
             LoadResult.Page(mappedList, prevPage, nextPage)
         }catch (e:Exception){
             LoadResult.Error(e)

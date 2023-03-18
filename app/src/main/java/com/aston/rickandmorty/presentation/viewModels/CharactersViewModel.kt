@@ -27,7 +27,8 @@ class CharactersViewModel @Inject constructor(
     private val characterDetailsUseCase: CharacterDetailsUseCase,
     private val locationModelsUseCase: LocationModelUseCase,
     private val listEpisodesModelUseCase: EpisodesListWithIdsUseCase,
-    private val deleteAllCharactersDataUseCase: DeleteAllCharactersDataUseCase
+    private val deleteAllCharactersDataUseCase: DeleteAllCharactersDataUseCase,
+    private val mapper: Mapper
 ): ViewModel() {
 
     private val _dataForAdapter: MutableStateFlow<List<CharacterDetailsModelAdapter>> =
@@ -48,28 +49,30 @@ class CharactersViewModel @Inject constructor(
             .cachedIn(viewModelScope)
     }
 
-    fun loadInfoAboutCharacter(id: Int, context: Context) = viewModelScope.launch(Dispatchers.IO) {
-        val data = characterDetailsUseCase.invoke(id) ?: return@launch
-        val originUrl = data.characterOrigin.characterOriginUrl
-        val originId = Utils.getLastIntAfterSlash(originUrl)
-        var originModel: LocationModel? = null
-        var locationModel: LocationModel? = null
-        if (originId != null) {
-            originModel = locationModelsUseCase.invoke(originId)
-        }
-        val locationUrl = data.characterLocation.characterLocationUrl
-        val locationId = Utils.getLastIntAfterSlash(locationUrl)
-        if (locationId != null) {
-            locationModel = locationModelsUseCase.invoke(locationId)
-        }
-        val episodes = data.characterEpisodes
-        val episodesId = Utils.getStringForMultiId(episodes.map { Utils.getLastIntAfterSlash(it) })
-        val episodesModels = listEpisodesModelUseCase.invoke(episodesId)
-        val resultList = Mapper.getListCharacterDetailsModelAdapter(
-            data, context, originModel, locationModel, episodesModels
-        )
-        withContext(Dispatchers.Main) {
-            _dataForAdapter.value = resultList
+    fun loadInfoAboutCharacter(id: Int, forceUpdate: Boolean = false){
+        viewModelScope.launch(Dispatchers.IO) {
+            val data = characterDetailsUseCase.invoke(id, forceUpdate) ?: return@launch
+            val originUrl = data.characterOrigin.characterOriginUrl
+            val originId = Utils.getLastIntAfterSlash(originUrl)
+            var originModel: LocationModel? = null
+            var locationModel: LocationModel? = null
+            if (originId != null) {
+                originModel = locationModelsUseCase.invoke(originId, forceUpdate)
+            }
+            val locationUrl = data.characterLocation.characterLocationUrl
+            val locationId = Utils.getLastIntAfterSlash(locationUrl)
+            if (locationId != null) {
+                locationModel = locationModelsUseCase.invoke(locationId, forceUpdate)
+            }
+            val episodes = data.characterEpisodes
+            val episodesId = Utils.getStringForMultiId(episodes.map { Utils.getLastIntAfterSlash(it) })
+            val episodesModels = listEpisodesModelUseCase.invoke(episodesId)
+            val resultList = mapper.getListCharacterDetailsModelAdapter(
+                data, originModel, locationModel, episodesModels
+            )
+            withContext(Dispatchers.Main) {
+                _dataForAdapter.value = resultList
+            }
         }
     }
 

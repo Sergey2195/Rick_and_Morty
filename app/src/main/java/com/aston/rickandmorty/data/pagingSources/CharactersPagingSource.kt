@@ -10,7 +10,10 @@ import com.aston.rickandmorty.utils.Utils
 import retrofit2.HttpException
 import java.io.IOException
 
-class CharactersPagingSource(private val loader: suspend (pageIndex: Int) -> AllCharactersResponse) :
+class CharactersPagingSource(
+    private val mapper: Mapper,
+    private val loader: suspend (pageIndex: Int) -> AllCharactersResponse
+) :
     PagingSource<Int, CharacterModel>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CharacterModel> {
@@ -21,7 +24,7 @@ class CharactersPagingSource(private val loader: suspend (pageIndex: Int) -> All
             val prevPage = Utils.findPage(response.pageInfo?.prevPageUrl)
             val nextPage = Utils.findPage(response.pageInfo?.nextPageUrl)
             val mappedList =
-                Mapper.transformListCharacterInfoRemoteIntoListCharacterModel(resultData)
+                mapper.transformListCharacterInfoRemoteIntoListCharacterModel(resultData)
             return LoadResult.Page(mappedList, prevPage, nextPage)
         } catch (e: Exception) {
             if (e is HttpException && e.code() == 404) {

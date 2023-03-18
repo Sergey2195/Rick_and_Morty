@@ -16,14 +16,15 @@ import javax.inject.Inject
 
 class EpisodesViewModel @Inject constructor(
     private val episodesAllFlowUseCase: EpisodesAllFlowUseCase,
-    private val episodeDetailsUseCase: EpisodeDetailsUseCase
+    private val episodeDetailsUseCase: EpisodeDetailsUseCase,
+    private val mapper: Mapper
 ) : ViewModel() {
 
     private val _episodeFilterStateFlow = MutableStateFlow<EpisodeFilterModel?>(null)
     val episodeFilterStateFlow = _episodeFilterStateFlow.asStateFlow()
 
-    suspend fun getEpisodeDetailsInfo(id: Int): EpisodeDetailsModel? {
-        return episodeDetailsUseCase.invoke(id)
+    suspend fun getEpisodeDetailsInfo(id: Int, forceUpdate: Boolean): EpisodeDetailsModel? {
+        return episodeDetailsUseCase.invoke(id, forceUpdate)
     }
 
     fun getEpisodesAllFlow(
@@ -31,9 +32,9 @@ class EpisodesViewModel @Inject constructor(
         episodeFilter: String? = null
     ) = episodesAllFlowUseCase.invoke(nameFilter, episodeFilter).cachedIn(viewModelScope)
 
-    fun getDataToAdapter(src: EpisodeDetailsModel?, context: Context): List<DetailsModelAdapter> {
+    fun getDataToAdapter(src: EpisodeDetailsModel?): List<DetailsModelAdapter> {
         if (src == null) return emptyList()
-        return Mapper.transformEpisodeDetailsModelToDetailsModelAdapter(src, context)
+        return mapper.transformEpisodeDetailsModelToDetailsModelAdapter(src)
     }
 
     fun clearFilter() {

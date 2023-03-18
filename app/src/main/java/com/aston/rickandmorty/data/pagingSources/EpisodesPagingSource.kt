@@ -8,7 +8,10 @@ import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.utils.Utils
 import java.io.IOException
 
-class EpisodesPagingSource(private val loader: suspend (pageIndex: Int) -> AllEpisodesResponse) :
+class EpisodesPagingSource(
+    private val mapper: Mapper,
+    private val loader: suspend (pageIndex: Int) -> AllEpisodesResponse
+) :
     PagingSource<Int, EpisodeModel>() {
     override fun getRefreshKey(state: PagingState<Int, EpisodeModel>): Int? {
         return null
@@ -21,7 +24,7 @@ class EpisodesPagingSource(private val loader: suspend (pageIndex: Int) -> AllEp
             val resultData = response.listEpisodeInfo ?: throw IOException()
             val prevPage = Utils.findPage(response.pageInfo?.prevPageUrl)
             val nextPage = Utils.findPage(response.pageInfo?.nextPageUrl)
-            val mappedList = Mapper.transformListEpisodeInfoRemoteIntoListEpisodeModel(resultData)
+            val mappedList = mapper.transformListEpisodeInfoRemoteIntoListEpisodeModel(resultData)
             return LoadResult.Page(mappedList, prevPage, nextPage)
         } catch (e: Exception) {
             LoadResult.Error(e)

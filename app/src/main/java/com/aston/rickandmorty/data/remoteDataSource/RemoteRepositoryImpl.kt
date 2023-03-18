@@ -55,4 +55,12 @@ class RemoteRepositoryImpl @Inject constructor(private val apiCall: ApiCall) : R
     override suspend fun getSingleEpisodeInfo(id: Int): EpisodeInfoRemote? {
         return apiCall.getSingleEpisodeData(id)
     }
+
+    override suspend fun getMultiIdCharacters(request: String): List<CharacterInfoRemote>?{
+        return try {
+            apiCall.getMultiCharactersData(request)
+        }catch (e: Exception){
+            null
+        }
+    }
 }

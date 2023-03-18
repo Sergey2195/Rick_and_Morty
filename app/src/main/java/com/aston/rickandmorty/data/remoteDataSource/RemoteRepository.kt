@@ -27,4 +27,5 @@ interface RemoteRepository {
     suspend fun getSingleCharacterInfo(id: Int): CharacterInfoRemote?
     fun getSingleLocationData(id: Int): Single<LocationInfoRemote>
     suspend fun getSingleEpisodeInfo(id: Int): EpisodeInfoRemote?
+    suspend fun getMultiIdCharacters(request: String): List<CharacterInfoRemote>?
 }

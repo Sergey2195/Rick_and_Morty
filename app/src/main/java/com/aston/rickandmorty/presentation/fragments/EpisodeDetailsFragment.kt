@@ -94,9 +94,9 @@ class EpisodeDetailsFragment : Fragment() {
     }
 
     private suspend fun loadData() = withContext(Dispatchers.IO) {
-        val data = viewModel.getEpisodeDetailsInfo(id ?: 1)
+        val data = viewModel.getEpisodeDetailsInfo(id ?: 1, false)
         withContext(Dispatchers.Main){setToolBarTitleText(data?.name ?: "")}
-        viewModel.getDataToAdapter(data, requireContext())
+        viewModel.getDataToAdapter(data)
     }
 
     override fun onDestroy() {

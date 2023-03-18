@@ -10,12 +10,14 @@ class LocationsAllFlowUseCase @Inject constructor(private val rep: Repository) {
     operator fun invoke(
         nameFilter: String? = null,
         typeFilter: String? = null,
-        dimensionFilter: String? = null
+        dimensionFilter: String? = null,
+        forceUpdate: Boolean = false
     ): Flow<PagingData<LocationModel>> {
         return rep.getFlowAllLocations(
             nameFilter,
             typeFilter,
-            dimensionFilter
+            dimensionFilter,
+            forceUpdate
         )
     }
 }

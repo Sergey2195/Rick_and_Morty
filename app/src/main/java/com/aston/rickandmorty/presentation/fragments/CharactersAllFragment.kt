@@ -58,11 +58,6 @@ class CharactersAllFragment : Fragment() {
         arguments?.let {
             arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
         }
-//        lifecycleScope.launch{
-//            delay(10000)
-//            Log.d("SSV", "REFRESH")
-//            adapter.refresh()
-//        }
     }
 
     override fun onCreateView(

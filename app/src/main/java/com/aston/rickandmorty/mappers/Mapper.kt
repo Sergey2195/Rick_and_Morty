@@ -1,17 +1,22 @@
 package com.aston.rickandmorty.mappers
 
-import android.content.Context
 import android.util.Log
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
 import com.aston.rickandmorty.data.localDataSource.models.EpisodeInfoDto
 import com.aston.rickandmorty.data.localDataSource.models.LocationInfoDto
 import com.aston.rickandmorty.data.models.*
+import com.aston.rickandmorty.di.ApplicationScope
+import com.aston.rickandmorty.di.ContextWrapper
 import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.presentation.adapterModels.*
 import com.aston.rickandmorty.utils.Utils
+import javax.inject.Inject
 
-object Mapper {
+@ApplicationScope
+class Mapper @Inject constructor(
+    private val contextWrapper: ContextWrapper
+) {
     private fun transformCharacterInfoRemoteIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
         return CharacterModel(
             id = src.characterId ?: 0,
@@ -80,6 +85,19 @@ object Mapper {
         return src.map { transformEpisodeInfoRemoteIntoEpisodeModel(it) }
     }
 
+    fun transformLocationDetailsModelWithIdIntoLocationDetailsModel(
+        src: LocationDetailsModelWithId,
+        listCharacters: List<CharacterModel>
+    ): LocationDetailsModel {
+        return LocationDetailsModel(
+            locationId = src.locationId,
+            locationName = src.locationName,
+            locationType = src.locationType,
+            dimension = src.dimension,
+            characters = listCharacters
+        )
+    }
+
     fun transformEpisodeInfoRemoteIntoEpisodeModel(src: EpisodeInfoRemote): EpisodeModel {
         return EpisodeModel(
             id = src.episodeId ?: 0,
@@ -90,15 +108,14 @@ object Mapper {
     }
 
     fun transformEpisodeDetailsModelToDetailsModelAdapter(
-        src: EpisodeDetailsModel,
-        context: Context
+        src: EpisodeDetailsModel
     ): List<DetailsModelAdapter> {
         val list = mutableListOf<DetailsModelAdapter>(
-            DetailsModelText(context.getString(R.string.character_name_title)),
+            DetailsModelText(contextWrapper.context.getString(R.string.character_name_title)),
             DetailsModelText(src.name),
-            DetailsModelText(context.getString(R.string.air_date_title)),
+            DetailsModelText(contextWrapper.context.getString(R.string.air_date_title)),
             DetailsModelText(src.airDate),
-            DetailsModelText(context.getString(R.string.episode_number_title)),
+            DetailsModelText(contextWrapper.context.getString(R.string.episode_number_title)),
             DetailsModelText(src.episodeNumber)
         )
         for (character in src.characters) {
@@ -108,15 +125,14 @@ object Mapper {
     }
 
     fun transformLocationDetailsModelToDetailsModelAdapter(
-        data: LocationDetailsModel,
-        context: Context
+        data: LocationDetailsModel
     ): List<DetailsModelAdapter> {
         val list = mutableListOf<DetailsModelAdapter>(
-            DetailsModelText(context.getString(R.string.character_location_title)),
+            DetailsModelText(contextWrapper.context.getString(R.string.character_location_title)),
             DetailsModelText(data.locationName),
-            DetailsModelText(context.getString(R.string.character_type_title)),
+            DetailsModelText(contextWrapper.context.getString(R.string.character_type_title)),
             DetailsModelText(data.locationType),
-            DetailsModelText(context.getString(R.string.dimension_title)),
+            DetailsModelText(contextWrapper.context.getString(R.string.dimension_title)),
             DetailsModelText(data.dimension)
         )
         for (character in data.characters) {
@@ -153,12 +169,12 @@ object Mapper {
         if (src == null) return emptyList()
         return try {
             src.split(",").map { (it.trim(' ', '/')).toInt() }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             emptyList()
         }
     }
 
-    fun transformCharacterDetailsModelIntoCharacterModel(src: CharacterDetailsModel?): CharacterModel?{
+    fun transformCharacterDetailsModelIntoCharacterModel(src: CharacterDetailsModel?): CharacterModel? {
         if (src == null) return null
         return CharacterModel(
             src.characterId,
@@ -196,7 +212,6 @@ object Mapper {
 
     fun getListCharacterDetailsModelAdapter(
         data: CharacterDetailsModel,
-        context: Context,
         originModel: LocationModel?,
         locationModel: LocationModel?,
         episodesModels: List<EpisodeModel>?
@@ -204,30 +219,30 @@ object Mapper {
         val listCharacterDetails: MutableList<CharacterDetailsModelAdapter> = mutableListOf(
             CharacterDetailsImageModelAdapter(imageUrl = data.characterImage),
             CharacterDetailsTitleValueModelAdapter(
-                title = context.getString(R.string.character_name_title),
+                title = contextWrapper.context.getString(R.string.character_name_title),
                 value = data.characterName
             ),
             CharacterDetailsTitleValueModelAdapter(
-                title = context.getString(R.string.character_status_title),
+                title = contextWrapper.context.getString(R.string.character_status_title),
                 value = data.characterStatus
             ),
             CharacterDetailsTitleValueModelAdapter(
-                title = context.getString(R.string.character_species_title),
+                title = contextWrapper.context.getString(R.string.character_species_title),
                 value = data.characterSpecies
             ),
             CharacterDetailsTitleValueModelAdapter(
-                title = context.getString(R.string.character_type_title),
+                title = contextWrapper.context.getString(R.string.character_type_title),
                 value = data.characterType
             ),
             CharacterDetailsTitleValueModelAdapter(
-                title = context.getString(R.string.character_gender_title),
+                title = contextWrapper.context.getString(R.string.character_gender_title),
                 value = data.characterGender
             ),
         )
         if (originModel != null) {
             listCharacterDetails.add(
                 CharacterDetailsTitleValueModelAdapter(
-                    title = context.getString(R.string.character_origin_title),
+                    title = contextWrapper.context.getString(R.string.character_origin_title),
                     value = ""
                 )
             )
@@ -239,7 +254,7 @@ object Mapper {
         } else {
             listCharacterDetails.add(
                 CharacterDetailsTitleValueModelAdapter(
-                    title = context.getString(R.string.character_origin_title),
+                    title = contextWrapper.context.getString(R.string.character_origin_title),
                     value = data.characterOrigin.characterOriginName
                 )
             )
@@ -247,7 +262,7 @@ object Mapper {
         if (locationModel != null) {
             listCharacterDetails.add(
                 CharacterDetailsTitleValueModelAdapter(
-                    title = context.getString(R.string.character_location_title),
+                    title = contextWrapper.context.getString(R.string.character_location_title),
                     value = ""
                 )
             )
@@ -260,7 +275,7 @@ object Mapper {
         if (episodesModels != null) {
             listCharacterDetails.add(
                 CharacterDetailsTitleValueModelAdapter(
-                    context.getString(R.string.episodes_title),
+                    contextWrapper.context.getString(R.string.episodes_title),
                     ""
                 )
             )
@@ -307,7 +322,7 @@ object Mapper {
         )
     }
 
-    fun transformEpisodeInfoRemoteIntoEpisodeInfoDto(src: EpisodeInfoRemote): EpisodeInfoDto{
+    fun transformEpisodeInfoRemoteIntoEpisodeInfoDto(src: EpisodeInfoRemote): EpisodeInfoDto {
         return EpisodeInfoDto(
             episodeId = src.episodeId,
             episodeName = src.episodeName,
@@ -366,7 +381,7 @@ object Mapper {
         )
     }
 
-    fun transformEpisodeInfoDtoIntoEpisodeDetailsModelWithId(src: EpisodeInfoDto?): EpisodeDetailsModelWithId?{
+    fun transformEpisodeInfoDtoIntoEpisodeDetailsModelWithId(src: EpisodeInfoDto?): EpisodeDetailsModelWithId? {
         if (src == null) return null
         return EpisodeDetailsModelWithId(
             id = src.episodeId ?: return null,
@@ -396,7 +411,7 @@ object Mapper {
         )
     }
 
-    fun transformEpisodeInfoDtoIntoEpisodeInfoRemote(src: EpisodeInfoDto): EpisodeInfoRemote{
+    fun transformEpisodeInfoDtoIntoEpisodeInfoRemote(src: EpisodeInfoDto): EpisodeInfoRemote {
         return EpisodeInfoRemote(
             episodeId = src.episodeId,
             episodeName = src.episodeName,
@@ -408,5 +423,7 @@ object Mapper {
         )
     }
 
-    private const val EMPTY = "placeholder"
+    companion object {
+        private const val EMPTY = "placeholder"
+    }
 }

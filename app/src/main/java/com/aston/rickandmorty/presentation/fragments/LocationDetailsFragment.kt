@@ -19,6 +19,8 @@ import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -79,18 +81,33 @@ class LocationDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclersView()
-        loadData()
+        loadData(false)
         setupObservers()
+        setupRefreshListener()
     }
 
-    private fun setupObservers() = lifecycleScope.launchWhenStarted {
-        viewModel.locationDetailsStateFlow.collect{
-            val details = viewModel.getLocationDetails(it?: return@collect)
-            viewModel.resetLocationDetailsStateFlow()
-            val dataForAdapter = viewModel.prepareDataForAdapter(details, requireContext())
-            withContext(Dispatchers.Main) {
-                detailsAdapter.submitList(dataForAdapter)
-                setToolBarText(details.locationName)
+    private fun setupRefreshListener(){
+        (requireActivity() as ToolbarManager).setRefreshClickListener{
+            loadData(true)
+        }
+    }
+
+    private fun setupObservers(){
+//        jobObserver = lifecycleScope.launchWhenStarted {
+//            viewModel.locationDetailsStateFlow.collect{
+//                val details = viewModel.getLocationDetails(it?: return@collect)
+//                viewModel.resetLocationDetailsStateFlow()
+//                val dataForAdapter = viewModel.prepareDataForAdapter(details, requireContext())
+//                withContext(Dispatchers.Main) {
+//                    detailsAdapter.submitList(dataForAdapter)
+//                    setToolBarText(details.locationName)
+//                }
+//            }
+//        }
+        lifecycleScope.launchWhenStarted {
+            viewModel.locationDetailsStateFlow.filterNotNull().collect{ data->
+                detailsAdapter.submitList(data)
+                //todo set ToolbarText
             }
         }
     }
@@ -108,8 +125,8 @@ class LocationDetailsFragment : Fragment() {
             .commit()
     }
 
-    private fun loadData() = lifecycleScope.launch(Dispatchers.IO){
-        viewModel.sendIdToGetDetails(id ?: 1)
+    private fun loadData(forceUpdate: Boolean) {
+        viewModel.sendIdToGetDetails(id ?: throw RuntimeException("load data"), forceUpdate)
     }
 
     private fun setToolBarText(str: String) {

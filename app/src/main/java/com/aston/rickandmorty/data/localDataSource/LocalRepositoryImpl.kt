@@ -21,7 +21,8 @@ import javax.inject.Inject
 class LocalRepositoryImpl @Inject constructor(
     private val charactersDao: CharactersDao,
     private val locationsDao: LocationsDao,
-    private val episodesDao: EpisodesDao
+    private val episodesDao: EpisodesDao,
+    private val mapper: Mapper
 ) : LocalRepository {
 
     private var allCharactersData: List<CharacterInfoDto> = emptyList()
@@ -66,7 +67,7 @@ class LocalRepositoryImpl @Inject constructor(
                 filteredName && filteredType && filteredDimension
             }
         val filteredItemsPage = filtered.take(pageIndex * PAGE_SIZE).drop((pageIndex - 1) * PAGE_SIZE)
-            .map { Mapper.transformLocationInfoDtoIntoLocationInfoRemote(it) }
+            .map { mapper.transformLocationInfoDtoIntoLocationInfoRemote(it) }
         if (filteredItemsPage.isEmpty()) return response
         val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
         val prevPage = if (pageIndex > 1) "/page=${pageIndex - 1}" else null
@@ -95,7 +96,7 @@ class LocalRepositoryImpl @Inject constructor(
             filteredName && filteredType
         }
         val filteredItemsPage = filtered.take(pageIndex * PAGE_SIZE).drop((pageIndex - 1) * PAGE_SIZE)
-            .map { Mapper.transformEpisodeInfoDtoIntoEpisodeInfoRemote(it) }
+            .map { mapper.transformEpisodeInfoDtoIntoEpisodeInfoRemote(it) }
         if (filteredItemsPage.isEmpty()) return response
         val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
         val prevPage = if (pageIndex > 1) "/page=${pageIndex - 1}" else null
@@ -150,7 +151,7 @@ class LocalRepositoryImpl @Inject constructor(
         )
         val filteredItemsPage =
             filtered.take(pageIndex * PAGE_SIZE).drop((pageIndex - 1) * PAGE_SIZE)
-                .map { Mapper.transformCharacterInfoDtoIntoCharacterInfoRemote(it) }
+                .map { mapper.transformCharacterInfoDtoIntoCharacterInfoRemote(it) }
         if (filteredItemsPage.isEmpty()) return response
         response = AllCharactersResponse(
             pageInfoResponse,
@@ -167,7 +168,7 @@ class LocalRepositoryImpl @Inject constructor(
         val listCharacters = response.listCharactersInfo ?: return
         listCharacters.forEach { character ->
             charactersDao.addCharacter(
-                Mapper.transformCharacterInfoRemoteIntoCharacterInfoDto(
+                mapper.transformCharacterInfoRemoteIntoCharacterInfoDto(
                     character
                 )
             )
@@ -178,7 +179,7 @@ class LocalRepositoryImpl @Inject constructor(
         val listLocations = response?.listLocationsInfo ?: return
         listLocations.forEach { location ->
             locationsDao.addLocation(
-                Mapper.transformLocationInfoRemoteIntoLocationInfoDto(location)
+                mapper.transformLocationInfoRemoteIntoLocationInfoDto(location)
             )
         }
     }
@@ -187,19 +188,19 @@ class LocalRepositoryImpl @Inject constructor(
         val listEpisodes = response?.listEpisodeInfo ?: return
         listEpisodes.forEach {episode->
             episodesDao.addEpisode(
-                Mapper.transformEpisodeInfoRemoteIntoEpisodeInfoDto(episode)
+                mapper.transformEpisodeInfoRemoteIntoEpisodeInfoDto(episode)
             )
         }
 
     }
 
     override suspend fun writeSingleCharacterInfo(data: CharacterInfoRemote) {
-        charactersDao.addCharacter(Mapper.transformCharacterInfoRemoteIntoCharacterInfoDto(data))
+        charactersDao.addCharacter(mapper.transformCharacterInfoRemoteIntoCharacterInfoDto(data))
     }
 
     override suspend fun writeSingleEpisodeInfo(data: EpisodeInfoRemote?) {
         if (data == null) return
-        episodesDao.addEpisode(Mapper.transformEpisodeInfoRemoteIntoEpisodeInfoDto(data))
+        episodesDao.addEpisode(mapper.transformEpisodeInfoRemoteIntoEpisodeInfoDto(data))
     }
 
     override suspend fun deleteAllCharactersData() {
@@ -207,13 +208,13 @@ class LocalRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSingleCharacterInfo(id: Int): CharacterDetailsModel? {
-        return Mapper.transformCharacterInfoDtoIntoCharacterDetailsModel(
+        return mapper.transformCharacterInfoDtoIntoCharacterDetailsModel(
             charactersDao.getSingleCharacter(id)
         )
     }
 
     override suspend fun getSingleEpisodeInfo(id: Int): EpisodeDetailsModelWithId? {
-        return Mapper.transformEpisodeInfoDtoIntoEpisodeDetailsModelWithId(episodesDao.getEpisode(id))
+        return mapper.transformEpisodeInfoDtoIntoEpisodeDetailsModelWithId(episodesDao.getEpisode(id))
     }
 
     override suspend fun getSingleLocationInfo(id: Int): LocationInfoDto? {

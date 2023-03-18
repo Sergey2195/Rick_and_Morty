@@ -67,14 +67,25 @@ class CharacterDetailsFragment : Fragment() {
         prepareRecyclerViews()
         observeData()
         loadData()
+        setupSwipeListener()
     }
 
-    private fun loadData() = viewModel.loadInfoAboutCharacter(id ?: 1, requireContext())
+    private fun setupSwipeListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener{
 
-    private fun observeData() = lifecycleScope.launchWhenStarted {
-        viewModel.dataForAdapter.collect { list ->
-            adapter.submitList(list)
-            setupName(list)
+        }
+    }
+
+    private fun loadData(forceUpdate: Boolean = false){
+        viewModel.loadInfoAboutCharacter(id ?: 1, forceUpdate)
+    }
+
+    private fun observeData(){
+        lifecycleScope.launchWhenStarted {
+            viewModel.dataForAdapter.collect { list ->
+                adapter.submitList(list)
+                setupName(list)
+            }
         }
     }
 
