@@ -96,13 +96,19 @@ class CharactersRepositoryImpl @Inject constructor(
         return@withContext networkResponse
     }.also { setLoading(false) }
 
-    override suspend fun getCharacterData(id: Int, forceUpdate: Boolean): CharacterDetailsModel? {
-        //todo
-        return mapper.transformCharacterInfoRemoteIntoCharacterDetailsModel(
-            charactersApiCall.getSingleCharacterData(
-                id
-            ) ?: return null
-        )
+    override suspend fun getCharacterData(id: Int, forceUpdate: Boolean): CharacterDetailsModel? =
+        withContext(Dispatchers.IO) {
+            setLoading(true)
+            if (forceUpdate) return@withContext downloadAndUpdateCharacterData(id)
+            val localData = localRepository.getCharacterInfo(id)
+                ?: return@withContext downloadAndUpdateCharacterData(id)
+            mapper.transformCharacterInfoDtoIntoCharacterDetailsModel(localData)
+        }.also { setLoading(false) }
+
+    private suspend fun downloadAndUpdateCharacterData(id: Int): CharacterDetailsModel? = withContext(Dispatchers.IO){
+        val remoteData = remoteRepository.getSingleCharacterInfo(id) ?: return@withContext  null
+        localRepository.addCharacter(remoteData)
+        return@withContext mapper.transformCharacterInfoRemoteIntoCharacterDetailsModel(remoteData)
     }
 
     override fun getCountOfCharacters(filters: Array<String?>): Single<Int> {

@@ -6,8 +6,10 @@ import com.aston.rickandmorty.data.localDataSource.*
 import com.aston.rickandmorty.data.remoteDataSource.*
 import com.aston.rickandmorty.data.repositoriesImpl.CharactersRepositoryImpl
 import com.aston.rickandmorty.data.repositoriesImpl.EpisodesRepositoryImp
+import com.aston.rickandmorty.data.repositoriesImpl.LocationsRepositoryImpl
 import com.aston.rickandmorty.domain.repository.CharactersRepository
 import com.aston.rickandmorty.domain.repository.EpisodesRepository
+import com.aston.rickandmorty.domain.repository.LocationsRepository
 import com.aston.rickandmorty.domain.repository.Repository
 import dagger.Binds
 import dagger.Module
@@ -42,6 +44,15 @@ interface DataModule {
 
     @Binds
     fun bindCharactersRemoteRepository(impl: CharactersRemoteRepositoryImpl): CharactersRemoteRepository
+
+    @Binds
+    fun bindLocationRepository(impl: LocationsRepositoryImpl): LocationsRepository
+
+    @Binds
+    fun bindLocationLocalRepository(impl: LocationLocalRepositoryImpl): LocationsLocalRepository
+
+    @Binds
+    fun bindLocationRemoteRepository(impl: LocationRemoteRepositoryImpl): LocationRemoteRepository
 
 
     companion object{

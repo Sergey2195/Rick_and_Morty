@@ -8,13 +8,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocationsRepository {
     fun getFlowAllLocations(
-        filters: List<String?>?,
+        filters: Array<String?>,
         forceUpdate: Boolean
     ): Flow<PagingData<LocationModel>>
 
     fun getSingleLocationData(id: Int, forceUpdate: Boolean): Single<LocationDetailsModelWithId>
     suspend fun getLocationModel(id: Int, forceUpdate: Boolean): LocationModel?
-    fun getCountOfLocations(
-        filters: List<String?>?
-    ): Single<Int>
+    fun getCountOfLocations(filters: Array<String?>): Single<Int>
 }

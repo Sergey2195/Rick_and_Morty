@@ -65,11 +65,25 @@ class EpisodesRepositoryImp @Inject constructor(
             listJob.add(job)
         }
         listJob.joinAll()
-        return resultList.sortedBy { it.id }
+        //todo sort got crash
+        return resultList
     }
 
-    override suspend fun getListEpisodeModel(multiId: String): List<EpisodeModel>? {
-        TODO("Not yet implemented")
+    override suspend fun getListEpisodeModel(multiId: String, forceUpdate: Boolean): List<EpisodeModel>? = withContext(Dispatchers.IO) {
+        setLoading(true)
+        val listId = multiId.split(",").map { it.toInt() }
+        if (listId.isEmpty()) return@withContext null
+        val listJob = arrayListOf<Job>()
+        val resultList = arrayListOf<EpisodeModel>()
+        for (id in listId){
+            val job = applicationScope.launch {
+                val data = getEpisodeData(id, forceUpdate)
+                if (data != null) resultList.add(mapper.transformEpisodeDetailsModelToEpisodeModel(data))
+            }
+            listJob.add(job)
+        }
+        listJob.joinAll()
+        resultList
     }
 
     override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {

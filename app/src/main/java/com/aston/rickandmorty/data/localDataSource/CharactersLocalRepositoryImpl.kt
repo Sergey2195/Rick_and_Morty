@@ -60,4 +60,8 @@ class CharactersLocalRepositoryImpl @Inject constructor(
         if (data == null) return
         charactersDao.addCharacter(mapper.transformCharacterInfoRemoteIntoCharacterInfoDto(data))
     }
+
+    override suspend fun getCharacterInfo(id: Int): CharacterInfoDto? {
+        return charactersDao.getSingleCharacter(id)
+    }
 }

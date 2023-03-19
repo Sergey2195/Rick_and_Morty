@@ -72,7 +72,7 @@ class CharacterDetailsFragment : Fragment() {
 
     private fun setupSwipeListener() {
         (requireActivity() as ToolbarManager).setRefreshClickListener{
-
+            loadData(true)
         }
     }
 

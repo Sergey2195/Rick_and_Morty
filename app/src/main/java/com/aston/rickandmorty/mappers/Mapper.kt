@@ -107,6 +107,15 @@ class Mapper @Inject constructor(
         )
     }
 
+    fun transformEpisodeDetailsModelToEpisodeModel(src: EpisodeDetailsModel): EpisodeModel{
+        return EpisodeModel(
+            id = src.id,
+            name = src.name,
+            number = src.episodeNumber,
+            dateRelease = src.airDate
+        )
+    }
+
     fun transformEpisodeDetailsModelToDetailsModelAdapter(
         src: EpisodeDetailsModel
     ): List<DetailsModelAdapter> {

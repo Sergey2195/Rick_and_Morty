@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.presentation.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -73,7 +74,8 @@ class CharactersViewModel @Inject constructor(
             val episodes = data.characterEpisodes
             val episodesId =
                 Utils.getStringForMultiId(episodes.map { Utils.getLastIntAfterSlash(it) })
-            val episodesModels = listEpisodesModelUseCase.invoke(episodesId)
+            Log.d("SSV_T", "$episodesId")
+            val episodesModels = listEpisodesModelUseCase.invoke(episodesId, forceUpdate)
             val resultList = mapper.getListCharacterDetailsModelAdapter(
                 data, originModel, locationModel, episodesModels
             )

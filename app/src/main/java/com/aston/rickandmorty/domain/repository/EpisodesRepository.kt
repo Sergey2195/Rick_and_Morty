@@ -13,6 +13,6 @@ interface EpisodesRepository {
     ): Flow<PagingData<EpisodeModel>>
 
     suspend fun getEpisodeData(id: Int, forceUpdate: Boolean): EpisodeDetailsModel?
-    suspend fun getListEpisodeModel(multiId: String): List<EpisodeModel>?
+    suspend fun getListEpisodeModel(multiId: String, forceUpdate: Boolean): List<EpisodeModel>?
     fun getCountOfEpisodes(filters: Array<String?>): Single<Int>
 }

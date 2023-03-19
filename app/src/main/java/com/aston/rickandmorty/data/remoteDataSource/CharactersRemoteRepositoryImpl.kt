@@ -2,6 +2,7 @@ package com.aston.rickandmorty.data.remoteDataSource
 
 import com.aston.rickandmorty.data.apiCalls.CharactersApiCall
 import com.aston.rickandmorty.data.models.AllCharactersResponse
+import com.aston.rickandmorty.data.models.CharacterInfoRemote
 import javax.inject.Inject
 
 class CharactersRemoteRepositoryImpl @Inject constructor(
@@ -22,6 +23,14 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
             )
         }catch (e: Exception){
             return null
+        }
+    }
+
+    override suspend fun getSingleCharacterInfo(id: Int): CharacterInfoRemote? {
+        return try {
+            apiCall.getSingleCharacterData(id)
+        }catch (e: Exception){
+            null
         }
     }
 }
