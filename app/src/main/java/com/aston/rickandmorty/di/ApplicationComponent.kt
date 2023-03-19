@@ -4,8 +4,10 @@ import android.app.Application
 import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.fragments.*
+import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
+import kotlinx.coroutines.CoroutineScope
 
 @ApplicationScope
 @Component(modules = [ViewModelsModule::class, DataModule::class, NetworkModule::class, LocalModule::class])
@@ -28,6 +30,7 @@ interface ApplicationComponent {
     interface Factory {
         fun create(
             @BindsInstance application: Application,
+            @BindsInstance appScope: CoroutineScope
         ): ApplicationComponent
     }
 }

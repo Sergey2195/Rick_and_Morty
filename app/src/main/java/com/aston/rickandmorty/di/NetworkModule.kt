@@ -1,6 +1,9 @@
 package com.aston.rickandmorty.di
 
 import com.aston.rickandmorty.data.apiCalls.ApiCall
+import com.aston.rickandmorty.data.apiCalls.CharactersApiCall
+import com.aston.rickandmorty.data.apiCalls.EpisodesApiCall
+import com.aston.rickandmorty.data.apiCalls.LocationsApiCall
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -17,6 +20,24 @@ interface NetworkModule {
         @Provides
         @ApplicationScope
         fun provideApiCall(retrofit: Retrofit): ApiCall {
+            return retrofit.create()
+        }
+
+        @Provides
+        @ApplicationScope
+        fun provideCharactersApiCall(retrofit: Retrofit): CharactersApiCall{
+            return retrofit.create()
+        }
+
+        @Provides
+        @ApplicationScope
+        fun provideLocationsApiCall(retrofit: Retrofit): LocationsApiCall{
+            return retrofit.create()
+        }
+
+        @Provides
+        @ApplicationScope
+        fun provideEpisodesApiCall(retrofit: Retrofit): EpisodesApiCall{
             return retrofit.create()
         }
 

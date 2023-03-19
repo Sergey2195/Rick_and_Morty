@@ -1,9 +1,7 @@
 package com.aston.rickandmorty.presentation.viewModels
 
 import androidx.lifecycle.ViewModel
-import com.aston.rickandmorty.data.RepositoryImpl
 import com.aston.rickandmorty.domain.entity.CharacterFilterModel
-import com.aston.rickandmorty.domain.repository.Repository
 import com.aston.rickandmorty.domain.useCases.CountOfCharactersUseCase
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

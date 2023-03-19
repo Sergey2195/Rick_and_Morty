@@ -54,5 +54,5 @@ interface Repository {
     ): Single<Int>
 
     fun getLoadingProgressStateFlow(): StateFlow<Boolean>
-    suspend fun invalidateCharactersData()
+    fun setLoadingProgressStateFlow(isLoading: Boolean)
 }

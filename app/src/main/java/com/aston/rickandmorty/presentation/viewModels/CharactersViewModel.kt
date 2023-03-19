@@ -1,16 +1,16 @@
 package com.aston.rickandmorty.presentation.viewModels
 
-import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.aston.rickandmorty.data.RepositoryImpl
 import com.aston.rickandmorty.domain.entity.CharacterFilterModel
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.domain.entity.LocationModel
-import com.aston.rickandmorty.domain.useCases.*
+import com.aston.rickandmorty.domain.useCases.CharacterAllFlowUseCase
+import com.aston.rickandmorty.domain.useCases.CharacterDetailsUseCase
+import com.aston.rickandmorty.domain.useCases.EpisodesListWithIdsUseCase
+import com.aston.rickandmorty.domain.useCases.LocationModelUseCase
 import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
 import com.aston.rickandmorty.utils.Utils
@@ -27,29 +27,35 @@ class CharactersViewModel @Inject constructor(
     private val characterDetailsUseCase: CharacterDetailsUseCase,
     private val locationModelsUseCase: LocationModelUseCase,
     private val listEpisodesModelUseCase: EpisodesListWithIdsUseCase,
-    private val deleteAllCharactersDataUseCase: DeleteAllCharactersDataUseCase,
     private val mapper: Mapper
-): ViewModel() {
+) : ViewModel() {
 
     private val _dataForAdapter: MutableStateFlow<List<CharacterDetailsModelAdapter>> =
         MutableStateFlow(emptyList())
     val dataForAdapter
         get() = _dataForAdapter.asStateFlow()
     private val _characterFilter: MutableStateFlow<CharacterFilterModel?> = MutableStateFlow(null)
-        val characterFilter = _characterFilter.asStateFlow()
+    val characterFilter = _characterFilter.asStateFlow()
 
     fun getFlowCharacters(
         nameFilter: String? = null,
         statusFilter: String? = null,
         speciesFilter: String? = null,
         typeFilter: String? = null,
-        genderFilter: String? = null
-    ): Flow<PagingData<CharacterModel>>{
-        return characterAllFlowUseCase.invoke(nameFilter, statusFilter, speciesFilter, typeFilter, genderFilter)
-            .cachedIn(viewModelScope)
+        genderFilter: String? = null,
+        forceUpdate: Boolean
+    ): Flow<PagingData<CharacterModel>> {
+        return characterAllFlowUseCase.invoke(
+            nameFilter,
+            statusFilter,
+            speciesFilter,
+            typeFilter,
+            genderFilter,
+            forceUpdate
+        ).cachedIn(viewModelScope)
     }
 
-    fun loadInfoAboutCharacter(id: Int, forceUpdate: Boolean = false){
+    fun loadInfoAboutCharacter(id: Int, forceUpdate: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
             val data = characterDetailsUseCase.invoke(id, forceUpdate) ?: return@launch
             val originUrl = data.characterOrigin.characterOriginUrl
@@ -65,7 +71,8 @@ class CharactersViewModel @Inject constructor(
                 locationModel = locationModelsUseCase.invoke(locationId, forceUpdate)
             }
             val episodes = data.characterEpisodes
-            val episodesId = Utils.getStringForMultiId(episodes.map { Utils.getLastIntAfterSlash(it) })
+            val episodesId =
+                Utils.getStringForMultiId(episodes.map { Utils.getLastIntAfterSlash(it) })
             val episodesModels = listEpisodesModelUseCase.invoke(episodesId)
             val resultList = mapper.getListCharacterDetailsModelAdapter(
                 data, originModel, locationModel, episodesModels
@@ -76,15 +83,12 @@ class CharactersViewModel @Inject constructor(
         }
     }
 
-    fun setCharacterFilter(filter: CharacterFilterModel){
+    fun setCharacterFilter(filter: CharacterFilterModel) {
         _characterFilter.value = filter
     }
 
-    fun clearCharacterFilter(){
+    fun clearCharacterFilter() {
         _characterFilter.value = null
     }
 
-    suspend fun invalidateCharactersData(){
-        deleteAllCharactersDataUseCase.invoke()
-    }
 }

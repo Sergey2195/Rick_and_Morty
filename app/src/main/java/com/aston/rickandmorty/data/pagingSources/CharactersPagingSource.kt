@@ -12,7 +12,7 @@ import java.io.IOException
 
 class CharactersPagingSource(
     private val mapper: Mapper,
-    private val loader: suspend (pageIndex: Int) -> AllCharactersResponse
+    private val loader: suspend (pageIndex: Int) -> AllCharactersResponse?
 ) :
     PagingSource<Int, CharacterModel>() {
 
@@ -20,7 +20,7 @@ class CharactersPagingSource(
         val pageIndex = params.key ?: START_PAGE
         return try {
             val response = loader.invoke(pageIndex)
-            val resultData = response.listCharactersInfo ?: throw IOException()
+            val resultData = response?.listCharactersInfo ?: throw IOException()
             val prevPage = Utils.findPage(response.pageInfo?.prevPageUrl)
             val nextPage = Utils.findPage(response.pageInfo?.nextPageUrl)
             val mappedList =

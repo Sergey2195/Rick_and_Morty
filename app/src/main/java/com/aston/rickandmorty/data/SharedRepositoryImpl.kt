@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @ApplicationScope
-class RepositoryImpl @Inject constructor(
+class SharedRepositoryImpl @Inject constructor(
     application: Application,
     private val remoteRepository: RemoteRepository,
     private val localRepository: LocalRepository,
@@ -57,9 +57,10 @@ class RepositoryImpl @Inject constructor(
         return loadingProgressStateFlow.asStateFlow()
     }
 
-    override suspend fun invalidateCharactersData() {
-        localRepository.deleteAllCharactersData()
+    override fun setLoadingProgressStateFlow(isLoading: Boolean) {
+        loadingProgressStateFlow.value = isLoading
     }
+
 
     private fun setLoading(isLoading: Boolean) {
         Log.d("SSV_LOAD", "isLoading = $isLoading")
