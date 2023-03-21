@@ -154,18 +154,18 @@ class EpisodesRepositoryImp @Inject constructor(
         networkResponse
     }
 
-    private suspend fun downloadAndUpdateEpisodeData(id: Int): EpisodeDetailsModel? {
+    private suspend fun downloadAndUpdateEpisodeData(id: Int): EpisodeDetailsModel? = withContext(Dispatchers.IO) {
         setLoading(true)
-        val remoteData = episodesRemoteRepository.getEpisodeInfo(id)
+        val remoteData = episodesRemoteRepository.getEpisodeInfo(id) ?: return@withContext null
         episodesLocalRepository.addEpisode(remoteData)
         val multiIdString =
-            mapper.transformListStringIdToStringWithoutSlash(remoteData?.episodeCharacters) ?: ""
+            mapper.transformListStringIdToStringWithoutSlash(remoteData.episodeCharacters) ?: ""
         val charactersModel =
             charactersRepository.getMultiCharacterModel(multiIdString)
-        return mapper.configurationEpisodeDetailsModel(remoteData, charactersModel).also {
+        return@withContext mapper.configurationEpisodeDetailsModel(remoteData, charactersModel).also {
             setLoading(false)
         }
-    }
+    }.also { setLoading(false) }
 
     private fun setLoading(isLoading: Boolean) {
         sharedRepository.setLoadingProgressStateFlow(isLoading)

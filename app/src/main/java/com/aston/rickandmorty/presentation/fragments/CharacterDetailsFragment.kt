@@ -2,6 +2,7 @@ package com.aston.rickandmorty.presentation.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -91,7 +92,7 @@ class CharacterDetailsFragment : Fragment() {
 
     private fun setupName(list: List<CharacterDetailsModelAdapter>) {
         if (list.isEmpty()) return
-        val name = (list[1] as CharacterDetailsTitleValueModelAdapter).value
+        val name = (list[1] as? CharacterDetailsTitleValueModelAdapter)?.value
         setToolBarText(name)
     }
 
@@ -125,13 +126,15 @@ class CharacterDetailsFragment : Fragment() {
             .commit()
     }
 
-    private fun setToolBarText(str: String) {
+    private fun setToolBarText(str: String?) {
+        if (str == null) return
         (requireActivity() as ToolbarManager).setToolbarText(str)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        viewModel.clearDataForAdapter()
     }
 
     companion object {

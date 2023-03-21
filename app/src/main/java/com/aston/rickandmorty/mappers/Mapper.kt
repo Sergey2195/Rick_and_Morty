@@ -303,7 +303,7 @@ class Mapper @Inject constructor(
     }
 
     fun transformListStringIdToStringWithoutSlash(src: List<String>?): String?{
-        if (src == null) throw RuntimeException("transformListStringIdToStringWithoutSlash")
+        if (src == null) return null
         return transformListStringsToIds(src)?.replace("/","")
     }
 

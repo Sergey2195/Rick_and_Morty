@@ -33,4 +33,5 @@
     <string name="search_initial">Search mode</string>
     <string name="filter_initial">Filter mode</string>
     <string name="network_error">No internet connection. Saved data loaded</string>
+    <string name="network_connected">Сonnection restored</string>
 </resources>

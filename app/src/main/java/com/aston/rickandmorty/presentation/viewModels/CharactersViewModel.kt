@@ -74,7 +74,6 @@ class CharactersViewModel @Inject constructor(
             val episodes = data.characterEpisodes
             val episodesId =
                 Utils.getStringForMultiId(episodes.map { Utils.getLastIntAfterSlash(it) })
-            Log.d("SSV_T", "$episodesId")
             val episodesModels = listEpisodesModelUseCase.invoke(episodesId, forceUpdate)
             val resultList = mapper.getListCharacterDetailsModelAdapter(
                 data, originModel, locationModel, episodesModels
@@ -91,6 +90,10 @@ class CharactersViewModel @Inject constructor(
 
     fun clearCharacterFilter() {
         _characterFilter.value = null
+    }
+
+    fun clearDataForAdapter(){
+        _dataForAdapter.value = emptyList()
     }
 
 }

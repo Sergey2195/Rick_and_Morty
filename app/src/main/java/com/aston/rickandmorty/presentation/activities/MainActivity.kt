@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.addCallback
@@ -18,6 +19,7 @@ import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.filter
 import javax.inject.Inject
 import kotlin.math.abs
@@ -68,16 +70,26 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         }
     }
 
-    private fun observeInternetConnection() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.getNetworkStatusIsAvailableStateFlow().filter { !it }.collect {
-                Snackbar.make(
-                    binding.toolbarTextView,
-                    getString(R.string.network_error),
-                    Snackbar.LENGTH_INDEFINITE
-                ).show()
+    private fun observeInternetConnection() = lifecycleScope.launchWhenStarted {
+            val noConnectionSnackBar = Snackbar.make(
+                binding.toolbarTextView,
+                getString(R.string.network_error),
+                Snackbar.LENGTH_INDEFINITE
+            )
+            val connectedSnackBar = Snackbar.make(
+                binding.toolbarTextView,
+                getString(R.string.network_connected),
+                Snackbar.LENGTH_SHORT
+            )
+            var firstShown = true
+            viewModel.getNetworkStatusIsAvailableStateFlow().collect {connected->
+                if (!connected){
+                    noConnectionSnackBar.show()
+                }else if (!firstShown) {
+                    connectedSnackBar.show()
+                }
+                firstShown = false
             }
-        }
     }
 
     private fun changeIsOnParentState(isOnParent: Boolean) {

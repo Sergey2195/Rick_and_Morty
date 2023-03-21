@@ -67,8 +67,6 @@ class EpisodesRootFragment : Fragment() {
 
     private fun setupObservers() = lifecycleScope.launchWhenStarted {
         episodeViewModel.episodeFilterStateFlow.filterNotNull().collect{
-            childFragmentManager.popBackStack()
-            delay(500)
             startFragmentWithFiltering(it)
             episodeViewModel.clearFilter()
         }
@@ -76,6 +74,7 @@ class EpisodesRootFragment : Fragment() {
 
     private fun startFragmentWithFiltering(filter: EpisodeFilterModel){
         val fragment = EpisodesAllFragment.newInstance(filter.name, filter.episode)
+        childFragmentManager.popBackStack()
         childFragmentManager.beginTransaction()
             .replace(R.id.episodeFragmentContainerRoot, fragment)
             .addToBackStack(null)

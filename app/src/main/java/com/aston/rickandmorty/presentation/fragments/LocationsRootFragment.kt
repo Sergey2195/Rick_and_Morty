@@ -62,8 +62,6 @@ class LocationsRootFragment : Fragment() {
 
     private fun setupObservers() = lifecycleScope.launchWhenCreated {
         locationViewModel.locationFilterStateFlow.filterNotNull().collect {
-            childFragmentManager.popBackStack()
-            delay(500)
             startFragmentWithFiltering(it)
             locationViewModel.clearFilter()
         }
@@ -75,6 +73,7 @@ class LocationsRootFragment : Fragment() {
             filter.typeFilter,
             filter.dimensionFilter
         )
+        childFragmentManager.popBackStack()
         childFragmentManager.beginTransaction()
             .replace(R.id.locationFragmentContainerRoot, fragment)
             .addToBackStack(null)
