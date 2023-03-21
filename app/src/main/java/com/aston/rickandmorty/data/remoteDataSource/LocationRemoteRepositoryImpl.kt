@@ -31,4 +31,8 @@ class LocationRemoteRepositoryImpl @Inject constructor(
             null
         }
     }
+
+    override fun getCountOfLocations(filters: Array<String?>): Single<Int> {
+        return apiCall.getCountOfLocations(filters[0], filters[1], filters[2]).map { it.pageInfo?.countOfElements }
+    }
 }

@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.data.localDataSource
 
+import android.util.Log
 import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.LocationsDao
 import com.aston.rickandmorty.data.localDataSource.models.LocationInfoDto
@@ -40,6 +41,7 @@ class LocationLocalRepositoryImpl @Inject constructor(
         pageIndex: Int,
         filter: Array<String?>
     ): AllLocationsResponse? {
+        Log.d("SSV_REP_LOC", "local size = ${allLocationData.size}")
         val filtered = allLocationData.filter { dto ->
             utils.filteringItem(filter[0], dto.locationName)
                     && utils.filteringItem(filter[1], dto.locationType)
@@ -65,5 +67,14 @@ class LocationLocalRepositoryImpl @Inject constructor(
     override suspend fun getLocationInfo(id: Int): LocationInfoRemote? {
         val localData = locationsDao.getSingleLocation(id) ?: return null
         return mapper.transformLocationInfoDtoIntoLocationInfoRemote(localData)
+    }
+
+    override fun getCountOfLocations(filters: Array<String?>): Single<Int> {
+        val count = allLocationData.count {
+            utils.filteringItem(filters[0], it.locationName) &&
+                    utils.filteringItem(filters[1], it.locationType) &&
+                    utils.filteringItem(filters[2], it.locationDimension)
+        }
+        return Single.just(count)
     }
 }

@@ -2,7 +2,6 @@ package com.aston.rickandmorty.domain.useCases
 
 import com.aston.rickandmorty.domain.entity.LocationDetailsModelWithId
 import com.aston.rickandmorty.domain.repository.LocationsRepository
-import com.aston.rickandmorty.domain.repository.Repository
 import io.reactivex.Single
 import javax.inject.Inject
 

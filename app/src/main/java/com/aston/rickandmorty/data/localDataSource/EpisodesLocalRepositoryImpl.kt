@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.data.localDataSource
 
+import android.util.Log
 import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.EpisodesDao
 import com.aston.rickandmorty.data.localDataSource.models.EpisodeInfoDto
@@ -7,6 +8,7 @@ import com.aston.rickandmorty.data.models.AllEpisodesResponse
 import com.aston.rickandmorty.data.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.models.PageInfoResponse
 import com.aston.rickandmorty.mappers.Mapper
+import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -53,13 +55,20 @@ class EpisodesLocalRepositoryImpl @Inject constructor(
         episodesDao.addEpisode(mappedItem)
     }
 
-    override suspend fun getEpisodeData(id: Int): EpisodeInfoRemote? = withContext(Dispatchers.IO){
+    override suspend fun getEpisodeData(id: Int): EpisodeInfoRemote? = withContext(Dispatchers.IO) {
         val episodeData = episodesDao.getEpisode(id) ?: return@withContext null
         return@withContext mapper.transformEpisodeInfoDtoIntoEpisodeInfoRemote(episodeData)
     }
 
+    override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
+        val count = allEpisodesData.filter {
+            utils.filteringItem(filters[0], it.episodeName) && utils.filteringItem(filters[1], it.episodeNumber)
+        }.size
+        return Single.just(count)
+    }
+
     private fun collectEpisodesLocalItems() = applicationScope.launch(Dispatchers.IO) {
-        episodesDao.getAllFromDb().collect { list->
+        episodesDao.getAllFromDb().collect { list ->
             allEpisodesData = list.sortedBy { it.episodeId }
         }
     }

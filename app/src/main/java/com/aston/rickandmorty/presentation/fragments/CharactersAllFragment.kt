@@ -20,7 +20,7 @@ import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 class CharactersAllFragment : Fragment() {
@@ -33,7 +33,7 @@ class CharactersAllFragment : Fragment() {
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
-    private val charactersViewModel: CharactersViewModel by viewModels({activity as MainActivity }) {
+    private val charactersViewModel: CharactersViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
     private val adapter = CharactersAdapter()
@@ -72,7 +72,7 @@ class CharactersAllFragment : Fragment() {
     }
 
     private fun setupRefreshListener() {
-        (requireActivity() as ToolbarManager).setRefreshClickListener{
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
             observerJob?.cancel()
             setupObservers(true)
         }
@@ -106,7 +106,7 @@ class CharactersAllFragment : Fragment() {
         return arrayFilter.all { it == null }
     }
 
-    private fun setupObservers(forceUpdate: Boolean){
+    private fun setupObservers(forceUpdate: Boolean) {
         observerJob = lifecycleScope.launchWhenStarted {
             charactersViewModel.getFlowCharacters(
                 arrayFilter[0],

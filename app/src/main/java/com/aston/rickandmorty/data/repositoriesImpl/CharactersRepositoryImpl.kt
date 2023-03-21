@@ -12,7 +12,7 @@ import com.aston.rickandmorty.data.remoteDataSource.CharactersRemoteRepository
 import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.domain.repository.CharactersRepository
-import com.aston.rickandmorty.domain.repository.Repository
+import com.aston.rickandmorty.domain.repository.SharedRepository
 import com.aston.rickandmorty.mappers.Mapper
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +26,7 @@ class CharactersRepositoryImpl @Inject constructor(
     private val charactersApiCall: CharactersApiCall,
     private val mapper: Mapper,
     private val pagingConfig: PagingConfig,
-    private val sharedRepository: Repository,
+    private val sharedRepository: SharedRepository,
     private val remoteRepository: CharactersRemoteRepository,
     private val localRepository: CharactersLocalRepository,
     private val applicationScope: CoroutineScope
@@ -60,14 +60,14 @@ class CharactersRepositoryImpl @Inject constructor(
         setLoading(true)
         if (forceUpdate) return@withContext downloadAndUpdateCharactersData(pageIndex, filters)
         val localItems = localRepository.getAllCharacters(pageIndex, filters)
-        if (pageIndex == 1) {
+        if (pageIndex == 1 && isConnected()) {
             val remoteItems = remoteRepository.getAllCharacters(pageIndex, filters)
             checkIsNotFullData(
                 localItems?.pageInfo?.countOfElements,
                 remoteItems?.pageInfo?.countOfElements
             )
         }
-        return@withContext if (isNotFullData) {
+        return@withContext if (isNotFullData && isConnected()) {
             downloadAndUpdateCharactersData(pageIndex, filters)
         } else {
             localItems
@@ -112,7 +112,13 @@ class CharactersRepositoryImpl @Inject constructor(
     }
 
     override fun getCountOfCharacters(filters: Array<String?>): Single<Int> {
-        TODO("Not yet implemented")
+        return if (isConnected()){
+            remoteRepository.getCountOfCharacters(filters).onErrorResumeNext {
+                localRepository.getCountOfCharacters(filters)
+            }
+        }else{
+            localRepository.getCountOfCharacters(filters)
+        }
     }
 
     override suspend fun getMultiCharacterModel(multiId: String): List<CharacterModel> =
@@ -126,5 +132,9 @@ class CharactersRepositoryImpl @Inject constructor(
 
     private fun setLoading(isLoading: Boolean) {
         sharedRepository.setLoadingProgressStateFlow(isLoading)
+    }
+
+    private fun isConnected(): Boolean{
+        return sharedRepository.getStateFlowIsConnected().value
     }
 }

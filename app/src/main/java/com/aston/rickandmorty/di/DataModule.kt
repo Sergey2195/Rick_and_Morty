@@ -1,7 +1,7 @@
 package com.aston.rickandmorty.di
 
 import androidx.paging.PagingConfig
-import com.aston.rickandmorty.data.SharedRepositoryImpl
+import com.aston.rickandmorty.data.SharedSharedRepositoryImpl
 import com.aston.rickandmorty.data.localDataSource.*
 import com.aston.rickandmorty.data.remoteDataSource.*
 import com.aston.rickandmorty.data.repositoriesImpl.CharactersRepositoryImpl
@@ -10,7 +10,7 @@ import com.aston.rickandmorty.data.repositoriesImpl.LocationsRepositoryImpl
 import com.aston.rickandmorty.domain.repository.CharactersRepository
 import com.aston.rickandmorty.domain.repository.EpisodesRepository
 import com.aston.rickandmorty.domain.repository.LocationsRepository
-import com.aston.rickandmorty.domain.repository.Repository
+import com.aston.rickandmorty.domain.repository.SharedRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -19,7 +19,7 @@ import dagger.Provides
 interface DataModule {
 
     @Binds
-    fun bindRepository(impl: SharedRepositoryImpl): Repository
+    fun bindRepository(impl: SharedSharedRepositoryImpl): SharedRepository
 
     @Binds
     fun bindRemoteRepository(impl: RemoteRepositoryImpl): RemoteRepository
@@ -58,7 +58,7 @@ interface DataModule {
     companion object{
         @Provides
         fun providePagerConfig(): PagingConfig {
-            return PagingConfig(20, enablePlaceholders = false, initialLoadSize = 20)
+            return PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20, prefetchDistance = 2)
         }
     }
 }

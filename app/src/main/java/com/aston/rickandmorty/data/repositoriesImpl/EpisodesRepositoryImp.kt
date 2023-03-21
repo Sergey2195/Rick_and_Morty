@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.data.repositoriesImpl
 
+import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -12,7 +13,7 @@ import com.aston.rickandmorty.domain.entity.EpisodeDetailsModel
 import com.aston.rickandmorty.domain.entity.EpisodeModel
 import com.aston.rickandmorty.domain.repository.CharactersRepository
 import com.aston.rickandmorty.domain.repository.EpisodesRepository
-import com.aston.rickandmorty.domain.repository.Repository
+import com.aston.rickandmorty.domain.repository.SharedRepository
 import com.aston.rickandmorty.mappers.Mapper
 import io.reactivex.Single
 import kotlinx.coroutines.*
@@ -20,7 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class EpisodesRepositoryImp @Inject constructor(
-    private val sharedRepository: Repository,
+    private val sharedRepository: SharedRepository,
     private val mapper: Mapper,
     private val applicationScope: CoroutineScope,
     private val episodesLocalRepository: EpisodesLocalRepository,
@@ -65,7 +66,6 @@ class EpisodesRepositoryImp @Inject constructor(
             listJob.add(job)
         }
         listJob.joinAll()
-        //todo sort got crash
         return resultList
     }
 
@@ -83,11 +83,17 @@ class EpisodesRepositoryImp @Inject constructor(
             listJob.add(job)
         }
         listJob.joinAll()
-        resultList
+        sortedList(resultList)
     }
 
-    override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
-        TODO("Not yet implemented")
+    override fun getCountOfEpisodes(filters: Array<String?>): Single<Int>{
+        return if (sharedRepository.getStateFlowIsConnected().value){
+            episodesRemoteRepository.getCountOfEpisodes(filters).onErrorResumeNext{
+                episodesLocalRepository.getCountOfEpisodes(filters)
+            }
+        }else{
+            episodesLocalRepository.getCountOfEpisodes(filters)
+        }
     }
 
     private fun getEpisodesPager(
@@ -113,6 +119,7 @@ class EpisodesRepositoryImp @Inject constructor(
         setLoading(true)
         if (forceUpdate) return@withContext downloadAndUpdateEpisodesData(pageIndex, filters)
         val localItems = episodesLocalRepository.getAllEpisodes(pageIndex, filters)
+        Log.d("SSV_REP", "$localItems")
         if (pageIndex == 1) {
             val remoteItems = episodesRemoteRepository.getAllEpisodes(1, filters)
             checkIsNotFullData(
@@ -149,7 +156,7 @@ class EpisodesRepositoryImp @Inject constructor(
 
     private suspend fun downloadAndUpdateEpisodeData(id: Int): EpisodeDetailsModel? {
         setLoading(true)
-        val remoteData = episodesRemoteRepository.getSingleEpisodeInfo(id)
+        val remoteData = episodesRemoteRepository.getEpisodeInfo(id)
         episodesLocalRepository.addEpisode(remoteData)
         val multiIdString =
             mapper.transformListStringIdToStringWithoutSlash(remoteData?.episodeCharacters) ?: ""
@@ -162,5 +169,13 @@ class EpisodesRepositoryImp @Inject constructor(
 
     private fun setLoading(isLoading: Boolean) {
         sharedRepository.setLoadingProgressStateFlow(isLoading)
+    }
+
+    private fun sortedList(list: List<EpisodeModel>): List<EpisodeModel>{
+        return try {
+            list.sortedBy { it.id }
+        }catch (e: Exception){
+            emptyList()
+        }
     }
 }

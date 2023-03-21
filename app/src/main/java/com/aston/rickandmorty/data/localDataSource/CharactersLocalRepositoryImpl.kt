@@ -7,6 +7,7 @@ import com.aston.rickandmorty.data.models.AllCharactersResponse
 import com.aston.rickandmorty.data.models.CharacterInfoRemote
 import com.aston.rickandmorty.data.models.PageInfoResponse
 import com.aston.rickandmorty.mappers.Mapper
+import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,13 +37,7 @@ class CharactersLocalRepositoryImpl @Inject constructor(
         filters: Array<String?>
     ): AllCharactersResponse? {
         val filtered = allCharactersData.filter { dto ->
-            utils.filteringItem(filters[0], dto.characterName) && utils.filteringItem(
-                filters[1],
-                dto.characterStatus
-            ) && utils.filteringItem(filters[2], dto.characterSpecies) && utils.filteringItem(
-                filters[3],
-                dto.characterType
-            ) && utils.filteringItem(filters[4], dto.characterGender)
+            filteringCharacter(dto, filters)
         }
         if (filtered.isEmpty()) return null
         val filteredItemsPage = filtered
@@ -63,5 +58,22 @@ class CharactersLocalRepositoryImpl @Inject constructor(
 
     override suspend fun getCharacterInfo(id: Int): CharacterInfoDto? {
         return charactersDao.getSingleCharacter(id)
+    }
+
+    override fun getCountOfCharacters(filters: Array<String?>): Single<Int> {
+        val count = allCharactersData.count { dto->
+            filteringCharacter(dto, filters)
+        }
+        return Single.just(count)
+    }
+
+    private fun filteringCharacter(dto: CharacterInfoDto, filters: Array<String?>): Boolean{
+        return utils.filteringItem(filters[0], dto.characterName) && utils.filteringItem(
+            filters[1],
+            dto.characterStatus
+        ) && utils.filteringItem(filters[2], dto.characterSpecies) && utils.filteringItem(
+            filters[3],
+            dto.characterType
+        ) && utils.filteringItem(filters[4], dto.characterGender)
     }
 }

@@ -12,4 +12,5 @@ interface LocationRemoteRepository {
 
     fun getSingleLocationData(id: Int): Single<LocationInfoRemote>
     suspend fun getLocationData(id: Int): LocationInfoRemote?
+    fun getCountOfLocations(filters: Array<String?>): Single<Int>
 }

@@ -10,7 +10,7 @@ import com.aston.rickandmorty.data.remoteDataSource.LocationRemoteRepository
 import com.aston.rickandmorty.domain.entity.LocationDetailsModelWithId
 import com.aston.rickandmorty.domain.entity.LocationModel
 import com.aston.rickandmorty.domain.repository.LocationsRepository
-import com.aston.rickandmorty.domain.repository.Repository
+import com.aston.rickandmorty.domain.repository.SharedRepository
 import com.aston.rickandmorty.mappers.Mapper
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class LocationsRepositoryImpl @Inject constructor(
-    private val sharedRepository: Repository,
+    private val sharedRepository: SharedRepository,
     private val mapper: Mapper,
     private val applicationScope: CoroutineScope,
     private val pagingConfig: PagingConfig,
@@ -54,14 +54,7 @@ class LocationsRepositoryImpl @Inject constructor(
         filters: Array<String?>
     ): AllLocationsResponse? = withContext(Dispatchers.IO) {
         val networkResponse = remoteRepository.getAllLocations(pageIndex, filters)
-        if (networkResponse?.listLocationsInfo == null) {
-            return@withContext null
-        }
-        for (location in networkResponse.listLocationsInfo) {
-            applicationScope.launch {
-                localRepository.addLocation(location)
-            }
-        }
+        writeRemoteResponseIntoDb(networkResponse)
         return@withContext networkResponse
     }
 
@@ -73,19 +66,29 @@ class LocationsRepositoryImpl @Inject constructor(
         setLoading(true)
         if (forceUpdate) return@withContext downloadAndUpdateLocationsData(pageIndex, filters)
         val localItems = localRepository.getAllLocations(pageIndex, filters)
-        if (pageIndex == 1) {
+        if (pageIndex == 1 && isConnected()) {
             val remoteItems = remoteRepository.getAllLocations(1, filters)
+            writeRemoteResponseIntoDb(remoteItems)
             checkIsNotFullData(
                 localItems?.pageInfo?.countOfElements,
                 remoteItems?.pageInfo?.countOfElements
             )
         }
-        return@withContext if (isNotFullData) {
+        return@withContext if (isNotFullData && isConnected()) {
             downloadAndUpdateLocationsData(pageIndex, filters)
         } else {
             localItems
         }
     }.also { setLoading(false) }
+
+    private fun writeRemoteResponseIntoDb(remoteResponse: AllLocationsResponse?){
+        if (remoteResponse?.listLocationsInfo == null) return
+        for (location in remoteResponse.listLocationsInfo){
+            applicationScope.launch(Dispatchers.IO){
+                localRepository.addLocation(location)
+            }
+        }
+    }
 
     override fun getSingleLocationData(
         id: Int,
@@ -127,7 +130,13 @@ class LocationsRepositoryImpl @Inject constructor(
         }
 
     override fun getCountOfLocations(filters: Array<String?>): Single<Int> {
-        TODO("Not yet implemented")
+        return if (isConnected()){
+            remoteRepository.getCountOfLocations(filters).onErrorResumeNext(
+                localRepository.getCountOfLocations(filters)
+            )
+        }else{
+            localRepository.getCountOfLocations(filters)
+        }
     }
 
     private fun setLoading(isLoading: Boolean) {
@@ -136,6 +145,10 @@ class LocationsRepositoryImpl @Inject constructor(
 
     private fun checkIsNotFullData(localItems: Int?, remoteItems: Int?) {
         isNotFullData = (localItems ?: -1) < (remoteItems ?: -1)
+    }
+
+    private fun isConnected(): Boolean{
+        return sharedRepository.getStateFlowIsConnected().value
     }
 
 }

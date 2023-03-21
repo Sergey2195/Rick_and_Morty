@@ -13,4 +13,5 @@ interface LocationsLocalRepository {
     ): AllLocationsResponse?
     fun getSingleLocationInfoRx(id: Int): Single<LocationInfoDto>
     suspend fun getLocationInfo(id: Int): LocationInfoRemote?
+    fun getCountOfLocations(filters: Array<String?>): Single<Int>
 }
