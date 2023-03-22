@@ -1,7 +1,7 @@
 package com.aston.rickandmorty.data.apiCalls
 
-import com.aston.rickandmorty.data.models.AllEpisodesResponse
-import com.aston.rickandmorty.data.models.EpisodeInfoRemote
+import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
+import com.aston.rickandmorty.data.remoteDataSource.models.EpisodeInfoRemote
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -25,9 +25,4 @@ interface EpisodesApiCall {
     suspend fun getSingleEpisodeData(
         @Path("id") id: Int
     ): EpisodeInfoRemote?
-
-    @GET("episode/{multiId}")
-    suspend fun getMultiEpisodesData(
-        @Path("multiId") multiId: String
-    ): List<EpisodeInfoRemote>?
 }

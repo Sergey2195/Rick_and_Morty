@@ -1,21 +1,17 @@
-package com.aston.rickandmorty.mappers
+package com.aston.rickandmorty.data.mappers
 
-import android.util.Log
-import com.aston.rickandmorty.R
 import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
 import com.aston.rickandmorty.data.localDataSource.models.EpisodeInfoDto
 import com.aston.rickandmorty.data.localDataSource.models.LocationInfoDto
-import com.aston.rickandmorty.data.models.*
+import com.aston.rickandmorty.data.remoteDataSource.models.*
 import com.aston.rickandmorty.di.ApplicationScope
-import com.aston.rickandmorty.di.ContextWrapper
 import com.aston.rickandmorty.domain.entity.*
-import com.aston.rickandmorty.presentation.adapterModels.*
 import com.aston.rickandmorty.utils.Utils
 import javax.inject.Inject
 
 @ApplicationScope
 class Mapper @Inject constructor(
-    private val contextWrapper: ContextWrapper
+    private val utils: Utils
 ) {
     private fun transformCharacterInfoRemoteIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
         return CharacterModel(
@@ -68,34 +64,8 @@ class Mapper @Inject constructor(
         )
     }
 
-    fun transformLocationInfoRemoteIntoLocationDetailsModel(
-        src: LocationInfoRemote,
-        characters: List<CharacterModel>
-    ): LocationDetailsModel {
-        return LocationDetailsModel(
-            locationId = src.locationId ?: 1,
-            locationName = src.locationName ?: "",
-            locationType = src.locationType ?: "",
-            dimension = src.locationDimension ?: "",
-            characters = characters
-        )
-    }
-
     fun transformListEpisodeInfoRemoteIntoListEpisodeModel(src: List<EpisodeInfoRemote>): List<EpisodeModel> {
         return src.map { transformEpisodeInfoRemoteIntoEpisodeModel(it) }
-    }
-
-    fun transformLocationDetailsModelWithIdIntoLocationDetailsModel(
-        src: LocationDetailsModelWithId,
-        listCharacters: List<CharacterModel>
-    ): LocationDetailsModel {
-        return LocationDetailsModel(
-            locationId = src.locationId,
-            locationName = src.locationName,
-            locationType = src.locationType,
-            dimension = src.dimension,
-            characters = listCharacters
-        )
     }
 
     fun transformEpisodeInfoRemoteIntoEpisodeModel(src: EpisodeInfoRemote): EpisodeModel {
@@ -107,48 +77,6 @@ class Mapper @Inject constructor(
         )
     }
 
-    fun transformEpisodeDetailsModelToEpisodeModel(src: EpisodeDetailsModel): EpisodeModel{
-        return EpisodeModel(
-            id = src.id,
-            name = src.name,
-            number = src.episodeNumber,
-            dateRelease = src.airDate
-        )
-    }
-
-    fun transformEpisodeDetailsModelToDetailsModelAdapter(
-        src: EpisodeDetailsModel
-    ): List<DetailsModelAdapter> {
-        val list = mutableListOf<DetailsModelAdapter>(
-            DetailsModelText(contextWrapper.context.getString(R.string.character_name_title)),
-            DetailsModelText(src.name),
-            DetailsModelText(contextWrapper.context.getString(R.string.air_date_title)),
-            DetailsModelText(src.airDate),
-            DetailsModelText(contextWrapper.context.getString(R.string.episode_number_title)),
-            DetailsModelText(src.episodeNumber)
-        )
-        for (character in src.characters) {
-            list.add(DetailsModelCharacter(character))
-        }
-        return list.toList()
-    }
-
-    fun transformLocationDetailsModelToDetailsModelAdapter(
-        data: LocationDetailsModel
-    ): List<DetailsModelAdapter> {
-        val list = mutableListOf<DetailsModelAdapter>(
-            DetailsModelText(contextWrapper.context.getString(R.string.character_location_title)),
-            DetailsModelText(data.locationName),
-            DetailsModelText(contextWrapper.context.getString(R.string.character_type_title)),
-            DetailsModelText(data.locationType),
-            DetailsModelText(contextWrapper.context.getString(R.string.dimension_title)),
-            DetailsModelText(data.dimension)
-        )
-        for (character in data.characters) {
-            list.add(DetailsModelCharacter(character))
-        }
-        return list.toList()
-    }
 
     fun transformListCharacterInfoRemoteIntoCharacterModel(src: List<CharacterInfoRemote>): List<CharacterModel> {
         return src.map { data ->
@@ -169,7 +97,7 @@ class Mapper @Inject constructor(
             locationName = src.locationName ?: "",
             locationType = src.locationType ?: "",
             dimension = src.locationDimension ?: "",
-            characters = src.locationResidents?.map { Utils.getLastIntAfterSlash(it) ?: 0 }
+            characters = src.locationResidents?.map { utils.getLastIntAfterSlash(it) ?: 0 }
                 ?: emptyList()
         )
     }
@@ -196,7 +124,6 @@ class Mapper @Inject constructor(
     }
 
     fun transformLocationDtoIntoLocationDetailsWithIds(src: LocationInfoDto): LocationDetailsModelWithId {
-        Log.d("SSV", src.toString())
         return LocationDetailsModelWithId(
             locationId = src.locationId ?: 0,
             locationName = src.locationName ?: "",
@@ -206,100 +133,9 @@ class Mapper @Inject constructor(
         )
     }
 
-    fun transformEpisodeInfoRemoteIntoEpisodeDetailsModel(
-        src: EpisodeInfoRemote,
-        listCharacters: List<CharacterModel>
-    ): EpisodeDetailsModel {
-        return EpisodeDetailsModel(
-            id = src.episodeId ?: 0,
-            name = src.episodeName ?: "",
-            airDate = src.episodeAirDate ?: "",
-            episodeNumber = src.episodeNumber ?: "",
-            characters = listCharacters
-        )
-    }
-
-    fun getListCharacterDetailsModelAdapter(
-        data: CharacterDetailsModel,
-        originModel: LocationModel?,
-        locationModel: LocationModel?,
-        episodesModels: List<EpisodeModel>?
-    ): List<CharacterDetailsModelAdapter> {
-        val listCharacterDetails: MutableList<CharacterDetailsModelAdapter> = mutableListOf(
-            CharacterDetailsImageModelAdapter(imageUrl = data.characterImage),
-            CharacterDetailsTitleValueModelAdapter(
-                title = contextWrapper.context.getString(R.string.character_name_title),
-                value = data.characterName
-            ),
-            CharacterDetailsTitleValueModelAdapter(
-                title = contextWrapper.context.getString(R.string.character_status_title),
-                value = data.characterStatus
-            ),
-            CharacterDetailsTitleValueModelAdapter(
-                title = contextWrapper.context.getString(R.string.character_species_title),
-                value = data.characterSpecies
-            ),
-            CharacterDetailsTitleValueModelAdapter(
-                title = contextWrapper.context.getString(R.string.character_type_title),
-                value = data.characterType
-            ),
-            CharacterDetailsTitleValueModelAdapter(
-                title = contextWrapper.context.getString(R.string.character_gender_title),
-                value = data.characterGender
-            ),
-        )
-        if (originModel != null) {
-            listCharacterDetails.add(
-                CharacterDetailsTitleValueModelAdapter(
-                    title = contextWrapper.context.getString(R.string.character_origin_title),
-                    value = ""
-                )
-            )
-            listCharacterDetails.add(
-                CharacterDetailsLocationModelAdapter(
-                    locationModel = originModel
-                )
-            )
-        } else {
-            listCharacterDetails.add(
-                CharacterDetailsTitleValueModelAdapter(
-                    title = contextWrapper.context.getString(R.string.character_origin_title),
-                    value = data.characterOrigin.characterOriginName
-                )
-            )
-        }
-        if (locationModel != null) {
-            listCharacterDetails.add(
-                CharacterDetailsTitleValueModelAdapter(
-                    title = contextWrapper.context.getString(R.string.character_location_title),
-                    value = ""
-                )
-            )
-            listCharacterDetails.add(
-                CharacterDetailsLocationModelAdapter(
-                    locationModel = locationModel
-                )
-            )
-        }
-        if (episodesModels != null) {
-            listCharacterDetails.add(
-                CharacterDetailsTitleValueModelAdapter(
-                    contextWrapper.context.getString(R.string.episodes_title),
-                    ""
-                )
-            )
-            for (episode in episodesModels) {
-                listCharacterDetails.add(
-                    CharacterDetailsEpisodesModelAdapter(episode)
-                )
-            }
-        }
-        return listCharacterDetails
-    }
-
     fun transformListStringsToIds(src: List<String>?): String? {
         if (src == null) return null
-        return src.map { "/${Utils.getLastIntAfterSlash(it)}"}.joinToString(separator = ",")
+        return src.map { "/${utils.getLastIntAfterSlash(it)}"}.joinToString(separator = ",")
     }
 
     fun transformListStringIdToStringWithoutSlash(src: List<String>?): String?{
@@ -395,18 +231,7 @@ class Mapper @Inject constructor(
         )
     }
 
-    fun transformEpisodeInfoDtoIntoEpisodeDetailsModelWithId(src: EpisodeInfoDto?): EpisodeDetailsModelWithId? {
-        if (src == null) return null
-        return EpisodeDetailsModelWithId(
-            id = src.episodeId ?: return null,
-            name = src.episodeName ?: return null,
-            airDate = src.episodeAirDate ?: return null,
-            episodeNumber = src.episodeNumber ?: return null,
-            characters = transformStringIdIntoListInt(src.episodeCharacters)
-        )
-    }
-
-    fun configurationEpisodeDetailsModel(episode: EpisodeInfoRemote?, characters: List<CharacterModel>): EpisodeDetailsModel?{
+  fun configurationEpisodeDetailsModel(episode: EpisodeInfoRemote?, characters: List<CharacterModel>): EpisodeDetailsModel?{
         if (episode == null) return  null
         return EpisodeDetailsModel(
             id = episode.episodeId ?: 0,

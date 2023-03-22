@@ -4,14 +4,15 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.localDataSource.LocationsLocalRepository
-import com.aston.rickandmorty.data.models.AllLocationsResponse
+import com.aston.rickandmorty.data.mappers.Mapper
 import com.aston.rickandmorty.data.pagingSources.LocationsPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.LocationRemoteRepository
+import com.aston.rickandmorty.data.remoteDataSource.models.AllLocationsResponse
 import com.aston.rickandmorty.domain.entity.LocationDetailsModelWithId
 import com.aston.rickandmorty.domain.entity.LocationModel
 import com.aston.rickandmorty.domain.repository.LocationsRepository
 import com.aston.rickandmorty.domain.repository.SharedRepository
-import com.aston.rickandmorty.mappers.Mapper
+import com.aston.rickandmorty.utils.Utils
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +24,7 @@ import javax.inject.Inject
 class LocationsRepositoryImpl @Inject constructor(
     private val sharedRepository: SharedRepository,
     private val mapper: Mapper,
+    private val utils: Utils,
     private val applicationScope: CoroutineScope,
     private val pagingConfig: PagingConfig,
     private val localRepository: LocationsLocalRepository,
@@ -43,7 +45,7 @@ class LocationsRepositoryImpl @Inject constructor(
         forceUpdate: Boolean
     ): Pager<Int, LocationModel> {
         return Pager(pagingConfig) {
-            LocationsPagingSource(mapper) { pageIndex ->
+            LocationsPagingSource(mapper, utils) { pageIndex ->
                 loadLocations(pageIndex, filters, forceUpdate)
             }
         }
@@ -66,7 +68,7 @@ class LocationsRepositoryImpl @Inject constructor(
         setLoading(true)
         if (forceUpdate) return@withContext downloadAndUpdateLocationsData(pageIndex, filters)
         val localItems = localRepository.getAllLocations(pageIndex, filters)
-        if (pageIndex == 1 && isConnected()) {
+        if (pageIndex == 1) {
             val remoteItems = remoteRepository.getAllLocations(1, filters)
             writeRemoteResponseIntoDb(remoteItems)
             checkIsNotFullData(
@@ -74,17 +76,17 @@ class LocationsRepositoryImpl @Inject constructor(
                 remoteItems?.pageInfo?.countOfElements
             )
         }
-        return@withContext if (isNotFullData && isConnected()) {
+        return@withContext if (isNotFullData) {
             downloadAndUpdateLocationsData(pageIndex, filters)
         } else {
             localItems
         }
     }.also { setLoading(false) }
 
-    private fun writeRemoteResponseIntoDb(remoteResponse: AllLocationsResponse?){
+    private fun writeRemoteResponseIntoDb(remoteResponse: AllLocationsResponse?) {
         if (remoteResponse?.listLocationsInfo == null) return
-        for (location in remoteResponse.listLocationsInfo){
-            applicationScope.launch(Dispatchers.IO){
+        for (location in remoteResponse.listLocationsInfo) {
+            applicationScope.launch(Dispatchers.IO) {
                 localRepository.addLocation(location)
             }
         }
@@ -130,13 +132,9 @@ class LocationsRepositoryImpl @Inject constructor(
         }
 
     override fun getCountOfLocations(filters: Array<String?>): Single<Int> {
-        return if (isConnected()){
-            remoteRepository.getCountOfLocations(filters).onErrorResumeNext(
-                localRepository.getCountOfLocations(filters)
-            )
-        }else{
+        return remoteRepository.getCountOfLocations(filters).onErrorResumeNext(
             localRepository.getCountOfLocations(filters)
-        }
+        )
     }
 
     private fun setLoading(isLoading: Boolean) {
@@ -146,9 +144,4 @@ class LocationsRepositoryImpl @Inject constructor(
     private fun checkIsNotFullData(localItems: Int?, remoteItems: Int?) {
         isNotFullData = (localItems ?: -1) < (remoteItems ?: -1)
     }
-
-    private fun isConnected(): Boolean{
-        return sharedRepository.getStateFlowIsConnected().value
-    }
-
 }

@@ -1,20 +1,20 @@
 package com.aston.rickandmorty.data.repositoriesImpl
 
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.localDataSource.EpisodesLocalRepository
-import com.aston.rickandmorty.data.models.AllEpisodesResponse
+import com.aston.rickandmorty.data.mappers.Mapper
 import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.EpisodesRemoteRepository
+import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.domain.entity.EpisodeDetailsModel
 import com.aston.rickandmorty.domain.entity.EpisodeModel
 import com.aston.rickandmorty.domain.repository.CharactersRepository
 import com.aston.rickandmorty.domain.repository.EpisodesRepository
 import com.aston.rickandmorty.domain.repository.SharedRepository
-import com.aston.rickandmorty.mappers.Mapper
+import com.aston.rickandmorty.utils.Utils
 import io.reactivex.Single
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +23,7 @@ import javax.inject.Inject
 class EpisodesRepositoryImp @Inject constructor(
     private val sharedRepository: SharedRepository,
     private val mapper: Mapper,
+    private val utils: Utils,
     private val applicationScope: CoroutineScope,
     private val episodesLocalRepository: EpisodesLocalRepository,
     private val episodesRemoteRepository: EpisodesRemoteRepository,
@@ -48,7 +49,7 @@ class EpisodesRepositoryImp @Inject constructor(
             val charactersModel = getCharactersModel(localResult.episodeCharacters)
             setLoading(false)
             mapper.configurationEpisodeDetailsModel(localResult, charactersModel)
-        }
+        }.also { setLoading(false) }
 
     private suspend fun getCharactersModel(listIds: List<String>?): List<CharacterModel> {
         if (listIds == null) return emptyList()
@@ -67,7 +68,7 @@ class EpisodesRepositoryImp @Inject constructor(
             listJob.add(job)
         }
         listJob.joinAll()
-        return resultList
+        return resultList.sortedBy { it.id }
     }
 
     override suspend fun getListEpisodeModel(
@@ -97,7 +98,7 @@ class EpisodesRepositoryImp @Inject constructor(
         setLoading(true)
         if (forceUpdate) return downloadEpisodeDetails(id)
         var resultData = episodesLocalRepository.getEpisodeData(id)
-        if (resultData == null){
+        if (resultData == null) {
             val remoteData = episodesRemoteRepository.getEpisodeInfo(id)
             episodesLocalRepository.addEpisode(remoteData)
             resultData = remoteData
@@ -114,11 +115,7 @@ class EpisodesRepositoryImp @Inject constructor(
         }.also { setLoading(false) }
 
     override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
-        return if (sharedRepository.getStateFlowIsConnected().value) {
-            episodesRemoteRepository.getCountOfEpisodes(filters).onErrorResumeNext {
-                episodesLocalRepository.getCountOfEpisodes(filters)
-            }
-        } else {
+        return episodesRemoteRepository.getCountOfEpisodes(filters).onErrorResumeNext {
             episodesLocalRepository.getCountOfEpisodes(filters)
         }
     }
@@ -128,7 +125,7 @@ class EpisodesRepositoryImp @Inject constructor(
         forceUpdate: Boolean
     ): Pager<Int, EpisodeModel> {
         return Pager(pagingConfig) {
-            EpisodesPagingSource(mapper) { pageIndex ->
+            EpisodesPagingSource(mapper, utils) { pageIndex ->
                 loadEpisodes(
                     pageIndex,
                     filters,
@@ -146,7 +143,6 @@ class EpisodesRepositoryImp @Inject constructor(
         setLoading(true)
         if (forceUpdate) return@withContext downloadAndUpdateEpisodesData(pageIndex, filters)
         val localItems = episodesLocalRepository.getAllEpisodes(pageIndex, filters)
-        Log.d("SSV_REP", "$localItems")
         if (pageIndex == 1) {
             val remoteItems = episodesRemoteRepository.getAllEpisodes(1, filters)
             checkIsNotFullData(

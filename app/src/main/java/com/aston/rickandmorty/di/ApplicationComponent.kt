@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.di
 
 import android.app.Application
+import android.content.Context
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.fragments.*
 import dagger.BindsInstance
@@ -28,7 +29,8 @@ interface ApplicationComponent {
     interface Factory {
         fun create(
             @BindsInstance application: Application,
-            @BindsInstance appScope: CoroutineScope
+            @BindsInstance appScope: CoroutineScope,
+            @BindsInstance context: Context
         ): ApplicationComponent
     }
 }

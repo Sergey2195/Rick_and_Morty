@@ -1,18 +1,21 @@
 package com.aston.rickandmorty.data.remoteDataSource
 
 import com.aston.rickandmorty.data.apiCalls.CharactersApiCall
-import com.aston.rickandmorty.data.models.AllCharactersResponse
-import com.aston.rickandmorty.data.models.CharacterInfoRemote
+import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
+import com.aston.rickandmorty.data.remoteDataSource.models.CharacterInfoRemote
+import com.aston.rickandmorty.domain.repository.SharedRepository
 import io.reactivex.Single
 import javax.inject.Inject
 
 class CharactersRemoteRepositoryImpl @Inject constructor(
-    private val apiCall: CharactersApiCall
+    private val apiCall: CharactersApiCall,
+    private val sharedRepository: SharedRepository
 ) : CharactersRemoteRepository {
     override suspend fun getAllCharacters(
         pageIndex: Int,
         arrayFilter: Array<String?>
     ): AllCharactersResponse? {
+        if (!isConnected()) return null
         return try {
             apiCall.getAllCharacterData(
                 pageIndex,
@@ -28,6 +31,7 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSingleCharacterInfo(id: Int): CharacterInfoRemote? {
+        if (!isConnected()) return null
         return try {
             apiCall.getSingleCharacterData(id)
         } catch (e: Exception) {
@@ -36,6 +40,7 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getMultiIdCharacters(request: String): List<CharacterInfoRemote>? {
+        if (!isConnected()) return null
         return try {
             apiCall.getMultiCharactersData(request)
         } catch (e: Exception) {
@@ -44,6 +49,7 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
     }
 
     override fun getCountOfCharacters(filters: Array<String?>): Single<Int> {
+        if (!isConnected()) return Single.error(Exception("no connection"))
         return apiCall.getCountOfCharacters(
             filters[0],
             filters[1],
@@ -51,5 +57,9 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
             filters[3],
             filters[4]
         ).map { it.pageInfo?.countOfElements }
+    }
+
+    private fun isConnected(): Boolean{
+        return sharedRepository.getStateFlowIsConnected().value
     }
 }

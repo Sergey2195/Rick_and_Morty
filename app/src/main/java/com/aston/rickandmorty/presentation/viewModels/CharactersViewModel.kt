@@ -1,6 +1,5 @@
 package com.aston.rickandmorty.presentation.viewModels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -12,8 +11,8 @@ import com.aston.rickandmorty.domain.useCases.CharacterAllFlowUseCase
 import com.aston.rickandmorty.domain.useCases.CharacterDetailsUseCase
 import com.aston.rickandmorty.domain.useCases.EpisodesListWithIdsUseCase
 import com.aston.rickandmorty.domain.useCases.LocationModelUseCase
-import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
+import com.aston.rickandmorty.presentation.utilsForAdapters.AdaptersUtils
 import com.aston.rickandmorty.utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +27,8 @@ class CharactersViewModel @Inject constructor(
     private val characterDetailsUseCase: CharacterDetailsUseCase,
     private val locationModelsUseCase: LocationModelUseCase,
     private val listEpisodesModelUseCase: EpisodesListWithIdsUseCase,
-    private val mapper: Mapper
+    private val adaptersUtils: AdaptersUtils,
+    private val utils: Utils
 ) : ViewModel() {
 
     private val _dataForAdapter: MutableStateFlow<List<CharacterDetailsModelAdapter>> =
@@ -59,31 +59,24 @@ class CharactersViewModel @Inject constructor(
     fun loadInfoAboutCharacter(id: Int, forceUpdate: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
             //todo need refactoring
-            Log.d("SSV_1", "${System.currentTimeMillis()}")
             val data = characterDetailsUseCase.invoke(id, forceUpdate) ?: return@launch
-            Log.d("SSV_2", "${System.currentTimeMillis()}")
             val originUrl = data.characterOrigin.characterOriginUrl
-            val originId = Utils.getLastIntAfterSlash(originUrl)
+            val originId = utils.getLastIntAfterSlash(originUrl)
             var originModel: LocationModel? = null
             var locationModel: LocationModel? = null
             if (originId != null) {
                 originModel = locationModelsUseCase.invoke(originId, forceUpdate)
             }
-            Log.d("SSV_3", "${System.currentTimeMillis()}")
             val locationUrl = data.characterLocation.characterLocationUrl
-            val locationId = Utils.getLastIntAfterSlash(locationUrl)
+            val locationId = utils.getLastIntAfterSlash(locationUrl)
             if (locationId != null) {
                 locationModel = locationModelsUseCase.invoke(locationId, forceUpdate)
             }
-            Log.d("SSV_4", "${System.currentTimeMillis()}")
             val episodes = data.characterEpisodes
             val episodesId =
-                Utils.getStringForMultiId(episodes.map { Utils.getLastIntAfterSlash(it) })
-            Log.d("SSV_4.5", "${System.currentTimeMillis()}")
-            Log.d("SSV_4.5", "${episodesId}")
+                utils.getStringForMultiId(episodes.map { utils.getLastIntAfterSlash(it) })
             val episodesModels = listEpisodesModelUseCase.invoke(episodesId, forceUpdate)
-            Log.d("SSV_5", "${System.currentTimeMillis()}")
-            val resultList = mapper.getListCharacterDetailsModelAdapter(
+            val resultList = adaptersUtils.getListCharacterDetailsModelAdapter(
                 data, originModel, locationModel, episodesModels
             )
             withContext(Dispatchers.Main) {

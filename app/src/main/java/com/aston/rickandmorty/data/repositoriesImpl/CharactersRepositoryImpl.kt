@@ -1,19 +1,19 @@
 package com.aston.rickandmorty.data.repositoriesImpl
 
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.apiCalls.CharactersApiCall
 import com.aston.rickandmorty.data.localDataSource.CharactersLocalRepository
-import com.aston.rickandmorty.data.models.AllCharactersResponse
+import com.aston.rickandmorty.data.mappers.Mapper
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.CharactersRemoteRepository
+import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
 import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.domain.repository.CharactersRepository
 import com.aston.rickandmorty.domain.repository.SharedRepository
-import com.aston.rickandmorty.mappers.Mapper
+import com.aston.rickandmorty.utils.Utils
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +25,7 @@ import javax.inject.Inject
 class CharactersRepositoryImpl @Inject constructor(
     private val charactersApiCall: CharactersApiCall,
     private val mapper: Mapper,
+    private val utils: Utils,
     private val pagingConfig: PagingConfig,
     private val sharedRepository: SharedRepository,
     private val remoteRepository: CharactersRemoteRepository,
@@ -46,7 +47,7 @@ class CharactersRepositoryImpl @Inject constructor(
         forceUpdate: Boolean
     ): Pager<Int, CharacterModel> {
         return Pager(pagingConfig) {
-            CharactersPagingSource(mapper) { pageIndex ->
+            CharactersPagingSource(mapper, utils) { pageIndex ->
                 loadCharacters(pageIndex, filters, forceUpdate)
             }
         }
@@ -60,14 +61,14 @@ class CharactersRepositoryImpl @Inject constructor(
         setLoading(true)
         if (forceUpdate) return@withContext downloadAndUpdateCharactersData(pageIndex, filters)
         val localItems = localRepository.getAllCharacters(pageIndex, filters)
-        if (pageIndex == 1 && isConnected()) {
+        if (pageIndex == 1) {
             val remoteItems = remoteRepository.getAllCharacters(pageIndex, filters)
             checkIsNotFullData(
                 localItems?.pageInfo?.countOfElements,
                 remoteItems?.pageInfo?.countOfElements
             )
         }
-        return@withContext if (isNotFullData && isConnected()) {
+        return@withContext if (isNotFullData) {
             downloadAndUpdateCharactersData(pageIndex, filters)
         } else {
             localItems
@@ -105,18 +106,17 @@ class CharactersRepositoryImpl @Inject constructor(
             mapper.transformCharacterInfoDtoIntoCharacterDetailsModel(localData)
         }.also { setLoading(false) }
 
-    private suspend fun downloadAndUpdateCharacterData(id: Int): CharacterDetailsModel? = withContext(Dispatchers.IO){
-        val remoteData = remoteRepository.getSingleCharacterInfo(id) ?: return@withContext  null
-        localRepository.addCharacter(remoteData)
-        return@withContext mapper.transformCharacterInfoRemoteIntoCharacterDetailsModel(remoteData)
-    }
+    private suspend fun downloadAndUpdateCharacterData(id: Int): CharacterDetailsModel? =
+        withContext(Dispatchers.IO) {
+            val remoteData = remoteRepository.getSingleCharacterInfo(id) ?: return@withContext null
+            localRepository.addCharacter(remoteData)
+            return@withContext mapper.transformCharacterInfoRemoteIntoCharacterDetailsModel(
+                remoteData
+            )
+        }
 
     override fun getCountOfCharacters(filters: Array<String?>): Single<Int> {
-        return if (isConnected()){
-            remoteRepository.getCountOfCharacters(filters).onErrorResumeNext {
-                localRepository.getCountOfCharacters(filters)
-            }
-        }else{
+        return remoteRepository.getCountOfCharacters(filters).onErrorResumeNext {
             localRepository.getCountOfCharacters(filters)
         }
     }
@@ -124,7 +124,6 @@ class CharactersRepositoryImpl @Inject constructor(
     override suspend fun getMultiCharacterModel(multiId: String): List<CharacterModel> =
         withContext(Dispatchers.IO) {
             //todo
-            Log.d("SSV_REP", "getMultiCharacterModel got $multiId")
             return@withContext mapper.transformListCharacterInfoRemoteIntoCharacterModel(
                 charactersApiCall.getMultiCharactersData(multiId)
             )
@@ -132,9 +131,5 @@ class CharactersRepositoryImpl @Inject constructor(
 
     private fun setLoading(isLoading: Boolean) {
         sharedRepository.setLoadingProgressStateFlow(isLoading)
-    }
-
-    private fun isConnected(): Boolean{
-        return sharedRepository.getStateFlowIsConnected().value
     }
 }

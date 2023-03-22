@@ -1,7 +1,7 @@
 package com.aston.rickandmorty.data.apiCalls
 
-import com.aston.rickandmorty.data.models.AllCharactersResponse
-import com.aston.rickandmorty.data.models.CharacterInfoRemote
+import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
+import com.aston.rickandmorty.data.remoteDataSource.models.CharacterInfoRemote
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Path

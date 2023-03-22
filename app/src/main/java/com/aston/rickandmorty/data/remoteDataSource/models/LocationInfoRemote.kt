@@ -1,4 +1,4 @@
-package com.aston.rickandmorty.data.models
+package com.aston.rickandmorty.data.remoteDataSource.models
 
 import com.google.gson.annotations.SerializedName
 

@@ -10,8 +10,8 @@ import com.aston.rickandmorty.domain.entity.LocationFilterModel
 import com.aston.rickandmorty.domain.useCases.CharacterDetailsUseCase
 import com.aston.rickandmorty.domain.useCases.LocationDetailsUseCase
 import com.aston.rickandmorty.domain.useCases.LocationsAllFlowUseCase
-import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.presentation.adapterModels.DetailsModelAdapter
+import com.aston.rickandmorty.presentation.utilsForAdapters.AdaptersUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -27,7 +27,7 @@ class LocationsViewModel @Inject constructor(
     private val locationsAllFlowUseCase: LocationsAllFlowUseCase,
     private val locationDetailsUseCase: LocationDetailsUseCase,
     private val characterDetailsUseCase: CharacterDetailsUseCase,
-    private val mapper: Mapper
+    private val adaptersUtils: AdaptersUtils
 ) : ViewModel() {
     private val _locationFilterStateFlow: MutableStateFlow<LocationFilterModel?> =
         MutableStateFlow(null)
@@ -81,7 +81,7 @@ class LocationsViewModel @Inject constructor(
         forceUpdate: Boolean
     ): LocationDetailsModel {
         val sortedCharacters = getCharacters(data.characters, forceUpdate)
-        return mapper.transformLocationDetailsModelWithIdIntoLocationDetailsModel(
+        return adaptersUtils.transformLocationDetailsModelWithIdIntoLocationDetailsModel(
             data,
             sortedCharacters
         )
@@ -106,13 +106,13 @@ class LocationsViewModel @Inject constructor(
 
     private suspend fun getCharactersInfo(id: Int, forceUpdate: Boolean): CharacterModel? {
         val data = characterDetailsUseCase.invoke(id, forceUpdate)
-        return mapper.transformCharacterDetailsModelIntoCharacterModel(data)
+        return adaptersUtils.transformCharacterDetailsModelIntoCharacterModel(data)
     }
 
     private fun prepareDataForAdapter(
         data: LocationDetailsModel
     ): List<DetailsModelAdapter> {
-        return mapper.transformLocationDetailsModelToDetailsModelAdapter(data)
+        return adaptersUtils.transformLocationDetailsModelToDetailsModelAdapter(data)
     }
 
     fun clearFilter() {

@@ -1,13 +1,12 @@
 package com.aston.rickandmorty.data.localDataSource
 
-import android.util.Log
 import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.EpisodesDao
 import com.aston.rickandmorty.data.localDataSource.models.EpisodeInfoDto
-import com.aston.rickandmorty.data.models.AllEpisodesResponse
-import com.aston.rickandmorty.data.models.EpisodeInfoRemote
-import com.aston.rickandmorty.data.models.PageInfoResponse
-import com.aston.rickandmorty.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
+import com.aston.rickandmorty.data.remoteDataSource.models.EpisodeInfoRemote
+import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,7 +61,10 @@ class EpisodesLocalRepositoryImpl @Inject constructor(
 
     override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
         val count = allEpisodesData.filter {
-            utils.filteringItem(filters[0], it.episodeName) && utils.filteringItem(filters[1], it.episodeNumber)
+            utils.filteringItem(filters[0], it.episodeName) && utils.filteringItem(
+                filters[1],
+                it.episodeNumber
+            )
         }.size
         return Single.just(count)
     }

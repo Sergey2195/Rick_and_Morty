@@ -11,7 +11,8 @@ class App : Application() {
     val component by lazy {
         DaggerApplicationComponent.factory().create(
             this,
-            appScope
+            appScope,
+            applicationContext
         )
     }
 }

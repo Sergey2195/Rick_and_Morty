@@ -1,7 +1,7 @@
 package com.aston.rickandmorty.data.localDataSource
 
-import com.aston.rickandmorty.data.models.AllEpisodesResponse
-import com.aston.rickandmorty.data.models.EpisodeInfoRemote
+import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
+import com.aston.rickandmorty.data.remoteDataSource.models.EpisodeInfoRemote
 import io.reactivex.Single
 
 interface EpisodesLocalRepository {

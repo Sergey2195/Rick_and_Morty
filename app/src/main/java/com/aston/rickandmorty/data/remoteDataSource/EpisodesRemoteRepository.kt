@@ -1,8 +1,8 @@
 package com.aston.rickandmorty.data.remoteDataSource
 
-import com.aston.rickandmorty.data.models.AllEpisodesResponse
-import com.aston.rickandmorty.data.models.CharacterInfoRemote
-import com.aston.rickandmorty.data.models.EpisodeInfoRemote
+import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
+import com.aston.rickandmorty.data.remoteDataSource.models.CharacterInfoRemote
+import com.aston.rickandmorty.data.remoteDataSource.models.EpisodeInfoRemote
 import io.reactivex.Single
 
 interface EpisodesRemoteRepository {

@@ -3,10 +3,10 @@ package com.aston.rickandmorty.data.localDataSource
 import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.CharactersDao
 import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
-import com.aston.rickandmorty.data.models.AllCharactersResponse
-import com.aston.rickandmorty.data.models.CharacterInfoRemote
-import com.aston.rickandmorty.data.models.PageInfoResponse
-import com.aston.rickandmorty.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
+import com.aston.rickandmorty.data.remoteDataSource.models.CharacterInfoRemote
+import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

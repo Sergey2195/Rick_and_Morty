@@ -2,16 +2,15 @@ package com.aston.rickandmorty.data.pagingSources
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.aston.rickandmorty.data.models.AllLocationsResponse
+import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.remoteDataSource.models.AllLocationsResponse
 import com.aston.rickandmorty.domain.entity.LocationModel
-import com.aston.rickandmorty.mappers.Mapper
 import com.aston.rickandmorty.utils.Utils
-import retrofit2.HttpException
-import java.io.IOException
 
 class LocationsPagingSource(
     private val mapper: Mapper,
-    private val loader: suspend (pageIndex: Int)-> AllLocationsResponse?
+    private val utils: Utils,
+    private val loader: suspend (pageIndex: Int) -> AllLocationsResponse?
 ) :
     PagingSource<Int, LocationModel>() {
 
@@ -20,11 +19,11 @@ class LocationsPagingSource(
         return try {
             val response = loader.invoke(pageIndex)
             val resultData = response?.listLocationsInfo ?: return LoadResult.Error(Exception())
-            val prevPage = Utils.findPage(response.pageInfo?.prevPageUrl)
-            val nextPage = Utils.findPage(response.pageInfo?.nextPageUrl)
+            val prevPage = utils.findPage(response.pageInfo?.prevPageUrl)
+            val nextPage = utils.findPage(response.pageInfo?.nextPageUrl)
             val mappedList = mapper.transformListLocationInfoRemoteIntoListLocationModel(resultData)
             LoadResult.Page(mappedList, prevPage, nextPage)
-        }catch (e:Exception){
+        } catch (e: Exception) {
             LoadResult.Error(e)
         }
     }

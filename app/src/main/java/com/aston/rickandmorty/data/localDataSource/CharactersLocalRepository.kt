@@ -1,8 +1,8 @@
 package com.aston.rickandmorty.data.localDataSource
 
 import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
-import com.aston.rickandmorty.data.models.AllCharactersResponse
-import com.aston.rickandmorty.data.models.CharacterInfoRemote
+import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
+import com.aston.rickandmorty.data.remoteDataSource.models.CharacterInfoRemote
 import io.reactivex.Single
 
 interface CharactersLocalRepository {

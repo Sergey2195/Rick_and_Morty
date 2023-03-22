@@ -1,13 +1,12 @@
 package com.aston.rickandmorty.data.localDataSource
 
-import android.util.Log
 import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.LocationsDao
 import com.aston.rickandmorty.data.localDataSource.models.LocationInfoDto
-import com.aston.rickandmorty.data.models.AllLocationsResponse
-import com.aston.rickandmorty.data.models.LocationInfoRemote
-import com.aston.rickandmorty.data.models.PageInfoResponse
-import com.aston.rickandmorty.mappers.Mapper
+import com.aston.rickandmorty.data.remoteDataSource.models.AllLocationsResponse
+import com.aston.rickandmorty.data.remoteDataSource.models.LocationInfoRemote
+import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
+import com.aston.rickandmorty.data.mappers.Mapper
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -41,7 +40,6 @@ class LocationLocalRepositoryImpl @Inject constructor(
         pageIndex: Int,
         filter: Array<String?>
     ): AllLocationsResponse? {
-        Log.d("SSV_REP_LOC", "local size = ${allLocationData.size}")
         val filtered = allLocationData.filter { dto ->
             utils.filteringItem(filter[0], dto.locationName)
                     && utils.filteringItem(filter[1], dto.locationType)
