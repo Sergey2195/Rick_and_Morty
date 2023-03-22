@@ -25,9 +25,7 @@ class CharactersRootFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
     private val charactersViewModel: CharactersViewModel by viewModels({activity as MainActivity }) {
         viewModelFactory
     }

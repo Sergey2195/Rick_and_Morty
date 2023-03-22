@@ -16,7 +16,7 @@ class SharedRepositoryImpl @Inject constructor(
     application: Application,
 ) : SharedRepository {
 
-    private val loadingProgressStateFlow = MutableStateFlow(false)
+    private val loadingProgressStateFlow = MutableStateFlow(true)
     private val connectivityObserver = NetworkConnectivityObserver(application)
     private val connectionStatusIsAvailable =
         MutableStateFlow(connectivityObserver.isDeviceOnline(application.applicationContext))

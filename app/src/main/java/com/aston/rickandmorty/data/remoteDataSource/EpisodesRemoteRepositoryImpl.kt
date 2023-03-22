@@ -4,10 +4,12 @@ import com.aston.rickandmorty.data.apiCalls.EpisodesApiCall
 import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.CharacterInfoRemote
 import com.aston.rickandmorty.data.remoteDataSource.models.EpisodeInfoRemote
+import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.repository.SharedRepository
 import io.reactivex.Single
 import javax.inject.Inject
 
+@ApplicationScope
 class EpisodesRemoteRepositoryImpl @Inject constructor(
     private val apiCall: EpisodesApiCall,
     private val charactersRemoteRepository: CharactersRemoteRepository,

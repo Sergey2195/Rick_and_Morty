@@ -3,10 +3,12 @@ package com.aston.rickandmorty.data.remoteDataSource
 import com.aston.rickandmorty.data.apiCalls.CharactersApiCall
 import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.CharacterInfoRemote
+import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.repository.SharedRepository
 import io.reactivex.Single
 import javax.inject.Inject
 
+@ApplicationScope
 class CharactersRemoteRepositoryImpl @Inject constructor(
     private val apiCall: CharactersApiCall,
     private val sharedRepository: SharedRepository
@@ -57,7 +59,7 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
             filters[2],
             filters[3],
             filters[4]
-        ).map { it.pageInfo?.countOfElements }
+        ).map { it.pageInfo?.countOfElements ?: -1 }
     }
 
     private fun isConnected(): Boolean {

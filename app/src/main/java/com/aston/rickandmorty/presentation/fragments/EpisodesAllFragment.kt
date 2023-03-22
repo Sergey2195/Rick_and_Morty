@@ -36,9 +36,7 @@ class EpisodesAllFragment : Fragment() {
     private val viewModel: EpisodesViewModel by viewModels({activity as MainActivity }) {
         viewModelFactory
     }
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
     private val adapter = EpisodesAdapter()
     private var gridLayoutManager: GridLayoutManager? = null
     private var arrayFilter: Array<String?> = Array(2) { null }

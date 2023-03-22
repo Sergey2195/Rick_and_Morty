@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentLocationFilterBinding
@@ -23,7 +22,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -35,9 +33,7 @@ class LocationFilterFragment : Fragment() {
         get() = _binding!!
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }

@@ -7,6 +7,7 @@ import com.aston.rickandmorty.data.mappers.Mapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
+import com.aston.rickandmorty.di.ApplicationScope
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,8 +15,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@ApplicationScope
 class EpisodesLocalRepositoryImpl @Inject constructor(
-
     private val mapper: Mapper,
     private val episodesDao: EpisodesDao,
     private val applicationScope: CoroutineScope,

@@ -28,9 +28,7 @@ class CharacterDetailsFragment : Fragment() {
     private var _binding: FragmentCharacterDetailsBinding? = null
     private val binding
         get() = _binding!!
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory

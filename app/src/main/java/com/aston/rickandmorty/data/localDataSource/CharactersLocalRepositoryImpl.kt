@@ -7,12 +7,14 @@ import com.aston.rickandmorty.data.mappers.Mapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.CharacterInfoRemote
 import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
+import com.aston.rickandmorty.di.ApplicationScope
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@ApplicationScope
 class CharactersLocalRepositoryImpl @Inject constructor(
     private val mapper: Mapper,
     private val charactersDao: CharactersDao,

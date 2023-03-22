@@ -2,7 +2,6 @@ package com.aston.rickandmorty.presentation.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,9 +27,7 @@ class CharactersAllFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }

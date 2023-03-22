@@ -7,11 +7,13 @@ import com.aston.rickandmorty.data.mappers.Mapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllLocationsResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.LocationInfoRemote
 import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
+import com.aston.rickandmorty.di.ApplicationScope
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@ApplicationScope
 class LocationLocalRepositoryImpl @Inject constructor(
     private val mapper: Mapper,
     private val locationsDao: LocationsDao,

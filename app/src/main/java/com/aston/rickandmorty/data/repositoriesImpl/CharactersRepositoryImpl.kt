@@ -9,6 +9,7 @@ import com.aston.rickandmorty.data.mappers.Mapper
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.CharactersRemoteRepository
 import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
+import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.domain.repository.CharactersRepository
@@ -22,15 +23,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@ApplicationScope
 class CharactersRepositoryImpl @Inject constructor(
     private val charactersApiCall: CharactersApiCall,
     private val mapper: Mapper,
     private val utils: Utils,
     private val pagingConfig: PagingConfig,
-    private val sharedRepository: SharedRepository,
     private val remoteRepository: CharactersRemoteRepository,
     private val localRepository: CharactersLocalRepository,
-    private val applicationScope: CoroutineScope
+    private val applicationScope: CoroutineScope,
+    private val sharedRepository: SharedRepository
 ) : CharactersRepository {
 
     private var isNotFullData = false
@@ -73,9 +75,7 @@ class CharactersRepositoryImpl @Inject constructor(
         } else {
             localItems
         }
-    }.also {
-        setLoading(false)
-    }
+    }.also { setLoading(false) }
 
     private fun checkIsNotFullData(localItems: Int?, remoteItems: Int?) {
         isNotFullData = (localItems ?: -1) < (remoteItems ?: -1)
@@ -85,7 +85,6 @@ class CharactersRepositoryImpl @Inject constructor(
         pageIndex: Int,
         filters: Array<String?>
     ): AllCharactersResponse? = withContext(Dispatchers.IO) {
-        setLoading(true)
         val networkResponse =
             remoteRepository.getAllCharacters(pageIndex, filters)
         if (networkResponse?.listCharactersInfo == null) return@withContext null
@@ -95,7 +94,7 @@ class CharactersRepositoryImpl @Inject constructor(
             }
         }
         return@withContext networkResponse
-    }.also { setLoading(false) }
+    }
 
     override suspend fun getCharacterData(id: Int, forceUpdate: Boolean): CharacterDetailsModel? =
         withContext(Dispatchers.IO) {
@@ -123,13 +122,12 @@ class CharactersRepositoryImpl @Inject constructor(
 
     override suspend fun getMultiCharacterModel(multiId: String): List<CharacterModel> =
         withContext(Dispatchers.IO) {
-            //todo
             return@withContext mapper.transformListCharacterInfoRemoteIntoCharacterModel(
                 charactersApiCall.getMultiCharactersData(multiId)
             )
         }
 
-    private fun setLoading(isLoading: Boolean) {
+    private fun setLoading(isLoading: Boolean){
         sharedRepository.setLoadingProgressStateFlow(isLoading)
     }
 }

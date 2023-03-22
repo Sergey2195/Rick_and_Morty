@@ -8,6 +8,7 @@ import com.aston.rickandmorty.data.mappers.Mapper
 import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.EpisodesRemoteRepository
 import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
+import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.domain.entity.EpisodeDetailsModel
 import com.aston.rickandmorty.domain.entity.EpisodeModel
@@ -20,15 +21,16 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
+@ApplicationScope
 class EpisodesRepositoryImp @Inject constructor(
-    private val sharedRepository: SharedRepository,
     private val mapper: Mapper,
     private val utils: Utils,
     private val applicationScope: CoroutineScope,
     private val episodesLocalRepository: EpisodesLocalRepository,
     private val episodesRemoteRepository: EpisodesRemoteRepository,
     private val charactersRepository: CharactersRepository,
-    private val pagingConfig: PagingConfig
+    private val pagingConfig: PagingConfig,
+    private val sharedRepository: SharedRepository
 ) : EpisodesRepository {
 
     private var isNotFullData = false
@@ -42,12 +44,11 @@ class EpisodesRepositoryImp @Inject constructor(
 
     override suspend fun getEpisodeData(id: Int, forceUpdate: Boolean): EpisodeDetailsModel? =
         withContext(Dispatchers.IO) {
-            if (forceUpdate) return@withContext downloadAndUpdateEpisodeData(id)
             setLoading(true)
+            if (forceUpdate) return@withContext downloadAndUpdateEpisodeData(id)
             val localResult = episodesLocalRepository.getEpisodeData(id)
                 ?: return@withContext downloadAndUpdateEpisodeData(id)
             val charactersModel = getCharactersModel(localResult.episodeCharacters)
-            setLoading(false)
             mapper.configurationEpisodeDetailsModel(localResult, charactersModel)
         }.also { setLoading(false) }
 
@@ -75,7 +76,6 @@ class EpisodesRepositoryImp @Inject constructor(
         multiId: String,
         forceUpdate: Boolean
     ): List<EpisodeModel>? = withContext(Dispatchers.IO) {
-        setLoading(true)
         val listId = multiId.split(",").map { it.toInt() }
         if (listId.isEmpty()) return@withContext null
         val listJob = arrayListOf<Job>()
@@ -95,7 +95,6 @@ class EpisodesRepositoryImp @Inject constructor(
         id: Int,
         forceUpdate: Boolean
     ): EpisodeModel? {
-        setLoading(true)
         if (forceUpdate) return downloadEpisodeDetails(id)
         var resultData = episodesLocalRepository.getEpisodeData(id)
         if (resultData == null) {
@@ -103,7 +102,6 @@ class EpisodesRepositoryImp @Inject constructor(
             episodesLocalRepository.addEpisode(remoteData)
             resultData = remoteData
         }
-        setLoading(false)
         return mapper.transformEpisodeInfoRemoteIntoEpisodeModel(resultData ?: return null)
     }
 
@@ -112,7 +110,7 @@ class EpisodesRepositoryImp @Inject constructor(
             val remoteData = episodesRemoteRepository.getEpisodeInfo(id) ?: return@withContext null
             episodesLocalRepository.addEpisode(remoteData)
             return@withContext mapper.transformEpisodeInfoRemoteIntoEpisodeModel(remoteData)
-        }.also { setLoading(false) }
+        }
 
     override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
         return episodesRemoteRepository.getCountOfEpisodes(filters).onErrorResumeNext {
@@ -179,7 +177,6 @@ class EpisodesRepositoryImp @Inject constructor(
 
     private suspend fun downloadAndUpdateEpisodeData(id: Int): EpisodeDetailsModel? =
         withContext(Dispatchers.IO) {
-            setLoading(true)
             val remoteData = episodesRemoteRepository.getEpisodeInfo(id) ?: return@withContext null
             episodesLocalRepository.addEpisode(remoteData)
             val multiIdString =
@@ -187,14 +184,7 @@ class EpisodesRepositoryImp @Inject constructor(
             val charactersModel =
                 charactersRepository.getMultiCharacterModel(multiIdString)
             return@withContext mapper.configurationEpisodeDetailsModel(remoteData, charactersModel)
-                .also {
-                    setLoading(false)
-                }
-        }.also { setLoading(false) }
-
-    private fun setLoading(isLoading: Boolean) {
-        sharedRepository.setLoadingProgressStateFlow(isLoading)
-    }
+        }
 
     private fun sortedList(list: List<EpisodeModel>): List<EpisodeModel> {
         return try {
@@ -202,5 +192,9 @@ class EpisodesRepositoryImp @Inject constructor(
         } catch (e: Exception) {
             emptyList()
         }
+    }
+
+    private fun setLoading(isLoading: Boolean){
+        sharedRepository.setLoadingProgressStateFlow(isLoading)
     }
 }

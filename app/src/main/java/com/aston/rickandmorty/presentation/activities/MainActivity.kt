@@ -32,9 +32,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     private val viewModel: MainViewModel by viewModels() {
         viewModelFactory
     }
-    private val component by lazy {
-        (application as App).component
-    }
+    private val component = App.getAppComponent()
     private var isOnParentScreen = true
     private var toolBarBackButtonClickListener: OnClickListener? = null
 

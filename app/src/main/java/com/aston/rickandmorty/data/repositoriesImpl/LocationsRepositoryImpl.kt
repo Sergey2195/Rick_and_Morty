@@ -8,6 +8,7 @@ import com.aston.rickandmorty.data.mappers.Mapper
 import com.aston.rickandmorty.data.pagingSources.LocationsPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.LocationRemoteRepository
 import com.aston.rickandmorty.data.remoteDataSource.models.AllLocationsResponse
+import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.entity.LocationDetailsModelWithId
 import com.aston.rickandmorty.domain.entity.LocationModel
 import com.aston.rickandmorty.domain.repository.LocationsRepository
@@ -21,14 +22,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@ApplicationScope
 class LocationsRepositoryImpl @Inject constructor(
-    private val sharedRepository: SharedRepository,
     private val mapper: Mapper,
     private val utils: Utils,
     private val applicationScope: CoroutineScope,
     private val pagingConfig: PagingConfig,
     private val localRepository: LocationsLocalRepository,
-    private val remoteRepository: LocationRemoteRepository
+    private val remoteRepository: LocationRemoteRepository,
+    private val sharedRepository: SharedRepository
 ) : LocationsRepository {
 
     private var isNotFullData = false
@@ -98,6 +100,7 @@ class LocationsRepositoryImpl @Inject constructor(
     ): Single<LocationDetailsModelWithId> {
         if (forceUpdate) return getSingleLocationDataWithForceUpdate(id)
         return localRepository.getSingleLocationInfoRx(id).flatMap { data ->
+            setLoading(true)
             if (data.locationId == null) {
                 return@flatMap remoteRepository.getSingleLocationData(id).map {
                     mapper.transformLocationInfoRemoteInfoLocationDetailsModelWithIds(it)
@@ -107,12 +110,16 @@ class LocationsRepositoryImpl @Inject constructor(
                     it.onSuccess(mapper.transformLocationDtoIntoLocationDetailsWithIds(data))
                 }
             }
-        }
+        }.also { setLoading(false) }
     }
 
     private fun getSingleLocationDataWithForceUpdate(id: Int): Single<LocationDetailsModelWithId> {
+        setLoading(true)
         return remoteRepository.getSingleLocationData(id)
-            .map { mapper.transformLocationInfoRemoteInfoLocationDetailsModelWithIds(it) }
+            .map {
+                setLoading(false)
+                mapper.transformLocationInfoRemoteInfoLocationDetailsModelWithIds(it)
+            }
     }
 
 
@@ -137,11 +144,11 @@ class LocationsRepositoryImpl @Inject constructor(
         )
     }
 
-    private fun setLoading(isLoading: Boolean) {
-        sharedRepository.setLoadingProgressStateFlow(isLoading)
-    }
-
     private fun checkIsNotFullData(localItems: Int?, remoteItems: Int?) {
         isNotFullData = (localItems ?: -1) < (remoteItems ?: -1)
+    }
+
+    private fun setLoading(isLoading: Boolean){
+        sharedRepository.setLoadingProgressStateFlow(isLoading)
     }
 }

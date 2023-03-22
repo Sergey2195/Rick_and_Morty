@@ -6,13 +6,25 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 class App : Application() {
-    private val appScope = CoroutineScope(Dispatchers.IO)
 
-    val component by lazy {
+    private val appScope by lazy {
+        CoroutineScope(Dispatchers.IO)
+    }
+    private val component by lazy {
         DaggerApplicationComponent.factory().create(
-            this,
+            app,
             appScope,
-            applicationContext
+            app.applicationContext
         )
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        app = this
+    }
+
+    companion object{
+        private lateinit var app: App
+        fun getAppComponent() = app.component
     }
 }
