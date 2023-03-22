@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class LocationFilterViewModel @Inject constructor(
     private val countOfLocationsUseCase: CountOfLocationUseCase
-): ViewModel() {
+) : ViewModel() {
 
     private val _locationCountStateFlow = MutableStateFlow(0)
     val locationCountStateFlow = _locationCountStateFlow.asStateFlow()
@@ -25,9 +25,9 @@ class LocationFilterViewModel @Inject constructor(
             filterModel.dimensionFilter
         ).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ result->
+            .subscribe({ result ->
                 _locationCountStateFlow.value = result
-            },{
+            }, {
                 _locationCountStateFlow.value = -1
             })
         compositeDisposable.add(disposable)

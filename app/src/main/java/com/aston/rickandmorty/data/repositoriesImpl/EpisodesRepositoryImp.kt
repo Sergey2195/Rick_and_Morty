@@ -60,7 +60,8 @@ class EpisodesRepositoryImp @Inject constructor(
                 val characterData =
                     charactersRepository.getCharacterData(preparedId, false) ?: return@launch
                 val characterModel =
-                    mapper.transformCharacterDetailsModelIntoCharacterModel(characterData) ?: return@launch
+                    mapper.transformCharacterDetailsModelIntoCharacterModel(characterData)
+                        ?: return@launch
                 resultList.add(characterModel)
             }
             listJob.add(job)
@@ -69,16 +70,19 @@ class EpisodesRepositoryImp @Inject constructor(
         return resultList
     }
 
-    override suspend fun getListEpisodeModel(multiId: String, forceUpdate: Boolean): List<EpisodeModel>? = withContext(Dispatchers.IO) {
+    override suspend fun getListEpisodeModel(
+        multiId: String,
+        forceUpdate: Boolean
+    ): List<EpisodeModel>? = withContext(Dispatchers.IO) {
         setLoading(true)
         val listId = multiId.split(",").map { it.toInt() }
         if (listId.isEmpty()) return@withContext null
         val listJob = arrayListOf<Job>()
         val resultList = arrayListOf<EpisodeModel>()
-        for (id in listId){
+        for (id in listId) {
             val job = applicationScope.launch {
-                val data = getEpisodeData(id, forceUpdate)
-                if (data != null) resultList.add(mapper.transformEpisodeDetailsModelToEpisodeModel(data))
+                val data = getEpisodeDataWithoutCharacters(id, forceUpdate)
+                if (data != null) resultList.add(data)
             }
             listJob.add(job)
         }
@@ -86,12 +90,35 @@ class EpisodesRepositoryImp @Inject constructor(
         sortedList(resultList)
     }
 
-    override fun getCountOfEpisodes(filters: Array<String?>): Single<Int>{
-        return if (sharedRepository.getStateFlowIsConnected().value){
-            episodesRemoteRepository.getCountOfEpisodes(filters).onErrorResumeNext{
+    private suspend fun getEpisodeDataWithoutCharacters(
+        id: Int,
+        forceUpdate: Boolean
+    ): EpisodeModel? {
+        setLoading(true)
+        if (forceUpdate) return downloadEpisodeDetails(id)
+        var resultData = episodesLocalRepository.getEpisodeData(id)
+        if (resultData == null){
+            val remoteData = episodesRemoteRepository.getEpisodeInfo(id)
+            episodesLocalRepository.addEpisode(remoteData)
+            resultData = remoteData
+        }
+        setLoading(false)
+        return mapper.transformEpisodeInfoRemoteIntoEpisodeModel(resultData ?: return null)
+    }
+
+    private suspend fun downloadEpisodeDetails(id: Int): EpisodeModel? =
+        withContext(Dispatchers.IO) {
+            val remoteData = episodesRemoteRepository.getEpisodeInfo(id) ?: return@withContext null
+            episodesLocalRepository.addEpisode(remoteData)
+            return@withContext mapper.transformEpisodeInfoRemoteIntoEpisodeModel(remoteData)
+        }.also { setLoading(false) }
+
+    override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
+        return if (sharedRepository.getStateFlowIsConnected().value) {
+            episodesRemoteRepository.getCountOfEpisodes(filters).onErrorResumeNext {
                 episodesLocalRepository.getCountOfEpisodes(filters)
             }
-        }else{
+        } else {
             episodesLocalRepository.getCountOfEpisodes(filters)
         }
     }
@@ -154,27 +181,29 @@ class EpisodesRepositoryImp @Inject constructor(
         networkResponse
     }
 
-    private suspend fun downloadAndUpdateEpisodeData(id: Int): EpisodeDetailsModel? = withContext(Dispatchers.IO) {
-        setLoading(true)
-        val remoteData = episodesRemoteRepository.getEpisodeInfo(id) ?: return@withContext null
-        episodesLocalRepository.addEpisode(remoteData)
-        val multiIdString =
-            mapper.transformListStringIdToStringWithoutSlash(remoteData.episodeCharacters) ?: ""
-        val charactersModel =
-            charactersRepository.getMultiCharacterModel(multiIdString)
-        return@withContext mapper.configurationEpisodeDetailsModel(remoteData, charactersModel).also {
-            setLoading(false)
-        }
-    }.also { setLoading(false) }
+    private suspend fun downloadAndUpdateEpisodeData(id: Int): EpisodeDetailsModel? =
+        withContext(Dispatchers.IO) {
+            setLoading(true)
+            val remoteData = episodesRemoteRepository.getEpisodeInfo(id) ?: return@withContext null
+            episodesLocalRepository.addEpisode(remoteData)
+            val multiIdString =
+                mapper.transformListStringIdToStringWithoutSlash(remoteData.episodeCharacters) ?: ""
+            val charactersModel =
+                charactersRepository.getMultiCharacterModel(multiIdString)
+            return@withContext mapper.configurationEpisodeDetailsModel(remoteData, charactersModel)
+                .also {
+                    setLoading(false)
+                }
+        }.also { setLoading(false) }
 
     private fun setLoading(isLoading: Boolean) {
         sharedRepository.setLoadingProgressStateFlow(isLoading)
     }
 
-    private fun sortedList(list: List<EpisodeModel>): List<EpisodeModel>{
+    private fun sortedList(list: List<EpisodeModel>): List<EpisodeModel> {
         return try {
             list.sortedBy { it.id }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             emptyList()
         }
     }

@@ -53,6 +53,7 @@ class CharacterDetailsFragment : Fragment() {
             id = it.getInt(ID_KEY)
             container = it.getInt(CONTAINER)
         }
+        if (id == null) throw RuntimeException("unknown id onCreate CharacterDetailsFragment")
     }
 
     override fun onCreateView(
@@ -78,7 +79,7 @@ class CharacterDetailsFragment : Fragment() {
     }
 
     private fun loadData(forceUpdate: Boolean = false){
-        viewModel.loadInfoAboutCharacter(id ?: 1, forceUpdate)
+        viewModel.loadInfoAboutCharacter(id!!, forceUpdate)
     }
 
     private fun observeData(){

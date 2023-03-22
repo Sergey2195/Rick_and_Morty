@@ -72,6 +72,10 @@ class LocationsViewModel @Inject constructor(
         _locationDetailsStateFlow.value = dataForAdapter
     }
 
+    fun clearDataLocationDetailsAdapter(){
+        _locationDetailsStateFlow.value = null
+    }
+
     private suspend fun getLocationDetails(
         data: LocationDetailsModelWithId,
         forceUpdate: Boolean

@@ -111,6 +111,11 @@ class EpisodeDetailsFragment : Fragment() {
             .commit()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.clearEpisodeDataForAdapter()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null

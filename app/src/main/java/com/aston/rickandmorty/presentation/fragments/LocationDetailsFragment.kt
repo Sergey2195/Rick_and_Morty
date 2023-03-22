@@ -74,6 +74,11 @@ class LocationDetailsFragment : Fragment() {
         _binding = null
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.clearDataLocationDetailsAdapter()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclersView()

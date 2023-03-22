@@ -1,6 +1,5 @@
 package com.aston.rickandmorty.di
 
-import com.aston.rickandmorty.data.apiCalls.ApiCall
 import com.aston.rickandmorty.data.apiCalls.CharactersApiCall
 import com.aston.rickandmorty.data.apiCalls.EpisodesApiCall
 import com.aston.rickandmorty.data.apiCalls.LocationsApiCall
@@ -18,27 +17,22 @@ import java.util.concurrent.TimeUnit
 interface NetworkModule {
 
     companion object {
+
         @Provides
         @ApplicationScope
-        fun provideApiCall(retrofit: Retrofit): ApiCall {
+        fun provideCharactersApiCall(retrofit: Retrofit): CharactersApiCall {
             return retrofit.create()
         }
 
         @Provides
         @ApplicationScope
-        fun provideCharactersApiCall(retrofit: Retrofit): CharactersApiCall{
+        fun provideLocationsApiCall(retrofit: Retrofit): LocationsApiCall {
             return retrofit.create()
         }
 
         @Provides
         @ApplicationScope
-        fun provideLocationsApiCall(retrofit: Retrofit): LocationsApiCall{
-            return retrofit.create()
-        }
-
-        @Provides
-        @ApplicationScope
-        fun provideEpisodesApiCall(retrofit: Retrofit): EpisodesApiCall{
+        fun provideEpisodesApiCall(retrofit: Retrofit): EpisodesApiCall {
             return retrofit.create()
         }
 

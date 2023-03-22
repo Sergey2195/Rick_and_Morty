@@ -24,19 +24,25 @@ class EpisodesViewModel @Inject constructor(
     private val _episodeDataForAdapter = MutableStateFlow<List<DetailsModelAdapter>?>(null)
     val episodeDataForAdapter = _episodeDataForAdapter.asStateFlow()
 
-    fun sendIdEpisode(id: Int, forceUpdate: Boolean) = viewModelScope.launch{
+    fun sendIdEpisode(id: Int, forceUpdate: Boolean) = viewModelScope.launch {
         val episodeDetailsModel = episodeDetailsUseCase.invoke(id, forceUpdate) ?: return@launch
-        _episodeDataForAdapter.value = mapper.transformEpisodeDetailsModelToDetailsModelAdapter(episodeDetailsModel)
+        _episodeDataForAdapter.value =
+            mapper.transformEpisodeDetailsModelToDetailsModelAdapter(episodeDetailsModel)
     }
 
     fun getEpisodesAllFlow(
         nameFilter: String? = null,
         episodeFilter: String? = null,
         forceUpdate: Boolean
-    ) = episodesAllFlowUseCase.invoke(nameFilter, episodeFilter, forceUpdate).cachedIn(viewModelScope)
+    ) = episodesAllFlowUseCase.invoke(nameFilter, episodeFilter, forceUpdate)
+        .cachedIn(viewModelScope)
 
     fun clearFilter() {
         _episodeFilterStateFlow.value = null
+    }
+
+    fun clearEpisodeDataForAdapter(){
+        _episodeDataForAdapter.value = null
     }
 
     fun setFilter(filter: EpisodeFilterModel) {
