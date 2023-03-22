@@ -1,8 +1,6 @@
 package com.aston.rickandmorty.presentation.viewModels
 
 import androidx.lifecycle.ViewModel
-import com.aston.rickandmorty.data.RepositoryImpl
-import com.aston.rickandmorty.domain.entity.CharacterFilterModel
 import com.aston.rickandmorty.domain.entity.LocationFilterModel
 import com.aston.rickandmorty.domain.useCases.CountOfLocationUseCase
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -14,7 +12,7 @@ import javax.inject.Inject
 
 class LocationFilterViewModel @Inject constructor(
     private val countOfLocationsUseCase: CountOfLocationUseCase
-): ViewModel() {
+) : ViewModel() {
 
     private val _locationCountStateFlow = MutableStateFlow(0)
     val locationCountStateFlow = _locationCountStateFlow.asStateFlow()
@@ -27,9 +25,9 @@ class LocationFilterViewModel @Inject constructor(
             filterModel.dimensionFilter
         ).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ result->
+            .subscribe({ result ->
                 _locationCountStateFlow.value = result
-            },{
+            }, {
                 _locationCountStateFlow.value = -1
             })
         compositeDisposable.add(disposable)

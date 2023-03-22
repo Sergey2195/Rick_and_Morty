@@ -72,6 +72,10 @@ class LocationsViewModel @Inject constructor(
         _locationDetailsStateFlow.value = dataForAdapter
     }
 
+    fun clearDataLocationDetailsAdapter(){
+        _locationDetailsStateFlow.value = null
+    }
+
     private suspend fun getLocationDetails(
         data: LocationDetailsModelWithId,
         forceUpdate: Boolean
@@ -91,8 +95,8 @@ class LocationsViewModel @Inject constructor(
         val listCharacters = mutableListOf<CharacterModel>()
         for (characterId in listId) {
             val job = viewModelScope.launch(Dispatchers.IO) {
-                val characterData = getCharactersInfo(characterId, forceUpdate)
-                listCharacters.add(characterData ?: throw RuntimeException("a"))
+                val characterData = getCharactersInfo(characterId, forceUpdate) ?: return@launch
+                listCharacters.add(characterData)
             }
             listJob.add(job)
         }

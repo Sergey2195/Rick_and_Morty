@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,10 +21,7 @@ import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 class CharactersAllFragment : Fragment() {
@@ -38,7 +34,7 @@ class CharactersAllFragment : Fragment() {
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
-    private val charactersViewModel: CharactersViewModel by viewModels({activity as MainActivity }) {
+    private val charactersViewModel: CharactersViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
     private val adapter = CharactersAdapter()
@@ -47,6 +43,7 @@ class CharactersAllFragment : Fragment() {
         get() = _binding!!
     private var gridLayoutManager: GridLayoutManager? = null
     private var arrayFilter: Array<String?> = Array(5) { null }
+    private var observerJob: Job? = null
 
     override fun onAttach(context: Context) {
         component.injectCharactersAllFragment(this)
@@ -71,18 +68,14 @@ class CharactersAllFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
-        setupObservers()
-        setupSwipeListener()
+        setupObservers(false)
+        setupRefreshListener()
     }
 
-    private fun setupSwipeListener() {
-        (requireActivity() as ToolbarManager).setRefreshClickListener{
-            lifecycleScope.launch(Dispatchers.IO){
-                charactersViewModel.invalidateCharactersData()
-                withContext(Dispatchers.Main){
-                    adapter.refresh()
-                }
-            }
+    private fun setupRefreshListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
+            observerJob?.cancel()
+            setupObservers(true)
         }
     }
 
@@ -114,15 +107,18 @@ class CharactersAllFragment : Fragment() {
         return arrayFilter.all { it == null }
     }
 
-    private fun setupObservers() = lifecycleScope.launchWhenStarted {
-        charactersViewModel.getFlowCharacters(
-            arrayFilter[0],
-            arrayFilter[1],
-            arrayFilter[2],
-            arrayFilter[3],
-            arrayFilter[4]
-        ).collect { pagingData ->
-            adapter.submitData(pagingData)
+    private fun setupObservers(forceUpdate: Boolean) {
+        observerJob = lifecycleScope.launchWhenStarted {
+            charactersViewModel.getFlowCharacters(
+                arrayFilter[0],
+                arrayFilter[1],
+                arrayFilter[2],
+                arrayFilter[3],
+                arrayFilter[4],
+                forceUpdate
+            ).collect { pagingData ->
+                adapter.submitData(pagingData)
+            }
         }
     }
 

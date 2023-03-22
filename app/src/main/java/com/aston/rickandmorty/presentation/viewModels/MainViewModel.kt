@@ -41,7 +41,7 @@ class MainViewModel @Inject constructor(
         router?.openEpisodesFragment()
     }
 
-    fun setIsOnParentLiveData(isOnParent: Boolean){
+    fun setIsOnParentLiveData(isOnParent: Boolean) {
         isOnParentLiveData.postValue(isOnParent)
     }
 

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.aston.rickandmorty.databinding.FragmentEpisodeDetailsBinding
 import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
+import com.aston.rickandmorty.presentation.adapterModels.DetailsModelText
 import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
@@ -90,6 +91,7 @@ class EpisodeDetailsFragment : Fragment() {
     private fun setupObserver() = lifecycleScope.launchWhenStarted{
         viewModel.episodeDataForAdapter.filterNotNull().collect{ data->
             detailsAdapter.submitList(data)
+            setToolBarTitleText((data[1] as? DetailsModelText)?.text)
         }
     }
 
@@ -102,12 +104,16 @@ class EpisodeDetailsFragment : Fragment() {
     }
 
     private fun openCharacterDetailsFragment(id: Int) {
-        //todo contrainer
         if (container == null) throw RuntimeException("openCharacterDetailsFragment")
         parentFragmentManager.beginTransaction()
             .replace(container ?: throw RuntimeException("openCharacterDetailsFragment"), CharacterDetailsFragment.newInstance(id, container ?: throw RuntimeException("openCharacterDetailsFragment")))
             .addToBackStack(null)
             .commit()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.clearEpisodeDataForAdapter()
     }
 
     override fun onDestroy() {
@@ -120,7 +126,8 @@ class EpisodeDetailsFragment : Fragment() {
         mainViewModel.setIsOnParentLiveData(false)
     }
 
-    private fun setToolBarTitleText(text: String) {
+    private fun setToolBarTitleText(text: String?) {
+        if (text == null) return
         (requireActivity() as ToolbarManager).setToolbarText(text)
     }
 

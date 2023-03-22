@@ -107,6 +107,15 @@ class Mapper @Inject constructor(
         )
     }
 
+    fun transformEpisodeDetailsModelToEpisodeModel(src: EpisodeDetailsModel): EpisodeModel{
+        return EpisodeModel(
+            id = src.id,
+            name = src.name,
+            number = src.episodeNumber,
+            dateRelease = src.airDate
+        )
+    }
+
     fun transformEpisodeDetailsModelToDetailsModelAdapter(
         src: EpisodeDetailsModel
     ): List<DetailsModelAdapter> {
@@ -290,7 +299,12 @@ class Mapper @Inject constructor(
 
     fun transformListStringsToIds(src: List<String>?): String? {
         if (src == null) return null
-        return src.map { "/${Utils.getLastIntAfterSlash(it)}" }.joinToString()
+        return src.map { "/${Utils.getLastIntAfterSlash(it)}"}.joinToString(separator = ",")
+    }
+
+    fun transformListStringIdToStringWithoutSlash(src: List<String>?): String?{
+        if (src == null) return null
+        return transformListStringsToIds(src)?.replace("/","")
     }
 
     private fun transformStringIdToList(src: String?): List<String>? {
@@ -390,6 +404,21 @@ class Mapper @Inject constructor(
             episodeNumber = src.episodeNumber ?: return null,
             characters = transformStringIdIntoListInt(src.episodeCharacters)
         )
+    }
+
+    fun configurationEpisodeDetailsModel(episode: EpisodeInfoRemote?, characters: List<CharacterModel>): EpisodeDetailsModel?{
+        if (episode == null) return  null
+        return EpisodeDetailsModel(
+            id = episode.episodeId ?: 0,
+            name = episode.episodeName ?: "",
+            airDate = episode.episodeAirDate ?: "",
+            episodeNumber = episode.episodeNumber ?: "",
+            characters = characters
+        )
+    }
+
+    fun transformIdWithStringAndSlashIntoInt(str: String): Int{
+        return str.replace("/", "").toInt()
     }
 
     fun transformCharacterInfoRemoteIntoCharacterInfoDto(src: CharacterInfoRemote): CharacterInfoDto {

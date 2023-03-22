@@ -2,6 +2,7 @@ package com.aston.rickandmorty.presentation.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -63,8 +64,6 @@ class CharactersRootFragment : Fragment() {
 
     private fun setupObservers() = lifecycleScope.launch{
         charactersViewModel.characterFilter.filterNotNull().collect{
-            childFragmentManager.popBackStack()
-            delay(500)
             startFragmentWithFiltering(it)
             charactersViewModel.clearCharacterFilter()
         }
@@ -78,6 +77,7 @@ class CharactersRootFragment : Fragment() {
             filter.typeFilter,
             filter.genderFilter
         )
+        childFragmentManager.popBackStack()
         childFragmentManager.beginTransaction()
             .replace(R.id.charactersFragmentContainerRoot, fragment)
             .addToBackStack(null)

@@ -2,7 +2,6 @@ package com.aston.rickandmorty.presentation.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,17 +12,13 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.aston.rickandmorty.databinding.FragmentLocationDetailsBinding
 import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
+import com.aston.rickandmorty.presentation.adapterModels.DetailsModelText
 import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -31,6 +26,7 @@ class LocationDetailsFragment : Fragment() {
 
     private var id: Int? = null
     private var container: Int? = null
+
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private val component by lazy {
@@ -78,6 +74,11 @@ class LocationDetailsFragment : Fragment() {
         _binding = null
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.clearDataLocationDetailsAdapter()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclersView()
@@ -86,28 +87,17 @@ class LocationDetailsFragment : Fragment() {
         setupRefreshListener()
     }
 
-    private fun setupRefreshListener(){
-        (requireActivity() as ToolbarManager).setRefreshClickListener{
+    private fun setupRefreshListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
             loadData(true)
         }
     }
 
-    private fun setupObservers(){
-//        jobObserver = lifecycleScope.launchWhenStarted {
-//            viewModel.locationDetailsStateFlow.collect{
-//                val details = viewModel.getLocationDetails(it?: return@collect)
-//                viewModel.resetLocationDetailsStateFlow()
-//                val dataForAdapter = viewModel.prepareDataForAdapter(details, requireContext())
-//                withContext(Dispatchers.Main) {
-//                    detailsAdapter.submitList(dataForAdapter)
-//                    setToolBarText(details.locationName)
-//                }
-//            }
-//        }
+    private fun setupObservers() {
         lifecycleScope.launchWhenStarted {
-            viewModel.locationDetailsStateFlow.filterNotNull().collect{ data->
+            viewModel.locationDetailsStateFlow.filterNotNull().collect { data ->
                 detailsAdapter.submitList(data)
-                //todo set ToolbarText
+                setToolBarText((data[1] as? DetailsModelText)?.text)
             }
         }
     }
@@ -129,7 +119,8 @@ class LocationDetailsFragment : Fragment() {
         viewModel.sendIdToGetDetails(id ?: throw RuntimeException("load data"), forceUpdate)
     }
 
-    private fun setToolBarText(str: String) {
+    private fun setToolBarText(str: String?) {
+        if (str == null) return
         (requireActivity() as ToolbarManager).setToolbarText(str)
     }
 
