@@ -11,6 +11,7 @@ interface CharactersLocalRepository {
         pageIndex: Int,
         filters: Array<String?>
     ): AllCharactersResponse?
+
     suspend fun addCharacter(data: CharacterInfoRemote?)
     suspend fun getCharacterInfo(id: Int): CharacterInfoDto?
     fun getCountOfCharacters(filters: Array<String?>): Single<Int>

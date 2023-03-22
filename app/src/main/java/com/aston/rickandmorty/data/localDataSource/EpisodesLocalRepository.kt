@@ -5,6 +5,7 @@ import com.aston.rickandmorty.data.remoteDataSource.models.EpisodeInfoRemote
 import io.reactivex.Single
 
 interface EpisodesLocalRepository {
+
     suspend fun getAllEpisodes(
         pageIndex: Int,
         filters: Array<String?>

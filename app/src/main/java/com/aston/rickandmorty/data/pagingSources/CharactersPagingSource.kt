@@ -13,8 +13,7 @@ class CharactersPagingSource(
     private val mapper: Mapper,
     private val utils: Utils,
     private val loader: suspend (pageIndex: Int) -> AllCharactersResponse?
-) :
-    PagingSource<Int, CharacterModel>() {
+) : PagingSource<Int, CharacterModel>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CharacterModel> {
         val pageIndex = params.key ?: START_PAGE

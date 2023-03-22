@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 @ApplicationScope
 @Component(modules = [ViewModelsModule::class, DataModule::class, NetworkModule::class, LocalModule::class])
 interface ApplicationComponent {
+
     fun injectMainActivity(activity: MainActivity)
     fun injectCharacterDetailsFragment(fragment: CharacterDetailsFragment)
     fun injectCharacterFilterFragment(fragment: CharacterFilterFragment)

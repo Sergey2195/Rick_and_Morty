@@ -2,7 +2,7 @@ package com.aston.rickandmorty.data.remoteDataSource.models
 
 import com.google.gson.annotations.SerializedName
 
-data class AllCharactersResponse (
+data class AllCharactersResponse(
     @SerializedName("info")
     val pageInfo: PageInfoResponse? = null,
 

@@ -1,7 +1,6 @@
 package com.aston.rickandmorty.presentation.activities
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.addCallback
@@ -19,12 +18,11 @@ import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.flow.dropWhile
-import kotlinx.coroutines.flow.filter
 import javax.inject.Inject
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity(), ToolbarManager {
+
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }

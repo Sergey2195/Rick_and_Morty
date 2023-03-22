@@ -15,9 +15,6 @@ interface CharactersDao {
     @Query("SELECT * FROM CharactersTable")
     fun getAllFromDb(): Flow<List<CharacterInfoDto>>
 
-    @Query("DELETE FROM CharactersTable")
-    suspend fun deleteAllCharactersData()
-
     @Query("SELECT * FROM CharactersTable WHERE characterId == :id LIMIT 1")
     suspend fun getSingleCharacter(id: Int): CharacterInfoDto?
 }

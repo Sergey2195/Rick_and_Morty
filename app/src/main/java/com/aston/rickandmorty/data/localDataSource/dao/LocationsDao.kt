@@ -10,14 +10,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LocationsDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addLocation(data: LocationInfoDto)
 
     @Query("SELECT * FROM LocationsTable")
     fun getAllFromDb(): Flow<List<LocationInfoDto>>
-
-    @Query("DELETE FROM LocationsTable")
-    suspend fun deleteAllLocationsData()
 
     @Query("SELECT * FROM LocationsTable WHERE locationId == :id LIMIT 1")
     suspend fun getSingleLocation(id: Int): LocationInfoDto?

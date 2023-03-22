@@ -11,6 +11,7 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
     private val apiCall: CharactersApiCall,
     private val sharedRepository: SharedRepository
 ) : CharactersRemoteRepository {
+
     override suspend fun getAllCharacters(
         pageIndex: Int,
         arrayFilter: Array<String?>
@@ -59,7 +60,7 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
         ).map { it.pageInfo?.countOfElements }
     }
 
-    private fun isConnected(): Boolean{
+    private fun isConnected(): Boolean {
         return sharedRepository.getStateFlowIsConnected().value
     }
 }

@@ -135,12 +135,12 @@ class Mapper @Inject constructor(
 
     fun transformListStringsToIds(src: List<String>?): String? {
         if (src == null) return null
-        return src.map { "/${utils.getLastIntAfterSlash(it)}"}.joinToString(separator = ",")
+        return src.map { "/${utils.getLastIntAfterSlash(it)}" }.joinToString(separator = ",")
     }
 
-    fun transformListStringIdToStringWithoutSlash(src: List<String>?): String?{
+    fun transformListStringIdToStringWithoutSlash(src: List<String>?): String? {
         if (src == null) return null
-        return transformListStringsToIds(src)?.replace("/","")
+        return transformListStringsToIds(src)?.replace("/", "")
     }
 
     private fun transformStringIdToList(src: String?): List<String>? {
@@ -231,8 +231,11 @@ class Mapper @Inject constructor(
         )
     }
 
-  fun configurationEpisodeDetailsModel(episode: EpisodeInfoRemote?, characters: List<CharacterModel>): EpisodeDetailsModel?{
-        if (episode == null) return  null
+    fun configurationEpisodeDetailsModel(
+        episode: EpisodeInfoRemote?,
+        characters: List<CharacterModel>
+    ): EpisodeDetailsModel? {
+        if (episode == null) return null
         return EpisodeDetailsModel(
             id = episode.episodeId ?: 0,
             name = episode.episodeName ?: "",
@@ -242,7 +245,7 @@ class Mapper @Inject constructor(
         )
     }
 
-    fun transformIdWithStringAndSlashIntoInt(str: String): Int{
+    fun transformIdWithStringAndSlashIntoInt(str: String): Int {
         return str.replace("/", "").toInt()
     }
 

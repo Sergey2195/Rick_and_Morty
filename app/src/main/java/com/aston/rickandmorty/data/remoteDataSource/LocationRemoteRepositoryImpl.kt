@@ -11,6 +11,7 @@ class LocationRemoteRepositoryImpl @Inject constructor(
     private val apiCall: LocationsApiCall,
     private val sharedRepository: SharedRepository
 ): LocationRemoteRepository {
+
     override suspend fun getAllLocations(
         pageIndex: Int,
         filter: Array<String?>

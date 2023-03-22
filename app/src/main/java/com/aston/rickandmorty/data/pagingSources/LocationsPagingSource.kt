@@ -11,8 +11,7 @@ class LocationsPagingSource(
     private val mapper: Mapper,
     private val utils: Utils,
     private val loader: suspend (pageIndex: Int) -> AllLocationsResponse?
-) :
-    PagingSource<Int, LocationModel>() {
+) : PagingSource<Int, LocationModel>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LocationModel> {
         val pageIndex = params.key ?: START_PAGE

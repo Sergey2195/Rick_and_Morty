@@ -51,6 +51,7 @@ class CharactersLocalRepositoryImpl @Inject constructor(
         val pageInfoResponse = PageInfoResponse(filtered.size, countPages, nextPage, prevPage)
         return AllCharactersResponse(pageInfoResponse, filteredItemsPage)
     }
+
     override suspend fun addCharacter(data: CharacterInfoRemote?) {
         if (data == null) return
         charactersDao.addCharacter(mapper.transformCharacterInfoRemoteIntoCharacterInfoDto(data))
@@ -61,13 +62,13 @@ class CharactersLocalRepositoryImpl @Inject constructor(
     }
 
     override fun getCountOfCharacters(filters: Array<String?>): Single<Int> {
-        val count = allCharactersData.count { dto->
+        val count = allCharactersData.count { dto ->
             filteringCharacter(dto, filters)
         }
         return Single.just(count)
     }
 
-    private fun filteringCharacter(dto: CharacterInfoDto, filters: Array<String?>): Boolean{
+    private fun filteringCharacter(dto: CharacterInfoDto, filters: Array<String?>): Boolean {
         return utils.filteringItem(filters[0], dto.characterName) && utils.filteringItem(
             filters[1],
             dto.characterStatus

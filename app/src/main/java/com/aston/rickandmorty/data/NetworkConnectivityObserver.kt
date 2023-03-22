@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Context.CONNECTIVITY_SERVICE
 import android.net.ConnectivityManager
 import android.net.Network
-import android.os.Build
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -28,8 +27,8 @@ class NetworkConnectivityObserver @Inject constructor(
     }
 
     override fun observe(): Flow<ConnectivityObserver.Status> {
-        return callbackFlow{
-            val callback = object : ConnectivityManager.NetworkCallback(){
+        return callbackFlow {
+            val callback = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
                     super.onAvailable(network)
                     launch { send(ConnectivityObserver.Status.Available) }

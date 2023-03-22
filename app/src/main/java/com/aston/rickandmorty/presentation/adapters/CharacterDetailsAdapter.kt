@@ -13,6 +13,7 @@ import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAd
 import com.aston.rickandmorty.presentation.viewHolders.*
 
 class CharacterDetailsAdapter : RecyclerView.Adapter<CharacterDetailsViewHolder>() {
+
     private var data: List<CharacterDetailsModelAdapter> = emptyList()
     var locationClickListener: ((id: Int) -> Unit)? = null
     var episodeClickListener: ((id: Int) -> Unit)? = null

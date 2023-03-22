@@ -6,10 +6,6 @@ import javax.inject.Inject
 @ApplicationScope
 class LocalRepositoriesUtils @Inject constructor() {
 
-    fun checkIsNotFullData(localItems: Int?, remoteItems: Int?): Boolean {
-        return (localItems ?: -1) < (remoteItems ?: -1)
-    }
-
     fun getPageString(value: Int): String {
         return "/page=${value}"
     }

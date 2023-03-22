@@ -8,8 +8,9 @@ import com.aston.rickandmorty.databinding.DefaultLoadStateBinding
 import com.aston.rickandmorty.presentation.viewHolders.LoadStateViewHolder
 
 class DefaultLoadStateAdapter(
-    private val tryAgain: ()-> Unit
-): LoadStateAdapter<LoadStateViewHolder>() {
+    private val tryAgain: () -> Unit
+) : LoadStateAdapter<LoadStateViewHolder>() {
+
     override fun onBindViewHolder(holder: LoadStateViewHolder, loadState: LoadState) {
         holder.populate(loadState, tryAgain)
     }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class EpisodesLocalRepositoryImpl @Inject constructor(
+
     private val mapper: Mapper,
     private val episodesDao: EpisodesDao,
     private val applicationScope: CoroutineScope,
@@ -31,10 +32,7 @@ class EpisodesLocalRepositoryImpl @Inject constructor(
         pageIndex: Int,
         filters: Array<String?>
     ): AllEpisodesResponse? {
-        val filtered = allEpisodesData.filter { dto ->
-            utils.filteringItem(filters[0], dto.episodeName)
-                    && utils.filteringItem(filters[1], dto.episodeNumber)
-        }
+        val filtered = allEpisodesData.filter { filter(filters, it)}
         if (filtered.isEmpty()) return null
         val filteredItemsPage = filtered
             .take(pageIndex * PAGE_SIZE)
@@ -60,12 +58,7 @@ class EpisodesLocalRepositoryImpl @Inject constructor(
     }
 
     override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
-        val count = allEpisodesData.filter {
-            utils.filteringItem(filters[0], it.episodeName) && utils.filteringItem(
-                filters[1],
-                it.episodeNumber
-            )
-        }.size
+        val count = allEpisodesData.count { filter(filters, it) }
         return Single.just(count)
     }
 
@@ -73,5 +66,10 @@ class EpisodesLocalRepositoryImpl @Inject constructor(
         episodesDao.getAllFromDb().collect { list ->
             allEpisodesData = list.sortedBy { it.episodeId }
         }
+    }
+
+    private fun filter(filters: Array<String?>, dto: EpisodeInfoDto): Boolean {
+        return utils.filteringItem(filters[0], dto.episodeName)
+                && utils.filteringItem(filters[1], dto.episodeNumber)
     }
 }

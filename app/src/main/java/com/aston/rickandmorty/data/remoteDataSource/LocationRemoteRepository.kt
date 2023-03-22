@@ -5,6 +5,7 @@ import com.aston.rickandmorty.data.remoteDataSource.models.LocationInfoRemote
 import io.reactivex.Single
 
 interface LocationRemoteRepository {
+
     suspend fun getAllLocations(
         pageIndex: Int,
         filter: Array<String?>

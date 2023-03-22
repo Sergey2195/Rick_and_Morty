@@ -2,7 +2,6 @@ package com.aston.rickandmorty.presentation.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,12 +31,13 @@ class CharacterDetailsFragment : Fragment() {
     private val component by lazy {
         ((requireActivity().application) as App).component
     }
+
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
-    private val viewModel: CharactersViewModel by viewModels({activity as MainActivity}) {
+    private val viewModel: CharactersViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
     private val adapter = CharacterDetailsAdapter()
@@ -73,16 +73,16 @@ class CharacterDetailsFragment : Fragment() {
     }
 
     private fun setupSwipeListener() {
-        (requireActivity() as ToolbarManager).setRefreshClickListener{
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
             loadData(true)
         }
     }
 
-    private fun loadData(forceUpdate: Boolean = false){
+    private fun loadData(forceUpdate: Boolean = false) {
         viewModel.loadInfoAboutCharacter(id!!, forceUpdate)
     }
 
-    private fun observeData(){
+    private fun observeData() {
         lifecycleScope.launchWhenStarted {
             viewModel.dataForAdapter.collect { list ->
                 adapter.submitList(list)

@@ -8,6 +8,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface CharactersApiCall {
+
     @GET("character/")
     suspend fun getAllCharacterData(
         @Query("page") page: Int,

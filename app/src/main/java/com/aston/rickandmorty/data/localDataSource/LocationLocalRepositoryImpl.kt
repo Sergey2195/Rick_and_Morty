@@ -3,10 +3,10 @@ package com.aston.rickandmorty.data.localDataSource
 import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.LocationsDao
 import com.aston.rickandmorty.data.localDataSource.models.LocationInfoDto
+import com.aston.rickandmorty.data.mappers.Mapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllLocationsResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.LocationInfoRemote
 import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
-import com.aston.rickandmorty.data.mappers.Mapper
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -40,11 +40,7 @@ class LocationLocalRepositoryImpl @Inject constructor(
         pageIndex: Int,
         filter: Array<String?>
     ): AllLocationsResponse? {
-        val filtered = allLocationData.filter { dto ->
-            utils.filteringItem(filter[0], dto.locationName)
-                    && utils.filteringItem(filter[1], dto.locationType)
-                    && utils.filteringItem(filter[2], dto.locationDimension)
-        }
+        val filtered = allLocationData.filter { filtering(filter, it) }
         if (filtered.isEmpty()) return null
         val filteredItemsPage = filtered
             .take(pageIndex * PAGE_SIZE)
@@ -68,11 +64,13 @@ class LocationLocalRepositoryImpl @Inject constructor(
     }
 
     override fun getCountOfLocations(filters: Array<String?>): Single<Int> {
-        val count = allLocationData.count {
-            utils.filteringItem(filters[0], it.locationName) &&
-                    utils.filteringItem(filters[1], it.locationType) &&
-                    utils.filteringItem(filters[2], it.locationDimension)
-        }
+        val count = allLocationData.count { filtering(filters, it) }
         return Single.just(count)
+    }
+
+    private fun filtering(filters: Array<String?>, dto: LocationInfoDto): Boolean{
+        return utils.filteringItem(filters[0], dto.locationName) &&
+                utils.filteringItem(filters[1], dto.locationType) &&
+                utils.filteringItem(filters[2], dto.locationDimension)
     }
 }

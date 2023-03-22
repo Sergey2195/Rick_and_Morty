@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.aston.rickandmorty.domain.entity.LocationModel
 
 class LocationsDiffUtilsCallback: DiffUtil.ItemCallback<LocationModel>() {
+
     override fun areItemsTheSame(oldItem: LocationModel, newItem: LocationModel): Boolean {
         return oldItem.id == newItem.id
     }

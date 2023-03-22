@@ -21,7 +21,6 @@ import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 
-
 class LocationDetailsFragment : Fragment() {
 
     private var id: Int? = null

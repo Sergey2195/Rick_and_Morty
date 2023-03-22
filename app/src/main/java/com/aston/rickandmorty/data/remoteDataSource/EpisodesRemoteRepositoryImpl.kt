@@ -13,6 +13,7 @@ class EpisodesRemoteRepositoryImpl @Inject constructor(
     private val charactersRemoteRepository: CharactersRemoteRepository,
     private val sharedRepository: SharedRepository
 ) : EpisodesRemoteRepository {
+
     override suspend fun getAllEpisodes(
         pageIndex: Int,
         filters: Array<String?>

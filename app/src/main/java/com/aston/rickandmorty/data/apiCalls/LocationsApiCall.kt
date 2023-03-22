@@ -8,6 +8,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface LocationsApiCall {
+
     @GET("location")
     suspend fun getAllLocations(
         @Query("page") page: Int,
