@@ -1,6 +1,5 @@
 package com.aston.rickandmorty.presentation.viewHolders
 
-import android.view.View
 import androidx.core.view.isVisible
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView.ViewHolder

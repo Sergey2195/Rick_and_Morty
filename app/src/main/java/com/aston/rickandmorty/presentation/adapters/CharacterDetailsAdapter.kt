@@ -7,13 +7,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.CharacterDetailsImageBinding
 import com.aston.rickandmorty.databinding.DetailsTitleValueBinding
+import com.aston.rickandmorty.databinding.EpisodeItemBinding
+import com.aston.rickandmorty.databinding.LocationItemBinding
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAdapter
-import com.aston.rickandmorty.presentation.viewHolders.CharacterDetailsViewHolder
-import com.aston.rickandmorty.presentation.viewHolders.CharacterDetailsViewHolderImage
-import com.aston.rickandmorty.presentation.viewHolders.CharacterDetailsViewHolderTitleValue
+import com.aston.rickandmorty.presentation.viewHolders.*
 
 class CharacterDetailsAdapter : RecyclerView.Adapter<CharacterDetailsViewHolder>() {
     private var data: List<CharacterDetailsModelAdapter> = emptyList()
+    var locationClickListener: ((id: Int) -> Unit)? = null
+    var episodeClickListener: ((id: Int) -> Unit)? = null
 
     @SuppressLint("NotifyDataSetChanged")
     fun submitList(list: List<CharacterDetailsModelAdapter>) {
@@ -32,6 +34,14 @@ class CharacterDetailsAdapter : RecyclerView.Adapter<CharacterDetailsViewHolder>
                 val binding = DetailsTitleValueBinding.inflate(inflater, parent, false)
                 CharacterDetailsViewHolderTitleValue(binding)
             }
+            R.layout.location_item -> {
+                val binding = LocationItemBinding.inflate(inflater, parent, false)
+                CharacterDetailsViewHolderLocation(binding)
+            }
+            R.layout.episode_item -> {
+                val binding = EpisodeItemBinding.inflate(inflater, parent, false)
+                CharacterDetailsViewHolderEpisodes(binding)
+            }
             else -> throw java.lang.RuntimeException("onCreateViewHolder CharacterDetailsAdapter unknown type")
         }
     }
@@ -42,7 +52,12 @@ class CharacterDetailsAdapter : RecyclerView.Adapter<CharacterDetailsViewHolder>
 
     override fun onBindViewHolder(holder: CharacterDetailsViewHolder, position: Int) {
         val itemData = data[position]
-        holder.populate(itemData)
+        val clickListener = when (holder.itemViewType) {
+            R.layout.location_item -> locationClickListener
+            R.layout.episode_item -> episodeClickListener
+            else -> null
+        }
+        holder.populate(itemData, clickListener)
     }
 
     override fun getItemViewType(position: Int): Int {

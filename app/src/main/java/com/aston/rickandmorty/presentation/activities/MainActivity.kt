@@ -11,21 +11,22 @@ import androidx.core.view.isVisible
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.ActivityMainBinding
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.toolbarAndSearchManager.ToolbarAndSearchManager
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
 import kotlin.math.abs
 
-class MainActivity : AppCompatActivity(), ToolbarAndSearchManager {
-    private lateinit var binding: ActivityMainBinding
+class MainActivity : AppCompatActivity(), ToolbarManager {
+    private val binding: ActivityMainBinding by lazy {
+        ActivityMainBinding.inflate(layoutInflater)
+    }
     private val viewModel: MainViewModel by viewModels()
     private var isOnParentScreen = true
     private var toolBarBackButtonClickListener: OnClickListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        connectToRouter()
-        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        connectToRouter()
         if (savedInstanceState == null) {
             viewModel.openCharacterFragment()
         }
@@ -90,8 +91,8 @@ class MainActivity : AppCompatActivity(), ToolbarAndSearchManager {
             binding.filterButton.isVisible = isCollapsed
         } else {
             binding.backButtonOnToolbar.isVisible = isCollapsed
-            binding.toolbarTextView.isVisible = isCollapsed
         }
+        binding.toolbarTextView.isVisible = isCollapsed
     }
 
     private fun setupSwipeRefreshLayout() {
@@ -110,13 +111,17 @@ class MainActivity : AppCompatActivity(), ToolbarAndSearchManager {
         binding.toolbarTextView.text = text
     }
 
-    override fun setSearchClickListener(clickListener: OnClickListener?) {
+    override fun setBackButtonClickListener(clickListener: OnClickListener?) {
+        toolBarBackButtonClickListener = clickListener
+        binding.backButtonOnToolbar.setOnClickListener(clickListener)
+    }
+
+    override fun setSearchButtonClickListener(clickListener: OnClickListener?) {
         binding.searchButton.setOnClickListener(clickListener)
     }
 
-    override fun setBackButtonClickLister(clickListener: OnClickListener?) {
-        toolBarBackButtonClickListener = clickListener
-        binding.backButtonOnToolbar.setOnClickListener(clickListener)
+    override fun setFilterButtonClickListener(clickListener: OnClickListener?) {
+        binding.filterButton.setOnClickListener(clickListener)
     }
 
     private fun changeVisibilityToolBarElements(
@@ -149,7 +154,6 @@ class MainActivity : AppCompatActivity(), ToolbarAndSearchManager {
             return
         }
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-            if (!viewModel.isOnParentFragment()) binding.backButtonOnToolbar.callOnClick()
             when (item.itemId) {
                 R.id.charactersBottomBtn -> {
                     openCharactersFragment()

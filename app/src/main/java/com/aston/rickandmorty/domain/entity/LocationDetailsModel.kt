@@ -5,6 +5,5 @@ data class LocationDetailsModel(
     val locationName: String,
     val locationType: String,
     val dimension: String,
-    val residents: List<String>,
-    val created: String
+    val characters: List<CharacterModel>
 )

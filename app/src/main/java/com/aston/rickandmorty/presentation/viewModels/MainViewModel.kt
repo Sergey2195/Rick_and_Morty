@@ -4,11 +4,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.router.Router
+import javax.inject.Inject
 
-class MainViewModel : ViewModel() {
+class MainViewModel @Inject constructor() : ViewModel() {
     private var router: Router? = null
-    private var onParentFragment = true
-    val searchCharacterLiveData = MutableLiveData<String>()
     val isOnParentLiveData = MutableLiveData(true)
 
     init {
@@ -21,10 +20,6 @@ class MainViewModel : ViewModel() {
 
     fun detachRouter() {
         router?.onDestroy()
-    }
-
-    fun isOnParentFragment(): Boolean {
-        return onParentFragment
     }
 
     fun openCharacterFragment() {
@@ -41,19 +36,5 @@ class MainViewModel : ViewModel() {
 
     fun setIsOnParentLiveData(isOnParent: Boolean){
         isOnParentLiveData.postValue(isOnParent)
-    }
-
-    fun addSearchCharacterLiveData(search: String) {
-        searchCharacterLiveData.value = search
-    }
-
-    fun clearSearchCharacterLiveData() {
-        searchCharacterLiveData.value = ""
-    }
-
-    companion object{
-        const val CHARACTER_SCREEN = 1
-        const val LOCATION_SCREEN = 2
-        const val EPISODES_SCREEN = 3
     }
 }

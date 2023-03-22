@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class PageInfoResponse(
     @SerializedName("count")
-    val countCharacters: Int? = null,
+    val countOfElements: Int? = null,
 
     @SerializedName("pages")
     val countPages: Int? = null,

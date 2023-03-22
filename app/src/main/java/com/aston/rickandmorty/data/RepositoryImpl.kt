@@ -3,35 +3,77 @@ package com.aston.rickandmorty.data
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.aston.rickandmorty.data.apiCalls.RetrofitApiCall
+import com.aston.rickandmorty.data.apiCalls.ApiCall
+import com.aston.rickandmorty.data.localDataSource.LocalRepository
+import com.aston.rickandmorty.data.models.CharacterInfoRemote
+import com.aston.rickandmorty.data.models.LocationInfoRemote
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
+import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
 import com.aston.rickandmorty.data.pagingSources.LocationsPagingSource
-import com.aston.rickandmorty.domain.entity.CharacterDetailsModel
-import com.aston.rickandmorty.domain.entity.CharacterModel
-import com.aston.rickandmorty.domain.entity.LocationDetailsModel
-import com.aston.rickandmorty.domain.entity.LocationModel
+import com.aston.rickandmorty.data.remoteDataSource.RemoteRepository
+import com.aston.rickandmorty.di.ApplicationScope
+import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.domain.repository.Repository
 import com.aston.rickandmorty.mappers.Mapper
+import com.aston.rickandmorty.utils.Utils
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-object RepositoryImpl : Repository {
+@ApplicationScope
+class RepositoryImpl @Inject constructor(
+    private val remoteRepository: RemoteRepository,
+    private val localRepository: LocalRepository,
+    private val apiCall: ApiCall
+) : Repository {
 
-    val apiCall = RetrofitApiCall.getCharacterApiCall()
-
-    override fun getFlowAllCharacters(): Flow<PagingData<CharacterModel>> {
+    override fun getFlowAllCharacters(
+        nameFilter: String?,
+        statusFilter: String?,
+        speciesFilter: String?,
+        typeFilter: String?,
+        genderFilter: String?
+    ): Flow<PagingData<CharacterModel>> {
         return Pager(
-            config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
-            pagingSourceFactory = { CharactersPagingSource(apiCall) }
+            config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false, initialLoadSize = PAGE_SIZE),
+            pagingSourceFactory = {
+                CharactersPagingSource { pageIndex ->
+                    val localResponse = localRepository.getAllCharacters(
+                        pageIndex, nameFilter, statusFilter, speciesFilter, typeFilter, genderFilter)
+                    if (localResponse.listCharactersInfo == null) {
+                        remoteRepository.getAllCharacters(
+                            pageIndex,
+                            nameFilter,
+                            statusFilter,
+                            speciesFilter,
+                            typeFilter,
+                            genderFilter
+                        ).also { localRepository.writeResponse(it) }
+                    } else {
+                        localResponse
+                    }
+                }
+            }
         ).flow
     }
 
-    override fun getFlowAllLocations(): Flow<PagingData<LocationModel>> {
+    override fun getFlowAllLocations(
+        nameFilter: String?,
+        typeFilter: String?,
+        dimensionFilter: String?
+    ): Flow<PagingData<LocationModel>> {
         return Pager(
-            config = PagingConfig(pageSize = 20, enablePlaceholders = false, initialLoadSize = 20),
-            pagingSourceFactory = { LocationsPagingSource(apiCall) }
+            config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false, initialLoadSize = PAGE_SIZE),
+            pagingSourceFactory = {
+                LocationsPagingSource { pageIndex ->
+                    apiCall.getAllLocations(
+                        pageIndex,
+                        nameFilter,
+                        typeFilter,
+                        dimensionFilter
+                    )
+                }
+            }
         ).flow
     }
 
@@ -44,9 +86,121 @@ object RepositoryImpl : Repository {
         }
     }
 
+    override fun getFlowAllEpisodes(
+        nameFilter: String?,
+        episodeFilter: String?
+    ): Flow<PagingData<EpisodeModel>> {
+        return Pager(
+            config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false, initialLoadSize = PAGE_SIZE),
+            pagingSourceFactory = {
+                EpisodesPagingSource {
+                    apiCall.getAllEpisodes(it, nameFilter, episodeFilter)
+                }
+            }
+        ).flow
+    }
+
     override fun getSingleLocationData(id: Int): Single<LocationDetailsModel> {
-        return apiCall.getSingleLocationData(id).map { data->
-            Mapper.transformLocationInfoRemoteIntoLocationDetailsModel(data)
+        var locationInfoRemote: LocationInfoRemote? = null
+        return apiCall.getSingleLocationData(id)
+            .flatMap { data ->
+                locationInfoRemote = data
+                val listId =
+                    data.locationResidents?.map { Utils.getLastIntAfterSlash(it) } ?: emptyList()
+                val requestStr = Utils.getStringForMultiId(listId)
+                if (requestStr.contains(',')) {
+                    apiCall.getMultiCharactersDataRx(requestStr)
+                } else {
+                    apiCall.getCharactersDataRx(requestStr)
+                }
+            }.map { data ->
+                val inputList: List<CharacterInfoRemote> = when (data) {
+                    is List<*> -> data as List<CharacterInfoRemote>
+                    else -> listOf(data) as List<CharacterInfoRemote>
+                }
+                val list = Mapper.transformListCharacterInfoRemoteIntoCharacterModel(inputList)
+                Mapper.transformLocationInfoRemoteIntoLocationDetailsModel(
+                    locationInfoRemote!!,
+                    list
+                )
+            }
+    }
+
+    override suspend fun getSingleEpisodeData(id: Int): EpisodeDetailsModel? {
+        return try {
+            val result = apiCall.getSingleEpisodeData(id)
+            val listId =
+                result.episodeCharacters?.map { Utils.getLastIntAfterSlash(it) } ?: emptyList()
+            val requestStr = Utils.getStringForMultiId(listId)
+            var listCharactersModel = emptyList<CharacterModel>()
+            if (requestStr.isNotBlank()) {
+                val characters = apiCall.getMultiCharactersData(requestStr)
+                listCharactersModel =
+                    Mapper.transformListCharacterInfoRemoteIntoCharacterModel(characters)
+            }
+            return Mapper.transformEpisodeInfoRemoteIntoEpisodeDetailsModel(
+                result,
+                listCharactersModel
+            )
+        } catch (e: java.lang.Exception) {
+            null
         }
+    }
+
+    override suspend fun getLocationModel(id: Int): LocationModel? {
+        return try {
+            val response = apiCall.getSingleLocationDataCoroutine(id)
+            Mapper.transformLocationInfoRemoteIntoLocationModel(response)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    override suspend fun getListEpisodeModel(multiId: String): List<EpisodeModel>? {
+        return try {
+            val list = if (multiId.contains(',')) {
+                apiCall.getMultiEpisodesData(multiId)
+            } else {
+                listOf(apiCall.getSingleEpisodeData(multiId.toInt()))
+            }
+            list?.map { Mapper.transformEpisodeInfoRemoteIntoEpisodeModel(it) }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    override fun getCountOfCharacters(
+        nameFilter: String?,
+        statusFilter: String?,
+        speciesFilter: String?,
+        typeFilter: String?,
+        genderFilter: String?
+    ): Single<Int> {
+        return apiCall.getCountOfCharacters(
+            nameFilter,
+            statusFilter,
+            speciesFilter,
+            typeFilter,
+            genderFilter
+        )
+            .map { it.pageInfo?.countOfElements }
+    }
+
+    override fun getCountOfLocations(
+        nameFilter: String?,
+        typeFilter: String?,
+        dimensionFilter: String?
+    ): Single<Int> {
+        return apiCall.getCountOfLocations(nameFilter, typeFilter, dimensionFilter)
+            .map { it.pageInfo?.countOfElements }
+    }
+
+    override fun getCountOfEpisodes(nameFilter: String?, episodeFilter: String?): Single<Int> {
+        return apiCall.getCountOfEpisodes(nameFilter, episodeFilter)
+            .map { it.pageInfo?.countOfElements }
+    }
+
+    companion object {
+        private const val PAGE_SIZE = 20
     }
 }
