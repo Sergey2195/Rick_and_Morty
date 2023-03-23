@@ -52,6 +52,8 @@ class EpisodesAllFragment : Fragment() {
         arguments?.let {
             arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
         }
+        setupRefreshListener()
+        sendParametersAndObserve(false)
     }
 
     override fun onCreateView(
@@ -65,8 +67,6 @@ class EpisodesAllFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
-        sendParametersAndObserve(false)
-        setupRefreshListener()
     }
 
     private fun setupRefreshListener() {

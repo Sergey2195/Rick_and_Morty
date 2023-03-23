@@ -50,8 +50,6 @@ class LocationAllFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
-        setupObserversWithSetForceUpdate(false)
-        setupSwipeListener()
     }
 
     private fun setupSwipeListener(){
@@ -67,6 +65,8 @@ class LocationAllFragment : Fragment() {
         arguments?.let {
             arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
         }
+        setupObserversWithSetForceUpdate(false)
+        setupSwipeListener()
     }
 
     private fun setupObserversWithSetForceUpdate(forceUpdate: Boolean = false) {

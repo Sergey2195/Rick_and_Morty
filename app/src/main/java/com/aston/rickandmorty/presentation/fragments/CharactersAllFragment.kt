@@ -52,6 +52,8 @@ class CharactersAllFragment : Fragment() {
         arguments?.let {
             arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
         }
+        setupObservers(false)
+        setupRefreshListener()
     }
 
     override fun onCreateView(
@@ -65,8 +67,6 @@ class CharactersAllFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
-        setupObservers(false)
-        setupRefreshListener()
     }
 
     private fun setupRefreshListener() {
