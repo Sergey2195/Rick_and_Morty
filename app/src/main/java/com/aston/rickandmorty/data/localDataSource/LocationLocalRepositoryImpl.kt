@@ -44,10 +44,7 @@ class LocationLocalRepositoryImpl @Inject constructor(
     ): AllLocationsResponse? {
         val filtered = allLocationData.filter { filtering(filter, it) }
         if (filtered.isEmpty()) return null
-        val filteredItemsPage = filtered
-            .take(pageIndex * PAGE_SIZE)
-            .drop((pageIndex - 1) * PAGE_SIZE)
-            .map { mapper.transformLocationInfoDtoIntoLocationInfoRemote(it) }
+        val filteredItemsPage = takePage(filtered, pageIndex)
         if (filteredItemsPage.isEmpty()) return null
         val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
         val prevPage = if (pageIndex > 1) utils.getPageString(pageIndex - 1) else null
@@ -74,5 +71,12 @@ class LocationLocalRepositoryImpl @Inject constructor(
         return utils.filteringItem(filters[0], dto.locationName) &&
                 utils.filteringItem(filters[1], dto.locationType) &&
                 utils.filteringItem(filters[2], dto.locationDimension)
+    }
+
+    private fun takePage(filtered: List<LocationInfoDto>, pageIndex: Int): List<LocationInfoRemote>{
+        return filtered
+            .take(pageIndex * PAGE_SIZE)
+            .drop((pageIndex - 1) * PAGE_SIZE)
+            .map { mapper.transformLocationInfoDtoIntoLocationInfoRemote(it) }
     }
 }

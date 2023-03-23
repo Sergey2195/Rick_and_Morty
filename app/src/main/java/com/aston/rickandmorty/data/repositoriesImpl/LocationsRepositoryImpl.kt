@@ -119,17 +119,18 @@ class LocationsRepositoryImpl @Inject constructor(
             .map {
                 setLoading(false)
                 mapper.transformLocationInfoRemoteInfoLocationDetailsModelWithIds(it)
-            }
+            }.doOnError { setLoading(false) }
     }
 
 
     override suspend fun getLocationModel(id: Int, forceUpdate: Boolean): LocationModel? =
         withContext(Dispatchers.IO) {
+            setLoading(true)
             if (forceUpdate) return@withContext downloadAndUpdateLocationData(id)
             val localData = localRepository.getLocationInfo(id)
                 ?: return@withContext downloadAndUpdateLocationData(id)
             mapper.transformLocationInfoRemoteIntoLocationModel(localData)
-        }
+        }.also { setLoading(false) }
 
     private suspend fun downloadAndUpdateLocationData(id: Int): LocationModel? =
         withContext(Dispatchers.IO) {

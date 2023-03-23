@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.data
 
 import android.app.Application
+import android.util.Log
 import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.repository.SharedRepository
 import kotlinx.coroutines.CoroutineScope
@@ -35,6 +36,7 @@ class SharedRepositoryImpl @Inject constructor(
 
     override fun setLoadingProgressStateFlow(isLoading: Boolean) {
         loadingProgressStateFlow.value = isLoading
+        Log.d("SSV_REP", "set loading $isLoading")
     }
 
 
