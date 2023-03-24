@@ -98,9 +98,9 @@ class LocationsRepositoryImpl @Inject constructor(
         id: Int,
         forceUpdate: Boolean
     ): Single<LocationDetailsModelWithId> {
+        setLoading(true)
         if (forceUpdate) return getSingleLocationDataWithForceUpdate(id)
         return localRepository.getSingleLocationInfoRx(id).flatMap { data ->
-            setLoading(true)
             if (data.locationId == null) {
                 return@flatMap remoteRepository.getSingleLocationData(id).map {
                     mapper.transformLocationInfoRemoteInfoLocationDetailsModelWithIds(it)
@@ -110,7 +110,7 @@ class LocationsRepositoryImpl @Inject constructor(
                     it.onSuccess(mapper.transformLocationDtoIntoLocationDetailsWithIds(data))
                 }
             }
-        }.also { setLoading(false) }
+        }.doAfterTerminate { setLoading(false) }
     }
 
     private fun getSingleLocationDataWithForceUpdate(id: Int): Single<LocationDetailsModelWithId> {

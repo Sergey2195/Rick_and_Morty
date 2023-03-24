@@ -1,5 +1,6 @@
 package com.aston.rickandmorty.data.repositoriesImpl
 
+import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -99,6 +100,7 @@ class CharactersRepositoryImpl @Inject constructor(
 
     override suspend fun getCharacterData(id: Int, forceUpdate: Boolean): CharacterDetailsModel? =
         withContext(Dispatchers.IO) {
+            Log.d("SSV_R", "$id")
             setLoading(true)
             if (forceUpdate) return@withContext downloadAndUpdateCharacterData(id)
             val localData = localRepository.getCharacterInfo(id)
