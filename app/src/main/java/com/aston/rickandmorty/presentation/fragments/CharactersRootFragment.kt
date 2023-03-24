@@ -25,7 +25,6 @@ class CharactersRootFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component = App.getAppComponent()
     private val charactersViewModel: CharactersViewModel by viewModels({activity as MainActivity }) {
         viewModelFactory
     }
@@ -34,7 +33,7 @@ class CharactersRootFragment : Fragment() {
         get() = _binding!!
 
     override fun onAttach(context: Context) {
-        component.injectCharactersRootFragment(this)
+        App.getAppComponent().injectCharactersRootFragment(this)
         super.onAttach(context)
     }
 

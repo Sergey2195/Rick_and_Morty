@@ -30,7 +30,6 @@ class LocationAllFragment : Fragment() {
         get() = _binding!!
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component = App.getAppComponent()
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
@@ -43,7 +42,7 @@ class LocationAllFragment : Fragment() {
     private var jobObserve: Job? = null
 
     override fun onAttach(context: Context) {
-        component.injectLocationAllFragment(this)
+        App.getAppComponent().injectLocationAllFragment(this)
         super.onAttach(context)
     }
 

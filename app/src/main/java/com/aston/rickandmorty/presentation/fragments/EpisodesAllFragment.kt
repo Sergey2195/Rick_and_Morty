@@ -36,14 +36,13 @@ class EpisodesAllFragment : Fragment() {
     private val viewModel: EpisodesViewModel by viewModels({activity as MainActivity }) {
         viewModelFactory
     }
-    private val component = App.getAppComponent()
     private val adapter = EpisodesAdapter()
     private var gridLayoutManager: GridLayoutManager? = null
     private var arrayFilter: Array<String?> = Array(2) { null }
     private var jobObserver: Job? = null
 
     override fun onAttach(context: Context) {
-        component.injectEpisodesAllFragment(this)
+        App.getAppComponent().injectEpisodesAllFragment(this)
         super.onAttach(context)
     }
 

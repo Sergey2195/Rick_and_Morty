@@ -13,6 +13,7 @@ interface CharactersRepository {
     ): Flow<PagingData<CharacterModel>>
 
     suspend fun getCharacterData(id: Int, forceUpdate: Boolean): CharacterDetailsModel?
+    suspend fun getListCharactersData(listId: List<Int>, forceUpdate: Boolean): List<CharacterModel>
     fun getCountOfCharacters(filters: Array<String?>): Single<Int>
-    suspend fun getMultiCharacterModel(multiId: String): List<CharacterModel>
+    suspend fun getMultiCharacterModelOnlyRemote(multiId: String): List<CharacterModel>
 }

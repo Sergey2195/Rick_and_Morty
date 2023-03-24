@@ -30,10 +30,9 @@ class EpisodesRootFragment : Fragment() {
     private val episodeViewModel: EpisodesViewModel by viewModels({activity as MainActivity }) {
         viewModelFactory
     }
-    private val component = App.getAppComponent()
 
     override fun onAttach(context: Context) {
-        component.injectEpisodesRootFragment(this)
+        App.getAppComponent().injectEpisodesRootFragment(this)
         super.onAttach(context)
     }
 

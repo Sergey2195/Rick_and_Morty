@@ -28,7 +28,6 @@ class LocationDetailsFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component = App.getAppComponent()
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
@@ -39,9 +38,10 @@ class LocationDetailsFragment : Fragment() {
     private var _binding: FragmentLocationDetailsBinding? = null
     private val binding
         get() = _binding!!
+    private var titleText: String? = null
 
     override fun onAttach(context: Context) {
-        component.injectLocationDetailsFragment(this)
+        App.getAppComponent().injectLocationDetailsFragment(this)
         super.onAttach(context)
     }
 
@@ -51,11 +51,15 @@ class LocationDetailsFragment : Fragment() {
             id = it.getInt(ID)
             container = it.getInt(CONTAINER)
         }
+        loadData(false)
+        setupObservers()
+        setupRefreshListener()
     }
 
     override fun onStart() {
         super.onStart()
         mainViewModel.setIsOnParentLiveData(false)
+        setToolBarText(titleText)
     }
 
     override fun onCreateView(
@@ -79,9 +83,6 @@ class LocationDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclersView()
-        loadData(false)
-        setupObservers()
-        setupRefreshListener()
     }
 
     private fun setupRefreshListener() {
@@ -94,7 +95,8 @@ class LocationDetailsFragment : Fragment() {
         lifecycleScope.launchWhenStarted {
             viewModel.locationDetailsStateFlow.filterNotNull().collect { data ->
                 detailsAdapter.submitList(data)
-                setToolBarText((data[1] as? DetailsModelText)?.text)
+                titleText = (data[1] as? DetailsModelText)?.text
+                setToolBarText(titleText)
             }
         }
     }

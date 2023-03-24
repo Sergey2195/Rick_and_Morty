@@ -28,7 +28,6 @@ class CharacterDetailsFragment : Fragment() {
     private var _binding: FragmentCharacterDetailsBinding? = null
     private val binding
         get() = _binding!!
-    private val component = App.getAppComponent()
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -41,7 +40,7 @@ class CharacterDetailsFragment : Fragment() {
     private val adapter = CharacterDetailsAdapter()
 
     override fun onAttach(context: Context) {
-        component.injectCharacterDetailsFragment(this)
+        App.getAppComponent().injectCharacterDetailsFragment(this)
         super.onAttach(context)
     }
 

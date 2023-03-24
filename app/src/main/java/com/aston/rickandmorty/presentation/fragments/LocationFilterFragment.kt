@@ -33,7 +33,6 @@ class LocationFilterFragment : Fragment() {
         get() = _binding!!
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component = App.getAppComponent()
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
@@ -48,7 +47,7 @@ class LocationFilterFragment : Fragment() {
     private val compositeDisposable = CompositeDisposable()
 
     override fun onAttach(context: Context) {
-        component.injectLocationFilterFragment(this)
+        App.getAppComponent().injectLocationFilterFragment(this)
         super.onAttach(context)
     }
 

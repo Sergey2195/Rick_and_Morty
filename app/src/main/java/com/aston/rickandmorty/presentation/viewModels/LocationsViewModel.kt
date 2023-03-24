@@ -16,10 +16,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -91,24 +89,10 @@ class LocationsViewModel @Inject constructor(
         listId: List<Int>,
         forceUpdate: Boolean
     ): List<CharacterModel> {
-        val listJob = arrayListOf<Job>()
-        val listCharacters = mutableListOf<CharacterModel>()
-        for (characterId in listId) {
-            val job = viewModelScope.launch(Dispatchers.IO) {
-                val characterData = getCharactersInfo(characterId, forceUpdate) ?: return@launch
-                listCharacters.add(characterData)
-            }
-            listJob.add(job)
-        }
-        listJob.joinAll()
-        return listCharacters.sortedBy { it.id }
+        val listCharactersData = characterDetailsUseCase.invoke(listId, forceUpdate)
+        return listCharactersData.sortedBy { it.id }
     }
-
-    private suspend fun getCharactersInfo(id: Int, forceUpdate: Boolean): CharacterModel? {
-        val data = characterDetailsUseCase.invoke(id, forceUpdate)
-        return adaptersUtils.transformCharacterDetailsModelIntoCharacterModel(data)
-    }
-
+    
     private fun prepareDataForAdapter(
         data: LocationDetailsModel
     ): List<DetailsModelAdapter> {

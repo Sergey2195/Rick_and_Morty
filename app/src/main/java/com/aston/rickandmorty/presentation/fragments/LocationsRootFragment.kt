@@ -26,7 +26,6 @@ class LocationsRootFragment : Fragment() {
         get() = _binding!!
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component = App.getAppComponent()
     private val locationViewModel: LocationsViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
@@ -40,7 +39,7 @@ class LocationsRootFragment : Fragment() {
     }
 
     override fun onAttach(context: Context) {
-        component.injectLocationsRootFragment(this)
+        App.getAppComponent().injectLocationsRootFragment(this)
         super.onAttach(context)
     }
 

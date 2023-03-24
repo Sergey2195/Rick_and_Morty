@@ -27,7 +27,6 @@ class CharactersAllFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component = App.getAppComponent()
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
@@ -43,7 +42,7 @@ class CharactersAllFragment : Fragment() {
     private var observerJob: Job? = null
 
     override fun onAttach(context: Context) {
-        component.injectCharactersAllFragment(this)
+        App.getAppComponent().injectCharactersAllFragment(this)
         super.onAttach(context)
     }
 

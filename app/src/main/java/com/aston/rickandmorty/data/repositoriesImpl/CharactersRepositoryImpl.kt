@@ -1,6 +1,5 @@
 package com.aston.rickandmorty.data.repositoriesImpl
 
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -17,11 +16,8 @@ import com.aston.rickandmorty.domain.repository.CharactersRepository
 import com.aston.rickandmorty.domain.repository.SharedRepository
 import com.aston.rickandmorty.utils.Utils
 import io.reactivex.Single
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @ApplicationScope
@@ -100,13 +96,33 @@ class CharactersRepositoryImpl @Inject constructor(
 
     override suspend fun getCharacterData(id: Int, forceUpdate: Boolean): CharacterDetailsModel? =
         withContext(Dispatchers.IO) {
-            Log.d("SSV_R", "$id")
-            setLoading(true)
             if (forceUpdate) return@withContext downloadAndUpdateCharacterData(id)
             val localData = localRepository.getCharacterInfo(id)
                 ?: return@withContext downloadAndUpdateCharacterData(id)
             mapper.transformCharacterInfoDtoIntoCharacterDetailsModel(localData)
-        }.also { setLoading(false) }
+        }
+
+    override suspend fun getListCharactersData(
+        listId: List<Int>,
+        forceUpdate: Boolean
+    ): List<CharacterModel> {
+        setLoading(true)
+        val listJobs = mutableListOf<Job>()
+        val resultList = mutableListOf<CharacterModel>()
+        for (id in listId) {
+            val job = applicationScope.launch {
+                val idData = getCharacterData(id, forceUpdate)
+                val mappedData = mapper.transformCharacterDetailsModelIntoCharacterModel(idData)
+                if (mappedData != null){
+                    resultList.add(mappedData)
+                }
+            }
+            listJobs.add(job)
+        }
+        listJobs.joinAll()
+        setLoading(false)
+        return resultList
+    }
 
     private suspend fun downloadAndUpdateCharacterData(id: Int): CharacterDetailsModel? =
         withContext(Dispatchers.IO) {
@@ -123,7 +139,7 @@ class CharactersRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getMultiCharacterModel(multiId: String): List<CharacterModel> =
+    override suspend fun getMultiCharacterModelOnlyRemote(multiId: String): List<CharacterModel> =
         withContext(Dispatchers.IO) {
             return@withContext mapper.transformListCharacterInfoRemoteIntoCharacterModel(
                 charactersApiCall.getMultiCharactersData(multiId)

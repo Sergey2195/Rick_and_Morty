@@ -42,13 +42,12 @@ class EpisodeFilterFragment : Fragment() {
     private val filterViewModel: EpisodeFilterViewModel by viewModels{
         viewModelFactory
     }
-    private val component = App.getAppComponent()
     private val resultFilter = EpisodeFilterModel()
     private val publishSubject = PublishSubject.create<Unit>()
     private val compositeDisposable = CompositeDisposable()
 
     override fun onAttach(context: Context) {
-        component.injectEpisodeFilterFragment(this)
+        App.getAppComponent().injectEpisodeFilterFragment(this)
         super.onAttach(context)
     }
 

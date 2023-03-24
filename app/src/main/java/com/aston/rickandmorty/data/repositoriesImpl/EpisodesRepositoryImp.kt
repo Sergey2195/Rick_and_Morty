@@ -182,7 +182,7 @@ class EpisodesRepositoryImp @Inject constructor(
             val multiIdString =
                 mapper.transformListStringIdToStringWithoutSlash(remoteData.episodeCharacters) ?: ""
             val charactersModel =
-                charactersRepository.getMultiCharacterModel(multiIdString)
+                charactersRepository.getMultiCharacterModelOnlyRemote(multiIdString)
             return@withContext mapper.configurationEpisodeDetailsModel(remoteData, charactersModel)
         }
 

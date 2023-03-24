@@ -45,10 +45,9 @@ class CharacterFilterFragment : Fragment() {
     private val resultFilter = CharacterFilterModel()
     private val publishSubject = PublishSubject.create<Unit>()
     private val compositeDisposable = CompositeDisposable()
-    private val component = App.getAppComponent()
 
     override fun onAttach(context: Context) {
-        component.injectCharacterFilterFragment(this)
+        App.getAppComponent().injectCharacterFilterFragment(this)
         super.onAttach(context)
     }
     override fun onDetach() {

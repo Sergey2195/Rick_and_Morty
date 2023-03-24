@@ -38,6 +38,7 @@ class EpisodeDetailsFragment : Fragment() {
         viewModelFactory
     }
     private val detailsAdapter = DetailsAdapter()
+    private var titleText: String? = null
 
     override fun onAttach(context: Context) {
         component.injectEpisodeDetailsFragment(this)
@@ -50,6 +51,9 @@ class EpisodeDetailsFragment : Fragment() {
             id = it.getInt(ID)
             container = it.getInt(CONTAINER)
         }
+        setupObserver()
+        sendIdEpisode(false)
+        setupRefreshListener()
     }
 
     override fun onCreateView(
@@ -63,9 +67,6 @@ class EpisodeDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
-        setupObserver()
-        sendIdEpisode(false)
-        setupRefreshListener()
     }
 
     private fun setupRefreshListener() {
@@ -82,7 +83,8 @@ class EpisodeDetailsFragment : Fragment() {
     private fun setupObserver() = lifecycleScope.launchWhenStarted{
         viewModel.episodeDataForAdapter.filterNotNull().collect{ data->
             detailsAdapter.submitList(data)
-            setToolBarTitleText((data[1] as? DetailsModelText)?.text)
+            titleText = (data[1] as? DetailsModelText)?.text
+            setToolBarTitleText(titleText)
         }
     }
 
@@ -114,6 +116,7 @@ class EpisodeDetailsFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         mainViewModel.setIsOnParentLiveData(false)
+        setToolBarTitleText(titleText)
     }
 
     private fun setToolBarTitleText(text: String?) {
