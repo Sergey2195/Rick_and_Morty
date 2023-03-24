@@ -70,8 +70,9 @@ class CharactersRepositoryImpl @Inject constructor(
                 remoteItems?.pageInfo?.countOfElements
             )
         }
-        return@withContext if (isNotFullData) {
-            downloadAndUpdateCharactersData(pageIndex, filters)
+        if (isNotFullData) {
+            val remoteData = downloadAndUpdateCharactersData(pageIndex, filters)
+            remoteData ?: localItems
         } else {
             localItems
         }

@@ -60,7 +60,7 @@ class EpisodesLocalRepositoryImpl @Inject constructor(
 
     override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
         val count = allEpisodesData.count { filter(filters, it) }
-        return Single.just(count)
+        return Single.just(if (count == 0) -1 else count)
     }
 
     private fun collectEpisodesLocalItems() = applicationScope.launch(Dispatchers.IO) {

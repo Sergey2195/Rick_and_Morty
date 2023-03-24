@@ -67,7 +67,9 @@ class CharactersLocalRepositoryImpl @Inject constructor(
         val count = allCharactersData.count { dto ->
             filteringCharacter(dto, filters)
         }
-        return Single.just(count)
+        return Single.just(
+            if (count == 0) -1 else count
+        )
     }
 
     private fun filteringCharacter(dto: CharacterInfoDto, filters: Array<String?>): Boolean {

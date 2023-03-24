@@ -64,7 +64,7 @@ class LocationLocalRepositoryImpl @Inject constructor(
 
     override fun getCountOfLocations(filters: Array<String?>): Single<Int> {
         val count = allLocationData.count { filtering(filters, it) }
-        return Single.just(count)
+        return Single.just(if (count == 0) -1 else count)
     }
 
     private fun filtering(filters: Array<String?>, dto: LocationInfoDto): Boolean{

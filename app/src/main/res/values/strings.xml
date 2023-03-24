@@ -27,7 +27,7 @@
     <string name="gender_male">Male</string>
     <string name="gender_genderless">Genderless</string>
     <string name="gender_unknown">Unknown</string>
-    <string name="save_button_title">Save</string>
+    <string name="save_button_title">Apply</string>
     <string name="search_count">Found %d elements</string>
     <string name="search_not_found">Not found</string>
     <string name="search_initial">Search mode</string>
