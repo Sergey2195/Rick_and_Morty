@@ -4,8 +4,8 @@ import com.aston.rickandmorty.domain.repository.SharedRepository
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
-class GetLoadingProgressStateFlow @Inject constructor(private val rep: SharedRepository) {
-    operator fun invoke(): StateFlow<Boolean>{
-        return rep.loadingProgress()
+class ErrorStateFlowUseCase @Inject constructor(private val rep: SharedRepository) {
+    operator fun invoke(): StateFlow<Boolean> {
+        return rep.errorStateFlow
     }
 }

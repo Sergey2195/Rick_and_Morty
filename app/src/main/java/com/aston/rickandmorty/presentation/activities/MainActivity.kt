@@ -3,6 +3,7 @@ package com.aston.rickandmorty.presentation.activities
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         observeLiveData()
         observeLoadingState()
         observeInternetConnection()
+        observeErrorStateFlow()
     }
 
     private fun observeLoadingState() = lifecycleScope.launchWhenStarted {
@@ -66,26 +68,37 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         }
     }
 
-    private fun observeInternetConnection() = lifecycleScope.launchWhenStarted {
-            val noConnectionSnackBar = Snackbar.make(
-                binding.toolbarTextView,
-                getString(R.string.network_error),
-                Snackbar.LENGTH_INDEFINITE
-            )
-            val connectedSnackBar = Snackbar.make(
-                binding.toolbarTextView,
-                getString(R.string.network_connected),
-                Snackbar.LENGTH_SHORT
-            )
-            var firstShown = true
-            viewModel.getNetworkStatusIsAvailableStateFlow().collect {connected->
-                if (!connected){
-                    noConnectionSnackBar.show()
-                }else if (!firstShown) {
-                    connectedSnackBar.show()
+    private fun observeErrorStateFlow() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.getErrorStateFlow().collect { isError ->
+                if (isError) {
+                    Toast.makeText(this@MainActivity, R.string.error_connection, Toast.LENGTH_SHORT)
+                        .show()
                 }
-                firstShown = false
             }
+        }
+    }
+
+    private fun observeInternetConnection() = lifecycleScope.launchWhenStarted {
+        val noConnectionSnackBar = Snackbar.make(
+            binding.toolbarTextView,
+            getString(R.string.network_error),
+            Snackbar.LENGTH_INDEFINITE
+        )
+        val connectedSnackBar = Snackbar.make(
+            binding.toolbarTextView,
+            getString(R.string.network_connected),
+            Snackbar.LENGTH_SHORT
+        )
+        var firstShown = true
+        viewModel.getNetworkStatusIsAvailableStateFlow().collect { connected ->
+            if (!connected) {
+                noConnectionSnackBar.show()
+            } else if (!firstShown) {
+                connectedSnackBar.show()
+            }
+            firstShown = false
+        }
     }
 
     private fun changeIsOnParentState(isOnParent: Boolean) {

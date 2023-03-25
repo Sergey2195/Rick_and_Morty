@@ -1,24 +1,31 @@
 package com.aston.rickandmorty.data
 
 import android.app.Application
-import android.util.Log
 import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.repository.SharedRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @ApplicationScope
 class SharedRepositoryImpl @Inject constructor(
     application: Application,
+    private val applicationScope: CoroutineScope
 ) : SharedRepository {
 
-    private val loadingProgressStateFlow = MutableStateFlow(true)
+    private val _loadingProgressStateFlow = MutableStateFlow(true)
+    private val loadingProgressStateFlow: StateFlow<Boolean>
+        get() = _loadingProgressStateFlow.asStateFlow()
     private val connectivityObserver = NetworkConnectivityObserver(application)
+    private val _errorConnectionStateFlow = MutableStateFlow(false)
+    override val errorStateFlow: StateFlow<Boolean>
+        get() = _errorConnectionStateFlow
     private val connectionStatusIsAvailable =
         MutableStateFlow(connectivityObserver.isDeviceOnline(application.applicationContext))
 
@@ -30,15 +37,22 @@ class SharedRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getLoadingProgressStateFlow(): StateFlow<Boolean> {
-        return loadingProgressStateFlow.asStateFlow()
+    override fun loadingProgress(): StateFlow<Boolean> {
+        return loadingProgressStateFlow
     }
 
     override fun setLoadingProgressStateFlow(isLoading: Boolean) {
-        loadingProgressStateFlow.value = isLoading
-        Log.d("SSV_REP", "set loading $isLoading")
+        _loadingProgressStateFlow.value = isLoading
     }
 
+    override fun errorConnection(e:Exception) {
+        if (e is HttpException && e.code() == 404) return
+        applicationScope.launch {
+            _errorConnectionStateFlow.value = true
+            delay(100)
+            _errorConnectionStateFlow.value = false
+        }
+    }
 
     override fun getStateFlowIsConnected(): StateFlow<Boolean> {
         return connectionStatusIsAvailable.asStateFlow()

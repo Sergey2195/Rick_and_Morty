@@ -92,7 +92,7 @@ class LocationsViewModel @Inject constructor(
         val listCharactersData = characterDetailsUseCase.invoke(listId, forceUpdate)
         return listCharactersData.sortedBy { it.id }
     }
-    
+
     private fun prepareDataForAdapter(
         data: LocationDetailsModel
     ): List<DetailsModelAdapter> {

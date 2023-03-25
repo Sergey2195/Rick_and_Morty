@@ -35,4 +35,5 @@
     <string name="filter_initial">Режим фильтра</string>
     <string name="network_error">Нет соединения с интернетом. Загружены сохраненные данные</string>
     <string name="network_connected">Соединение восстановлено</string>
+    <string name="error_connection">Произошла ошибка</string>
 </resources>

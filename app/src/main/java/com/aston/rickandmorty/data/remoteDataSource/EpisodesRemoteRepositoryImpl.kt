@@ -24,6 +24,7 @@ class EpisodesRemoteRepositoryImpl @Inject constructor(
         return try {
             apiCall.getAllEpisodes(pageIndex, filters[0], filters[1])
         } catch (e: Exception) {
+            sharedRepository.errorConnection(e)
             null
         }
     }
@@ -33,6 +34,7 @@ class EpisodesRemoteRepositoryImpl @Inject constructor(
         return try {
             apiCall.getSingleEpisodeData(id)
         } catch (e: Exception) {
+            sharedRepository.errorConnection(e)
             null
         }
     }
@@ -44,7 +46,8 @@ class EpisodesRemoteRepositoryImpl @Inject constructor(
 
     override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
         if (!isConnected()) return Single.error(Exception("no connection"))
-        return apiCall.getCountOfEpisodes(filters[0], filters[1]).map { it.pageInfo?.countOfElements}
+        return apiCall.getCountOfEpisodes(filters[0], filters[1]).map { it.pageInfo?.countOfElements ?: -1}
+            .doOnError{sharedRepository.errorConnection(Exception(it))}
     }
 
     private fun isConnected(): Boolean{
