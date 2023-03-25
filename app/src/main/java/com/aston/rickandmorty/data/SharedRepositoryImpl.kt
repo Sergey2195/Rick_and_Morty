@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.data
 
 import android.app.Application
+import android.util.Log
 import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.repository.SharedRepository
 import kotlinx.coroutines.CoroutineScope
@@ -11,6 +12,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import javax.inject.Inject
 
 @ApplicationScope
@@ -46,7 +49,7 @@ class SharedRepositoryImpl @Inject constructor(
     }
 
     override fun errorConnection(e:Exception) {
-        if (e is HttpException && e.code() == 404) return
+        if (e.cause?.message?.contains("404") == true) return
         applicationScope.launch {
             _errorConnectionStateFlow.value = true
             delay(100)

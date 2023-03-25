@@ -6,6 +6,8 @@ import com.aston.rickandmorty.data.remoteDataSource.models.CharacterInfoRemote
 import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.repository.SharedRepository
 import io.reactivex.Single
+import retrofit2.HttpException
+import retrofit2.Response
 import javax.inject.Inject
 
 @ApplicationScope

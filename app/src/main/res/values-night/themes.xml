@@ -14,6 +14,7 @@
         <!-- Customize your theme here. -->
         <item name="selectedItemColor">@color/white</item>
         <item name="unselectedItemColor">@color/grey</item>
+        <item name="detailsTextColor">@color/white</item>
     </style>
     <style name="Theme.RickAndMorty.NoStandardActionBar">
         <item name="windowActionBar">false</item>
