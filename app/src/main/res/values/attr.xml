@@ -3,4 +3,5 @@
     <attr name="selectedItemColor" format="color"/>
     <attr name="unselectedItemColor" format="color"/>
     <attr name="detailsTextColor" format="color"/>
+    <attr name="filterButtonTextColor" format="color"/>
 </resources>

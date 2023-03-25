@@ -186,7 +186,7 @@
 
     <TextView
         android:id="@+id/countResultTextView"
-        style="@style/TitleStyle"
+        style="@style/CountOfFiltratingStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/search_count"
@@ -206,6 +206,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/save_button_title"
+        android:textColor="?attr/filterButtonTextColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -34,4 +34,8 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="CountOfFiltratingStyle" parent="TitleStyle">
+        <item name="android:textColor">?attr/detailsTextColor</item>
+    </style>
+
 </resources>
