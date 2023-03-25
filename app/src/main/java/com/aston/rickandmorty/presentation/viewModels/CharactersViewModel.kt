@@ -4,9 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.aston.rickandmorty.domain.entity.CharacterFilterModel
-import com.aston.rickandmorty.domain.entity.CharacterModel
-import com.aston.rickandmorty.domain.entity.LocationModel
+import com.aston.rickandmorty.domain.entity.*
 import com.aston.rickandmorty.domain.useCases.CharacterAllFlowUseCase
 import com.aston.rickandmorty.domain.useCases.CharacterDetailsUseCase
 import com.aston.rickandmorty.domain.useCases.EpisodesListWithIdsUseCase
@@ -56,26 +54,40 @@ class CharactersViewModel @Inject constructor(
         ).cachedIn(viewModelScope)
     }
 
+    private suspend fun getOriginModel(
+        data: CharacterDetailsModel,
+        forceUpdate: Boolean
+    ): LocationModel? {
+        val originUrl = data.characterOrigin.characterOriginUrl
+        val originId = utils.getLastIntAfterSlash(originUrl) ?: return null
+        return locationModelsUseCase.invoke(originId, forceUpdate)
+    }
+
+    private suspend fun getLocationModel(
+        data: CharacterDetailsModel,
+        forceUpdate: Boolean
+    ): LocationModel? {
+        val locationUrl = data.characterLocation.characterLocationUrl
+        val locationId = utils.getLastIntAfterSlash(locationUrl) ?: return null
+        return locationModelsUseCase.invoke(locationId, forceUpdate)
+    }
+
+    private suspend fun getEpisodesModels(
+        data: CharacterDetailsModel,
+        forceUpdate: Boolean
+    ): List<EpisodeModel>? {
+        val episodes = data.characterEpisodes
+        val episodesId =
+            utils.getStringForMultiId(episodes.map { utils.getLastIntAfterSlash(it) })
+        return listEpisodesModelUseCase.invoke(episodesId, forceUpdate)
+    }
+
     fun loadInfoAboutCharacter(id: Int, forceUpdate: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
-            //todo need refactoring
             val data = characterDetailsUseCase.invoke(id, forceUpdate) ?: return@launch
-            val originUrl = data.characterOrigin.characterOriginUrl
-            val originId = utils.getLastIntAfterSlash(originUrl)
-            var originModel: LocationModel? = null
-            var locationModel: LocationModel? = null
-            if (originId != null) {
-                originModel = locationModelsUseCase.invoke(originId, forceUpdate)
-            }
-            val locationUrl = data.characterLocation.characterLocationUrl
-            val locationId = utils.getLastIntAfterSlash(locationUrl)
-            if (locationId != null) {
-                locationModel = locationModelsUseCase.invoke(locationId, forceUpdate)
-            }
-            val episodes = data.characterEpisodes
-            val episodesId =
-                utils.getStringForMultiId(episodes.map { utils.getLastIntAfterSlash(it) })
-            val episodesModels = listEpisodesModelUseCase.invoke(episodesId, forceUpdate)
+            val originModel = getOriginModel(data, forceUpdate)
+            val locationModel = getLocationModel(data, forceUpdate)
+            val episodesModels = getEpisodesModels(data, forceUpdate)
             val resultList = adaptersUtils.getListCharacterDetailsModelAdapter(
                 data, originModel, locationModel, episodesModels
             )
@@ -93,7 +105,7 @@ class CharactersViewModel @Inject constructor(
         _characterFilter.value = null
     }
 
-    fun clearDataForAdapter(){
+    fun clearDataForAdapter() {
         _dataForAdapter.value = emptyList()
     }
 
