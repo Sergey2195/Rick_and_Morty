@@ -6,13 +6,37 @@
     android:layout_height="match_parent"
     tools:context=".presentation.fragments.CharacterFilterFragment">
 
+    <TextView
+        android:id="@+id/countResultTextView"
+        style="@style/CountOfFiltratingStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/search_count"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@id/saveButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save_button_title"
+        android:textColor="?attr/filterButtonTextColor"
+        app:layout_constraintBottom_toTopOf="@id/nameInputLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/countResultTextView" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nameInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toStartOf="@id/endSpace"
+        app:layout_constraintStart_toEndOf="@id/startSpace"
+        app:layout_constraintTop_toBottomOf="@id/saveButton">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/nameEditText"
@@ -25,18 +49,18 @@
         android:id="@+id/statusTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="8dp"
         android:text="@string/character_status_title"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/startSpace"
         app:layout_constraintTop_toBottomOf="@+id/nameInputLayout" />
 
     <RadioGroup
         android:id="@+id/statusRadioGroup"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@id/endSpace"
         app:layout_constraintStart_toStartOf="@+id/statusTextView"
         app:layout_constraintTop_toBottomOf="@+id/statusTextView">
 
@@ -88,8 +112,10 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/speciesInputLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@id/endSpace"
+        app:layout_constraintStart_toEndOf="@id/startSpace"
         app:layout_constraintTop_toBottomOf="@+id/statusRadioGroup">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -101,8 +127,11 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/typeInputLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toStartOf="@id/endSpace"
+        app:layout_constraintStart_toEndOf="@id/startSpace"
         app:layout_constraintTop_toBottomOf="@+id/speciesInputLayout">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -116,106 +145,114 @@
         android:id="@+id/genderTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="@string/character_gender_title"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/startSpace"
         app:layout_constraintTop_toBottomOf="@+id/typeInputLayout" />
 
     <RadioGroup
         android:id="@+id/genderRadioGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/genderTitle">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:text="@string/status_all" />
+        android:orientation="vertical"
+        android:weightSum="5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/startSpace"
+        app:layout_constraintTop_toBottomOf="@+id/genderTitle"
+        app:layout_constraintVertical_bias="0">
 
         <RadioButton
             android:id="@+id/allGenderRadioButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:checked="true" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:text="@string/gender_female" />
-
         <RadioButton
             android:id="@+id/femaleGenderRadioButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:text="@string/gender_male" />
 
         <RadioButton
             android:id="@+id/maleGenderRadioButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:text="@string/gender_genderless" />
 
         <RadioButton
             android:id="@+id/genderlessGenderRadioButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:text="@string/gender_unknown" />
-
         <RadioButton
             android:id="@+id/genderUnknownRadioButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
     </RadioGroup>
 
-    <TextView
-        android:id="@+id/countResultTextView"
-        style="@style/CountOfFiltratingStyle"
+    <LinearLayout
+        android:id="@+id/titlesGender"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/search_count"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/genderRadioGroup" />
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@id/genderRadioGroup"
+        app:layout_constraintStart_toEndOf="@id/genderRadioGroup"
+        app:layout_constraintTop_toTopOf="@id/genderRadioGroup">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/status_all" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/gender_female" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/gender_male" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/gender_genderless" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/gender_unknown" />
+    </LinearLayout>
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/filterGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="statusTextView,statusRadioGroup,speciesInputLayout,typeInputLayout,genderTitle,genderRadioGroup" />
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/save_button_title"
-        android:textColor="?attr/filterButtonTextColor"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/countResultTextView"
-        app:layout_constraintVertical_bias="0" />
+        app:constraint_referenced_ids="statusTextView,statusRadioGroup,speciesInputLayout,typeInputLayout,genderTitle,genderRadioGroup,titlesGender" />
+
+    <Space
+        android:id="@+id/startSpace"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Space
+        android:id="@+id/endSpace"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
