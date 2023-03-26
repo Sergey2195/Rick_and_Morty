@@ -16,9 +16,6 @@ abstract class BaseFilterFragment<VB: ViewBinding>(
 
     protected val publishSubject = PublishSubject.create<Unit>()
     protected val compositeDisposable = CompositeDisposable()
-    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
-        viewModelFactory
-    }
     protected var mode = -1
 
     override fun onDetach() {

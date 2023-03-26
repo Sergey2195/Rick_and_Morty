@@ -7,7 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.viewbinding.ViewBinding
+import com.aston.rickandmorty.presentation.activities.MainActivity
+import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import javax.inject.Inject
 
@@ -19,6 +22,9 @@ abstract class BaseFragment<VB: ViewBinding>(
     private var _binding: VB? = null
     protected val binding: VB
         get() = _binding ?: throw RuntimeException("Binding cannot be null")
+    protected val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
+        viewModelFactory
+    }
 
     protected abstract fun setUI()
     protected abstract fun setupObservers()

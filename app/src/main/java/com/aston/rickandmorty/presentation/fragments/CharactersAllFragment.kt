@@ -25,7 +25,6 @@ class CharactersAllFragment : BaseFragment<FragmentCharactersAllBinding>(
     private var gridLayoutManager: GridLayoutManager? = null
     private var arrayFilter: Array<String?> = Array(5) { null }
     private var observerJob: Job? = null
-    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) { viewModelFactory }
     private val charactersViewModel: CharactersViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
