@@ -1,11 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,22 +12,14 @@ import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.adapters.EpisodesAdapter
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
-import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.Job
-import javax.inject.Inject
 
-class EpisodesAllFragment : Fragment() {
+class EpisodesAllFragment : BaseFragment<FragmentEpisodesAllBinding>(
+    R.layout.fragment_episodes_all,
+    FragmentEpisodesAllBinding::inflate
+) {
 
-    private var _binding: FragmentEpisodesAllBinding? = null
-    private val binding
-        get() = _binding!!
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
-        viewModelFactory
-    }
     private val viewModel: EpisodesViewModel by viewModels({activity as MainActivity }) {
         viewModelFactory
     }
@@ -41,30 +28,26 @@ class EpisodesAllFragment : Fragment() {
     private var arrayFilter: Array<String?> = Array(2) { null }
     private var jobObserver: Job? = null
 
-    override fun onAttach(context: Context) {
+    override fun injectDependencies() {
         App.getAppComponent().injectEpisodesAllFragment(this)
-        super.onAttach(context)
+    }
+
+    override fun initArguments() {
+        arguments?.let {
+            arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
+        }
+    }
+
+    override fun setupObservers() {
+        sendParametersAndObserve(false)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
-        }
         setupRefreshListener()
-        sendParametersAndObserve(false)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentEpisodesAllBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun setUI() {
         prepareRecyclerView()
     }
 
@@ -125,11 +108,6 @@ class EpisodesAllFragment : Fragment() {
 
     private fun allFiltersIsNull(): Boolean {
         return arrayFilter.all { it == null }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
     }
 
     companion object {

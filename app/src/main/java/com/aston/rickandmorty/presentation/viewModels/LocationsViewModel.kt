@@ -90,13 +90,21 @@ class LocationsViewModel @Inject constructor(
         forceUpdate: Boolean
     ): List<CharacterModel> {
         val listCharactersData = characterDetailsUseCase.invoke(listId, forceUpdate)
-        return listCharactersData.sortedBy { it.id }
+        return sortListCharacters(listCharactersData)
     }
 
     private fun prepareDataForAdapter(
         data: LocationDetailsModel
     ): List<DetailsModelAdapter> {
         return adaptersUtils.transformLocationDetailsModelToDetailsModelAdapter(data)
+    }
+
+    private fun sortListCharacters(list: List<CharacterModel>): List<CharacterModel>{
+        return try {
+            list.sortedBy { it.id }
+        }catch (e:Exception){
+            emptyList()
+        }
     }
 
     fun clearFilter() {

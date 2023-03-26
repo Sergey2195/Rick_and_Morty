@@ -1,11 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
@@ -14,39 +9,20 @@ import com.aston.rickandmorty.domain.entity.EpisodeFilterModel
 import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
-import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.flow.filterNotNull
-import javax.inject.Inject
 
-class EpisodesRootFragment : Fragment() {
+class EpisodesRootFragment : BaseFragment<FragmentEpisodesRootBinding>(
+    R.layout.fragment_episodes_root,
+    FragmentEpisodesRootBinding::inflate
+) {
 
-    private var _binding: FragmentEpisodesRootBinding? = null
-    private val binding
-        get() = _binding!!
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-
-    private val episodeViewModel: EpisodesViewModel by viewModels({activity as MainActivity }) {
+    private val episodeViewModel: EpisodesViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
 
-    override fun onAttach(context: Context) {
+    override fun injectDependencies() {
         App.getAppComponent().injectEpisodesRootFragment(this)
-        super.onAttach(context)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentEpisodesRootBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,17 +32,24 @@ class EpisodesRootFragment : Fragment() {
                 .add(R.id.episodeFragmentContainerRoot, EpisodesAllFragment.newInstance())
                 .commit()
         }
-        setupObservers()
     }
 
-    private fun setupObservers() = lifecycleScope.launchWhenStarted {
-        episodeViewModel.episodeFilterStateFlow.filterNotNull().collect{
-            startFragmentWithFiltering(it)
-            episodeViewModel.clearFilter()
+    override fun setUI() {
+        setupBackButtonClickListener()
+        setupFilterButtonClickListener()
+        setupSearchButtonClickListener()
+    }
+
+    override fun setupObservers() {
+        lifecycleScope.launchWhenStarted {
+            episodeViewModel.episodeFilterStateFlow.filterNotNull().collect {
+                startFragmentWithFiltering(it)
+                episodeViewModel.clearFilter()
+            }
         }
     }
 
-    private fun startFragmentWithFiltering(filter: EpisodeFilterModel){
+    private fun startFragmentWithFiltering(filter: EpisodeFilterModel) {
         val fragment = EpisodesAllFragment.newInstance(filter.name, filter.episode)
         childFragmentManager.popBackStack()
         childFragmentManager.beginTransaction()
@@ -81,30 +64,26 @@ class EpisodesRootFragment : Fragment() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        setupBackButtonClickListener()
-        setupFilterButtonClickListener()
-        setupSearchButtonClickListener()
-    }
-
     private fun setupFilterButtonClickListener() {
         (requireActivity() as ToolbarManager).setFilterButtonClickListener {
             startFilterOrSearchFragment(EpisodeFilterFragment.FILTER)
         }
     }
 
-    private fun setupSearchButtonClickListener(){
-        (requireActivity() as ToolbarManager).setSearchButtonClickListener{
+    private fun setupSearchButtonClickListener() {
+        (requireActivity() as ToolbarManager).setSearchButtonClickListener {
             startFilterOrSearchFragment(EpisodeFilterFragment.SEARCH)
         }
     }
 
-    private fun startFilterOrSearchFragment(mode: Int){
+    private fun startFilterOrSearchFragment(mode: Int) {
         childFragmentManager.beginTransaction()
             .replace(R.id.episodeFragmentContainerRoot, EpisodeFilterFragment.newInstance(mode))
             .addToBackStack(null)
             .commit()
+    }
+
+    override fun initArguments() {
     }
 
     companion object {
