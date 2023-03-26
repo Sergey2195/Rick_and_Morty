@@ -4,7 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.localDataSource.LocationsLocalRepository
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.LocationsMapper
 import com.aston.rickandmorty.data.pagingSources.LocationsPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.LocationRemoteRepository
 import com.aston.rickandmorty.data.remoteDataSource.models.AllLocationsResponse
@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 @ApplicationScope
 class LocationsRepositoryImpl @Inject constructor(
-    private val mapper: Mapper,
+    private val mapper: LocationsMapper,
     private val utils: Utils,
     private val applicationScope: CoroutineScope,
     private val pagingConfig: PagingConfig,

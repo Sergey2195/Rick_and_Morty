@@ -5,7 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.apiCalls.CharactersApiCall
 import com.aston.rickandmorty.data.localDataSource.CharactersLocalRepository
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.CharactersMapper
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.CharactersRemoteRepository
 import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
@@ -23,7 +23,7 @@ import javax.inject.Inject
 @ApplicationScope
 class CharactersRepositoryImpl @Inject constructor(
     private val charactersApiCall: CharactersApiCall,
-    private val mapper: Mapper,
+    private val mapper: CharactersMapper,
     private val utils: Utils,
     private val pagingConfig: PagingConfig,
     private val remoteRepository: CharactersRemoteRepository,

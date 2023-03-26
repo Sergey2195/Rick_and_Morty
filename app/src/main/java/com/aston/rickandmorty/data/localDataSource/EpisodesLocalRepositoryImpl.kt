@@ -3,7 +3,7 @@ package com.aston.rickandmorty.data.localDataSource
 import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.EpisodesDao
 import com.aston.rickandmorty.data.localDataSource.models.EpisodeInfoDto
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.EpisodesMapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @ApplicationScope
 class EpisodesLocalRepositoryImpl @Inject constructor(
-    private val mapper: Mapper,
+    private val mapper: EpisodesMapper,
     private val episodesDao: EpisodesDao,
     private val applicationScope: CoroutineScope,
     private val utils: LocalRepositoriesUtils

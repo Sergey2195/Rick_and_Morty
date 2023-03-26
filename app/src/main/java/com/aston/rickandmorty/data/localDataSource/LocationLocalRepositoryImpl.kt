@@ -3,7 +3,7 @@ package com.aston.rickandmorty.data.localDataSource
 import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.LocationsDao
 import com.aston.rickandmorty.data.localDataSource.models.LocationInfoDto
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.LocationsMapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllLocationsResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.LocationInfoRemote
 import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @ApplicationScope
 class LocationLocalRepositoryImpl @Inject constructor(
-    private val mapper: Mapper,
+    private val mapper: LocationsMapper,
     private val locationsDao: LocationsDao,
     private val applicationScope: CoroutineScope,
     private val utils: LocalRepositoriesUtils

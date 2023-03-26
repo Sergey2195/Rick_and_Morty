@@ -6,6 +6,7 @@ import com.aston.rickandmorty.di.ApplicationScope
 import javax.inject.Inject
 import javax.inject.Provider
 
+@Suppress("UNCHECKED_CAST")
 @ApplicationScope
 class ViewModelFactory @Inject constructor(
     private val viewModelProviders: @JvmSuppressWildcards Map<Class<out ViewModel>, Provider<ViewModel>>

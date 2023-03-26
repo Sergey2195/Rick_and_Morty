@@ -3,7 +3,7 @@ package com.aston.rickandmorty.data.localDataSource
 import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.CharactersDao
 import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.CharactersMapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.CharacterInfoRemote
 import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @ApplicationScope
 class CharactersLocalRepositoryImpl @Inject constructor(
-    private val mapper: Mapper,
+    private val mapper: CharactersMapper,
     private val charactersDao: CharactersDao,
     private val applicationScope: CoroutineScope,
     private val utils: LocalRepositoriesUtils

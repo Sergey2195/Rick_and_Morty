@@ -4,7 +4,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.localDataSource.EpisodesLocalRepository
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.CharactersMapper
+import com.aston.rickandmorty.data.mappers.EpisodesMapper
 import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.EpisodesRemoteRepository
 import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
@@ -23,7 +24,8 @@ import javax.inject.Inject
 
 @ApplicationScope
 class EpisodesRepositoryImp @Inject constructor(
-    private val mapper: Mapper,
+    private val mapper: EpisodesMapper,
+    private val charactersMapper: CharactersMapper,
     private val utils: Utils,
     private val applicationScope: CoroutineScope,
     private val episodesLocalRepository: EpisodesLocalRepository,
@@ -58,11 +60,11 @@ class EpisodesRepositoryImp @Inject constructor(
         val resultList = arrayListOf<CharacterModel>()
         for (id in listIds) {
             val job = applicationScope.launch {
-                val preparedId = mapper.transformIdWithStringAndSlashIntoInt(id)
+                val preparedId = utils.transformIdWithStringAndSlashIntoInt(id)
                 val characterData =
                     charactersRepository.getCharacterData(preparedId, false) ?: return@launch
                 val characterModel =
-                    mapper.transformCharacterDetailsModelIntoCharacterModel(characterData)
+                    charactersMapper.transformCharacterDetailsModelIntoCharacterModel(characterData)
                         ?: return@launch
                 resultList.add(characterModel)
             }
@@ -180,7 +182,7 @@ class EpisodesRepositoryImp @Inject constructor(
             val remoteData = episodesRemoteRepository.getEpisodeInfo(id) ?: return@withContext null
             episodesLocalRepository.addEpisode(remoteData)
             val multiIdString =
-                mapper.transformListStringIdToStringWithoutSlash(remoteData.episodeCharacters) ?: ""
+                utils.transformListStringIdToStringWithoutSlash(remoteData.episodeCharacters) ?: ""
             val charactersModel =
                 charactersRepository.getMultiCharacterModelOnlyRemote(multiIdString)
             return@withContext mapper.configurationEpisodeDetailsModel(remoteData, charactersModel)
