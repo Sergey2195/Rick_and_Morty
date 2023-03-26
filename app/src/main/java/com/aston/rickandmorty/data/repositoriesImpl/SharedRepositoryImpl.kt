@@ -1,7 +1,8 @@
-package com.aston.rickandmorty.data
+package com.aston.rickandmorty.data.repositoriesImpl
 
 import android.app.Application
-import android.util.Log
+import com.aston.rickandmorty.data.networkConnectivity.ConnectivityObserver
+import com.aston.rickandmorty.data.networkConnectivity.NetworkConnectivityObserver
 import com.aston.rickandmorty.di.ApplicationScope
 import com.aston.rickandmorty.domain.repository.SharedRepository
 import kotlinx.coroutines.CoroutineScope
@@ -11,9 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import javax.inject.Inject
 
 @ApplicationScope

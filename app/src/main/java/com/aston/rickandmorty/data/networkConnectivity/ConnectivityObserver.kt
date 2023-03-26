@@ -1,4 +1,4 @@
-package com.aston.rickandmorty.data
+package com.aston.rickandmorty.data.networkConnectivity
 
 import android.content.Context
 import kotlinx.coroutines.flow.Flow

@@ -1,6 +1,5 @@
 package com.aston.rickandmorty.data.localDataSource
 
-import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.CharactersDao
 import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
 import com.aston.rickandmorty.data.mappers.CharactersMapper
@@ -19,7 +18,8 @@ class CharactersLocalRepositoryImpl @Inject constructor(
     private val mapper: CharactersMapper,
     private val charactersDao: CharactersDao,
     private val applicationScope: CoroutineScope,
-    private val utils: LocalRepositoriesUtils
+    private val utils: LocalRepositoriesUtils,
+    private val pageSize: Int
 ) : CharactersLocalRepository {
 
     private var allCharactersData: List<CharacterInfoDto> = emptyList()
@@ -52,13 +52,13 @@ class CharactersLocalRepositoryImpl @Inject constructor(
 
     private fun takePage(filtered: List<CharacterInfoDto>, pageIndex: Int): List<CharacterInfoRemote>{
         return filtered
-            .take(pageIndex * PAGE_SIZE)
-            .drop((pageIndex - 1) * PAGE_SIZE)
+            .take(pageIndex * pageSize)
+            .drop((pageIndex - 1) * pageSize)
             .map { mapper.transformCharacterInfoDtoIntoCharacterInfoRemote(it) }
     }
 
     private fun pageInfo(filtered: List<CharacterInfoDto>, pageIndex: Int): PageInfoResponse{
-        val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
+        val countPages = filtered.size / pageSize + if (filtered.size % pageSize != 0) 1 else 0
         val prevPage = if (pageIndex > 1) utils.getPageString(pageIndex - 1) else null
         val nextPage = if (pageIndex == countPages) null else utils.getPageString(pageIndex + 1)
         return PageInfoResponse(filtered.size, countPages, nextPage, prevPage)

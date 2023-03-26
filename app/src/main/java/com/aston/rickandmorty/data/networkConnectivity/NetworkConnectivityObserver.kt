@@ -1,4 +1,4 @@
-package com.aston.rickandmorty.data
+package com.aston.rickandmorty.data.networkConnectivity
 
 import android.app.Application
 import android.content.Context
