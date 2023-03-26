@@ -33,18 +33,30 @@ class EpisodesLocalRepositoryImpl @Inject constructor(
         pageIndex: Int,
         filters: Array<String?>
     ): AllEpisodesResponse? {
-        val filtered = allEpisodesData.filter { filter(filters, it)}
+        val filtered = filteringEpisodes(filters)
         if (filtered.isEmpty()) return null
-        val filteredItemsPage = filtered
+        val filteredItemsPage = takePage(filtered, pageIndex)
+        if (filteredItemsPage.isEmpty()) return null
+        val pageInfoResponse = pageInfo(filtered, pageIndex)
+        return AllEpisodesResponse(pageInfoResponse, filteredItemsPage)
+    }
+
+    private fun filteringEpisodes(filters: Array<String?>): List<EpisodeInfoDto>{
+        return allEpisodesData.filter { filter(filters, it)}
+    }
+
+    private fun takePage(filtered: List<EpisodeInfoDto>, pageIndex: Int): List<EpisodeInfoRemote>{
+        return filtered
             .take(pageIndex * PAGE_SIZE)
             .drop((pageIndex - 1) * PAGE_SIZE)
             .map { mapper.transformEpisodeInfoDtoIntoEpisodeInfoRemote(it) }
-        if (filteredItemsPage.isEmpty()) return null
+    }
+
+    private fun pageInfo(filtered: List<EpisodeInfoDto>, pageIndex: Int): PageInfoResponse{
         val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
         val prevPage = if (pageIndex > 1) utils.getPageString(pageIndex - 1) else null
         val nextPage = if (pageIndex == countPages) null else utils.getPageString(pageIndex + 1)
-        val pageInfoResponse = PageInfoResponse(filtered.size, countPages, nextPage, prevPage)
-        return AllEpisodesResponse(pageInfoResponse, filteredItemsPage)
+        return PageInfoResponse(filtered.size, countPages, nextPage, prevPage)
     }
 
     override suspend fun addEpisode(data: EpisodeInfoRemote?) = withContext(Dispatchers.IO) {

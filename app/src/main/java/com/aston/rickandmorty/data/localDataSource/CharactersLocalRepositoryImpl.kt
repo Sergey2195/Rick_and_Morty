@@ -38,20 +38,30 @@ class CharactersLocalRepositoryImpl @Inject constructor(
         pageIndex: Int,
         filters: Array<String?>
     ): AllCharactersResponse? {
-        val filtered = allCharactersData.filter { dto ->
-            filteringCharacter(dto, filters)
-        }
+        val filtered = filteringCharacters(filters)
         if (filtered.isEmpty()) return null
-        val filteredItemsPage = filtered
+        val filteredItemsPage = takePage(filtered, pageIndex)
+        if (filteredItemsPage.isEmpty()) return null
+        val pageInfoResponse = pageInfo(filtered, pageIndex)
+        return AllCharactersResponse(pageInfoResponse, filteredItemsPage)
+    }
+
+    private fun filteringCharacters(filters: Array<String?>): List<CharacterInfoDto>{
+        return allCharactersData.filter { dto -> filteringCharacter(dto, filters) }
+    }
+
+    private fun takePage(filtered: List<CharacterInfoDto>, pageIndex: Int): List<CharacterInfoRemote>{
+        return filtered
             .take(pageIndex * PAGE_SIZE)
             .drop((pageIndex - 1) * PAGE_SIZE)
             .map { mapper.transformCharacterInfoDtoIntoCharacterInfoRemote(it) }
-        if (filteredItemsPage.isEmpty()) return null
+    }
+
+    private fun pageInfo(filtered: List<CharacterInfoDto>, pageIndex: Int): PageInfoResponse{
         val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
         val prevPage = if (pageIndex > 1) utils.getPageString(pageIndex - 1) else null
         val nextPage = if (pageIndex == countPages) null else utils.getPageString(pageIndex + 1)
-        val pageInfoResponse = PageInfoResponse(filtered.size, countPages, nextPage, prevPage)
-        return AllCharactersResponse(pageInfoResponse, filteredItemsPage)
+        return PageInfoResponse(filtered.size, countPages, nextPage, prevPage)
     }
 
     override suspend fun addCharacter(data: CharacterInfoRemote?) {
