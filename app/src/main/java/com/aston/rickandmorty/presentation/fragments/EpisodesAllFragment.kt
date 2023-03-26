@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,11 +16,11 @@ import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.adapters.EpisodesAdapter
-import com.aston.rickandmorty.presentation.viewModels.EpisodeFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 class EpisodesAllFragment : Fragment() {
@@ -37,12 +36,11 @@ class EpisodesAllFragment : Fragment() {
     private val viewModel: EpisodesViewModel by viewModels({activity as MainActivity }) {
         viewModelFactory
     }
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
     private val adapter = EpisodesAdapter()
     private var gridLayoutManager: GridLayoutManager? = null
     private var arrayFilter: Array<String?> = Array(2) { null }
+    private var jobObserver: Job? = null
 
     override fun onAttach(context: Context) {
         component.injectEpisodesAllFragment(this)
@@ -67,12 +65,20 @@ class EpisodesAllFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
-        setupObservers()
+        sendParametersAndObserve(false)
+        setupRefreshListener()
+    }
+
+    private fun setupRefreshListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener{
+            jobObserver?.cancel()
+            sendParametersAndObserve(true)
+        }
     }
 
     private fun prepareRecyclerView() {
         val footerAdapter = DefaultLoadStateAdapter {
-            //needtodo click listener
+            adapter.retry()
         }
         val adapterWithLoadFooter = adapter.withLoadStateFooter(footerAdapter)
         binding.episodesRecyclerView.adapter = adapterWithLoadFooter
@@ -94,9 +100,9 @@ class EpisodesAllFragment : Fragment() {
         }
     }
 
-    private fun setupObservers() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.getEpisodesAllFlow(arrayFilter[0], arrayFilter[1]).collect { pagingData ->
+    private fun sendParametersAndObserve(forceUpdate: Boolean) {
+        jobObserver = lifecycleScope.launchWhenStarted {
+            viewModel.getEpisodesAllFlow(arrayFilter[0], arrayFilter[1], forceUpdate).collect { pagingData ->
                 adapter.submitData(pagingData)
             }
         }

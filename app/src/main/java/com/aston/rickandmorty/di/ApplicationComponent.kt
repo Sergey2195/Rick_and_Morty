@@ -1,14 +1,18 @@
 package com.aston.rickandmorty.di
 
 import android.app.Application
-import com.aston.rickandmorty.presentation.App
+import android.content.Context
+import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.fragments.*
 import dagger.BindsInstance
 import dagger.Component
+import kotlinx.coroutines.CoroutineScope
 
 @ApplicationScope
 @Component(modules = [ViewModelsModule::class, DataModule::class, NetworkModule::class, LocalModule::class])
 interface ApplicationComponent {
+
+    fun injectMainActivity(activity: MainActivity)
     fun injectCharacterDetailsFragment(fragment: CharacterDetailsFragment)
     fun injectCharacterFilterFragment(fragment: CharacterFilterFragment)
     fun injectCharactersAllFragment(fragment: CharactersAllFragment)
@@ -26,6 +30,8 @@ interface ApplicationComponent {
     interface Factory {
         fun create(
             @BindsInstance application: Application,
+            @BindsInstance appScope: CoroutineScope,
+            @BindsInstance context: Context
         ): ApplicationComponent
     }
 }

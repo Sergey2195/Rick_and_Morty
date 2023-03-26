@@ -1,6 +1,8 @@
 package com.aston.rickandmorty.di
 
-import com.aston.rickandmorty.data.apiCalls.ApiCall
+import com.aston.rickandmorty.data.apiCalls.CharactersApiCall
+import com.aston.rickandmorty.data.apiCalls.EpisodesApiCall
+import com.aston.rickandmorty.data.apiCalls.LocationsApiCall
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -9,14 +11,28 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import java.util.concurrent.TimeUnit
 
 @Module
 interface NetworkModule {
 
     companion object {
+
         @Provides
         @ApplicationScope
-        fun provideApiCall(retrofit: Retrofit): ApiCall {
+        fun provideCharactersApiCall(retrofit: Retrofit): CharactersApiCall {
+            return retrofit.create()
+        }
+
+        @Provides
+        @ApplicationScope
+        fun provideLocationsApiCall(retrofit: Retrofit): LocationsApiCall {
+            return retrofit.create()
+        }
+
+        @Provides
+        @ApplicationScope
+        fun provideEpisodesApiCall(retrofit: Retrofit): EpisodesApiCall {
             return retrofit.create()
         }
 
@@ -53,6 +69,7 @@ interface NetworkModule {
             val interceptor =
                 HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
             return OkHttpClient.Builder()
+                .connectTimeout(500, TimeUnit.MILLISECONDS)
                 .addInterceptor(interceptor)
                 .build()
         }

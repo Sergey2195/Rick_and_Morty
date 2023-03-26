@@ -28,15 +28,14 @@ class CharacterDetailsFragment : Fragment() {
     private var _binding: FragmentCharacterDetailsBinding? = null
     private val binding
         get() = _binding!!
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
+
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
-    private val viewModel: CharactersViewModel by viewModels({activity as MainActivity}) {
+    private val viewModel: CharactersViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
     private val adapter = CharacterDetailsAdapter()
@@ -52,6 +51,7 @@ class CharacterDetailsFragment : Fragment() {
             id = it.getInt(ID_KEY)
             container = it.getInt(CONTAINER)
         }
+        if (id == null) throw RuntimeException("unknown id onCreate CharacterDetailsFragment")
     }
 
     override fun onCreateView(
@@ -67,20 +67,31 @@ class CharacterDetailsFragment : Fragment() {
         prepareRecyclerViews()
         observeData()
         loadData()
+        setupSwipeListener()
     }
 
-    private fun loadData() = viewModel.loadInfoAboutCharacter(id ?: 1, requireContext())
+    private fun setupSwipeListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
+            loadData(true)
+        }
+    }
 
-    private fun observeData() = lifecycleScope.launchWhenStarted {
-        viewModel.dataForAdapter.collect { list ->
-            adapter.submitList(list)
-            setupName(list)
+    private fun loadData(forceUpdate: Boolean = false) {
+        viewModel.loadInfoAboutCharacter(id!!, forceUpdate)
+    }
+
+    private fun observeData() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.dataForAdapter.collect { list ->
+                adapter.submitList(list)
+                setupName(list)
+            }
         }
     }
 
     private fun setupName(list: List<CharacterDetailsModelAdapter>) {
         if (list.isEmpty()) return
-        val name = (list[1] as CharacterDetailsTitleValueModelAdapter).value
+        val name = (list[1] as? CharacterDetailsTitleValueModelAdapter)?.value
         setToolBarText(name)
     }
 
@@ -114,13 +125,15 @@ class CharacterDetailsFragment : Fragment() {
             .commit()
     }
 
-    private fun setToolBarText(str: String) {
+    private fun setToolBarText(str: String?) {
+        if (str == null) return
         (requireActivity() as ToolbarManager).setToolbarText(str)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        viewModel.clearDataForAdapter()
     }
 
     companion object {

@@ -16,7 +16,6 @@
             style="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
             <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:id="@+id/collapsingToolBarLayout"
                 android:layout_width="match_parent"
@@ -59,7 +58,7 @@
                             android:gravity="center_vertical"
                             android:layout_marginStart="20dp"
                             android:textColor="@color/white"
-                            android:textSize="20sp"
+                            android:textSize="18sp"
                             android:layout_weight="1"/>
                         <ImageButton
                             android:id="@+id/searchButton"
@@ -83,19 +82,20 @@
                 </androidx.appcompat.widget.Toolbar>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
-
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/swipeRefreshLayout"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/mainFragmentContainer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 tools:layout="@layout/fragment_characters_all"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"/>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
     <com.google.android.material.bottomnavigation.BottomNavigationView

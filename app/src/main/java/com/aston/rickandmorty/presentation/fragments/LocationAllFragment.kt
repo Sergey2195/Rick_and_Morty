@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +20,7 @@ import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 class LocationAllFragment : Fragment() {
@@ -30,9 +30,7 @@ class LocationAllFragment : Fragment() {
         get() = _binding!!
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
@@ -42,6 +40,7 @@ class LocationAllFragment : Fragment() {
     private val adapter = LocationsAdapter()
     private var gridLayoutManager: GridLayoutManager? = null
     private var arrayFilter: Array<String?> = Array(5) { null }
+    private var jobObserve: Job? = null
 
     override fun onAttach(context: Context) {
         component.injectLocationAllFragment(this)
@@ -51,7 +50,16 @@ class LocationAllFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
-        setupObservers()
+        setupObserversWithSetForceUpdate(false)
+        setupSwipeListener()
+    }
+
+    private fun setupSwipeListener(){
+        (requireActivity() as ToolbarManager).setRefreshClickListener{
+            jobObserve?.cancel()
+            adapter.refresh()
+            setupObserversWithSetForceUpdate(true)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,12 +69,13 @@ class LocationAllFragment : Fragment() {
         }
     }
 
-    private fun setupObservers() {
-        lifecycleScope.launchWhenStarted {
+    private fun setupObserversWithSetForceUpdate(forceUpdate: Boolean = false) {
+        jobObserve = lifecycleScope.launchWhenStarted {
             viewModel.getLocationAllFlow(
                 arrayFilter[0],
                 arrayFilter[1],
-                arrayFilter[2]
+                arrayFilter[2],
+                forceUpdate
             ).collect {
                 adapter.submitData(it)
             }
@@ -75,7 +84,7 @@ class LocationAllFragment : Fragment() {
 
     private fun prepareRecyclerView() {
         val footerAdapter = DefaultLoadStateAdapter {
-            //needtodo click listener
+            adapter.retry()
         }
         val adapterWithLoadFooter = adapter.withLoadStateFooter(footerAdapter)
         binding.locationsRecyclerView.adapter = adapterWithLoadFooter

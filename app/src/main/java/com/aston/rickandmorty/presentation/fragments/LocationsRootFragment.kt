@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentLocationsRootBinding
@@ -15,10 +14,8 @@ import com.aston.rickandmorty.domain.entity.LocationFilterModel
 import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
-import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 
@@ -29,9 +26,7 @@ class LocationsRootFragment : Fragment() {
         get() = _binding!!
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
     private val locationViewModel: LocationsViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
@@ -62,8 +57,6 @@ class LocationsRootFragment : Fragment() {
 
     private fun setupObservers() = lifecycleScope.launchWhenCreated {
         locationViewModel.locationFilterStateFlow.filterNotNull().collect {
-            childFragmentManager.popBackStack()
-            delay(500)
             startFragmentWithFiltering(it)
             locationViewModel.clearFilter()
         }
@@ -75,6 +68,7 @@ class LocationsRootFragment : Fragment() {
             filter.typeFilter,
             filter.dimensionFilter
         )
+        childFragmentManager.popBackStack()
         childFragmentManager.beginTransaction()
             .replace(R.id.locationFragmentContainerRoot, fragment)
             .addToBackStack(null)

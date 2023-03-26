@@ -2,9 +2,12 @@ package com.aston.rickandmorty.di
 
 import android.app.Application
 import androidx.room.Room
-import com.aston.rickandmorty.data.localDataSource.CharactersDao
-import com.aston.rickandmorty.data.localDataSource.CharactersDatabase
-import dagger.Binds
+import com.aston.rickandmorty.data.localDataSource.dao.CharactersDao
+import com.aston.rickandmorty.data.localDataSource.dao.EpisodesDao
+import com.aston.rickandmorty.data.localDataSource.dao.LocationsDao
+import com.aston.rickandmorty.data.localDataSource.database.CharactersDatabase
+import com.aston.rickandmorty.data.localDataSource.database.EpisodesDatabase
+import com.aston.rickandmorty.data.localDataSource.database.LocationsDatabase
 import dagger.Module
 import dagger.Provides
 
@@ -24,8 +27,40 @@ interface LocalModule {
 
         @ApplicationScope
         @Provides
-        fun provideCharacterDao(charactersDatabase: CharactersDatabase): CharactersDao{
+        fun provideCharacterDao(charactersDatabase: CharactersDatabase): CharactersDao {
             return charactersDatabase.getDao()
+        }
+
+        @ApplicationScope
+        @Provides
+        fun provideLocationsDatabase(application: Application): LocationsDatabase{
+            return Room.databaseBuilder(
+                application,
+                LocationsDatabase::class.java,
+                "locations_db"
+            ).build()
+        }
+
+        @ApplicationScope
+        @Provides
+        fun provideLocationsDao(locationsDatabase: LocationsDatabase): LocationsDao{
+            return locationsDatabase.getDao()
+        }
+
+        @ApplicationScope
+        @Provides
+        fun provideEpisodesDatabase(application: Application): EpisodesDatabase{
+            return Room.databaseBuilder(
+                application,
+                EpisodesDatabase::class.java,
+                "episodes_db"
+            ).build()
+        }
+
+        @ApplicationScope
+        @Provides
+        fun provideEpisodesDao(episodesDatabase: EpisodesDatabase): EpisodesDao{
+            return episodesDatabase.getDao()
         }
     }
 }

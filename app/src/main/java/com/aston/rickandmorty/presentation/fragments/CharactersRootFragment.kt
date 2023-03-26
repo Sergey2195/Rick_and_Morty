@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharactersRootBinding
@@ -15,7 +14,6 @@ import com.aston.rickandmorty.domain.entity.CharacterFilterModel
 import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
-import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.delay
@@ -27,9 +25,7 @@ class CharactersRootFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
     private val charactersViewModel: CharactersViewModel by viewModels({activity as MainActivity }) {
         viewModelFactory
     }
@@ -52,10 +48,9 @@ class CharactersRootFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         if (savedInstanceState == null) {
-            childFragmentManager.beginTransaction()
-                .add(R.id.charactersFragmentContainerRoot, CharactersAllFragment.newInstance())
-                .commit()
+            startInitialFragment()
         }
         setupBackButtonClickListener()
         setupObservers()
@@ -63,8 +58,6 @@ class CharactersRootFragment : Fragment() {
 
     private fun setupObservers() = lifecycleScope.launch{
         charactersViewModel.characterFilter.filterNotNull().collect{
-            childFragmentManager.popBackStack()
-            delay(500)
             startFragmentWithFiltering(it)
             charactersViewModel.clearCharacterFilter()
         }
@@ -78,6 +71,7 @@ class CharactersRootFragment : Fragment() {
             filter.typeFilter,
             filter.genderFilter
         )
+        childFragmentManager.popBackStack()
         childFragmentManager.beginTransaction()
             .replace(R.id.charactersFragmentContainerRoot, fragment)
             .addToBackStack(null)
@@ -128,6 +122,13 @@ class CharactersRootFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+    }
+
+    private fun startInitialFragment() = lifecycleScope.launchWhenStarted {
+        delay(100)
+        childFragmentManager.beginTransaction()
+            .add(R.id.charactersFragmentContainerRoot, CharactersAllFragment.newInstance())
+            .commit()
     }
 
     companion object {

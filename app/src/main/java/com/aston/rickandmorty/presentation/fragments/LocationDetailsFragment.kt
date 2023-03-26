@@ -7,34 +7,28 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.aston.rickandmorty.databinding.FragmentLocationDetailsBinding
-import com.aston.rickandmorty.domain.entity.LocationDetailsModel
 import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
+import com.aston.rickandmorty.presentation.adapterModels.DetailsModelText
 import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
-
 
 class LocationDetailsFragment : Fragment() {
 
     private var id: Int? = null
     private var container: Int? = null
+
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
@@ -45,7 +39,6 @@ class LocationDetailsFragment : Fragment() {
     private var _binding: FragmentLocationDetailsBinding? = null
     private val binding
         get() = _binding!!
-    private val compositeDisposable = CompositeDisposable()
 
     override fun onAttach(context: Context) {
         component.injectLocationDetailsFragment(this)
@@ -78,10 +71,32 @@ class LocationDetailsFragment : Fragment() {
         _binding = null
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.clearDataLocationDetailsAdapter()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclersView()
-        loadData()
+        loadData(false)
+        setupObservers()
+        setupRefreshListener()
+    }
+
+    private fun setupRefreshListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
+            loadData(true)
+        }
+    }
+
+    private fun setupObservers() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.locationDetailsStateFlow.filterNotNull().collect { data ->
+                detailsAdapter.submitList(data)
+                setToolBarText((data[1] as? DetailsModelText)?.text)
+            }
+        }
     }
 
     private fun prepareRecyclersView() {
@@ -97,35 +112,13 @@ class LocationDetailsFragment : Fragment() {
             .commit()
     }
 
-    private fun loadData() {
-        val observable = viewModel.getLocationDetails(id ?: 1)
-        val disposable = observable
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ data ->
-                parsingData(data)
-            }, {
-
-            })
-        compositeDisposable.add(disposable)
+    private fun loadData(forceUpdate: Boolean) {
+        viewModel.sendIdToGetDetails(id ?: throw RuntimeException("load data"), forceUpdate)
     }
 
-    private fun parsingData(data: LocationDetailsModel) =
-        lifecycleScope.launch(Dispatchers.Default) {
-            val dataForAdapter = viewModel.prepareDataForAdapter(data, requireContext())
-            withContext(Dispatchers.Main) {
-                detailsAdapter.submitList(dataForAdapter)
-                setToolBarText(data.locationName)
-            }
-        }
-
-    private fun setToolBarText(str: String) {
+    private fun setToolBarText(str: String?) {
+        if (str == null) return
         (requireActivity() as ToolbarManager).setToolbarText(str)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        compositeDisposable.dispose()
     }
 
     companion object {

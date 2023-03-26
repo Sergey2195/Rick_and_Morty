@@ -8,22 +8,36 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.ActivityMainBinding
+import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
+import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.snackbar.Snackbar
+import javax.inject.Inject
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity(), ToolbarManager {
+
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
-    private val viewModel: MainViewModel by viewModels()
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private val viewModel: MainViewModel by viewModels() {
+        viewModelFactory
+    }
+    private val component = App.getAppComponent()
     private var isOnParentScreen = true
     private var toolBarBackButtonClickListener: OnClickListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.injectMainActivity(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         connectToRouter()
@@ -35,18 +49,48 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         onBackPressedHandling()
         setBottomNavigationBarClickListeners()
         observeLiveData()
+        observeLoadingState()
+        observeInternetConnection()
     }
 
-    private fun observeLiveData(){
-        viewModel.isOnParentLiveData.observe(this){ isOnParent->
+    private fun observeLoadingState() = lifecycleScope.launchWhenStarted {
+        viewModel.getLoadingStateFlow().collect { isLoading ->
+            binding.swipeRefreshLayout.isRefreshing = isLoading
+        }
+    }
+
+    private fun observeLiveData() {
+        viewModel.isOnParentLiveData.observe(this) { isOnParent ->
             changeIsOnParentState(isOnParent)
             isOnParentScreen = isOnParent
         }
     }
 
-    private fun changeIsOnParentState(isOnParent: Boolean){
+    private fun observeInternetConnection() = lifecycleScope.launchWhenStarted {
+            val noConnectionSnackBar = Snackbar.make(
+                binding.toolbarTextView,
+                getString(R.string.network_error),
+                Snackbar.LENGTH_INDEFINITE
+            )
+            val connectedSnackBar = Snackbar.make(
+                binding.toolbarTextView,
+                getString(R.string.network_connected),
+                Snackbar.LENGTH_SHORT
+            )
+            var firstShown = true
+            viewModel.getNetworkStatusIsAvailableStateFlow().collect {connected->
+                if (!connected){
+                    noConnectionSnackBar.show()
+                }else if (!firstShown) {
+                    connectedSnackBar.show()
+                }
+                firstShown = false
+            }
+    }
+
+    private fun changeIsOnParentState(isOnParent: Boolean) {
         binding.appBarLayout.setExpanded(false)
-        when (isOnParent){
+        when (isOnParent) {
             true -> changeVisibilityToolBarElements(View.VISIBLE, View.GONE)
             false -> changeVisibilityToolBarElements(View.GONE, View.VISIBLE)
         }
@@ -70,7 +114,10 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     private fun setupToolbarListener() {
         binding.appBarLayout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
             when {
-                isCollapsed(verticalOffset, appBarLayout) -> collapsedToolBarChangedState(true, isOnParentScreen)
+                isCollapsed(verticalOffset, appBarLayout) -> collapsedToolBarChangedState(
+                    true,
+                    isOnParentScreen
+                )
                 isExpanded(verticalOffset) -> collapsedToolBarChangedState(false, isOnParentScreen)
                 else -> {}
             }
@@ -101,10 +148,6 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
             ContextCompat.getColor(this, R.color.variantSecond),
             ContextCompat.getColor(this, R.color.variantSecond),
         )
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            //todo refresh logic
-            binding.swipeRefreshLayout.isRefreshing = false
-        }
     }
 
     override fun setToolbarText(text: String) {
@@ -122,6 +165,10 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     override fun setFilterButtonClickListener(clickListener: OnClickListener?) {
         binding.filterButton.setOnClickListener(clickListener)
+    }
+
+    override fun setRefreshClickListener(swipeRefreshListener: SwipeRefreshLayout.OnRefreshListener?) {
+        binding.swipeRefreshLayout.setOnRefreshListener(swipeRefreshListener)
     }
 
     private fun changeVisibilityToolBarElements(
@@ -149,7 +196,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     }
 
     private fun setBottomNavigationBarClickListeners() {
-        if (!isOnParentScreen){
+        if (!isOnParentScreen) {
             onBackPressedDispatcher.onBackPressed()
             return
         }

@@ -33,4 +33,6 @@
     <string name="search_not_found">Нет элементов</string>
     <string name="search_initial">Режим поиска</string>
     <string name="filter_initial">Режим фильтра</string>
+    <string name="network_error">Нет соединения с интернетом. Загружены сохраненные данные</string>
+    <string name="network_connected">Соединение восстановлено</string>
 </resources>

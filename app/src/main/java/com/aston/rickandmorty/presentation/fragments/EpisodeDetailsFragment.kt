@@ -7,21 +7,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.aston.rickandmorty.databinding.FragmentEpisodeDetailsBinding
 import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
+import com.aston.rickandmorty.presentation.adapterModels.DetailsModelText
 import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
-import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
 import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 
 class EpisodeDetailsFragment : Fragment() {
@@ -31,9 +28,7 @@ class EpisodeDetailsFragment : Fragment() {
     private var _binding: FragmentEpisodeDetailsBinding? = null
     private val binding
         get() = _binding!!
-    private val component by lazy {
-        ((requireActivity().application) as App).component
-    }
+    private val component = App.getAppComponent()
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
@@ -68,12 +63,27 @@ class EpisodeDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
-        loadAndSubmitData()
+        setupObserver()
+        sendIdEpisode(false)
+        setupRefreshListener()
     }
 
-    private fun loadAndSubmitData() = lifecycleScope.launch {
-        val data = loadData()
-        detailsAdapter.submitList(data)
+    private fun setupRefreshListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener{
+            sendIdEpisode(true)
+        }
+    }
+
+    private fun sendIdEpisode(forceUpdate: Boolean) {
+        if (id == null) return
+        viewModel.sendIdEpisode(id!!, forceUpdate)
+    }
+
+    private fun setupObserver() = lifecycleScope.launchWhenStarted{
+        viewModel.episodeDataForAdapter.filterNotNull().collect{ data->
+            detailsAdapter.submitList(data)
+            setToolBarTitleText((data[1] as? DetailsModelText)?.text)
+        }
     }
 
     private fun prepareRecyclerView() {
@@ -91,10 +101,9 @@ class EpisodeDetailsFragment : Fragment() {
             .commit()
     }
 
-    private suspend fun loadData() = withContext(Dispatchers.IO) {
-        val data = viewModel.getEpisodeDetailsInfo(id ?: 1)
-        withContext(Dispatchers.Main){setToolBarTitleText(data?.name ?: "")}
-        viewModel.getDataToAdapter(data, requireContext())
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.clearEpisodeDataForAdapter()
     }
 
     override fun onDestroy() {
@@ -107,7 +116,8 @@ class EpisodeDetailsFragment : Fragment() {
         mainViewModel.setIsOnParentLiveData(false)
     }
 
-    private fun setToolBarTitleText(text: String) {
+    private fun setToolBarTitleText(text: String?) {
+        if (text == null) return
         (requireActivity() as ToolbarManager).setToolbarText(text)
     }
 
