@@ -1,12 +1,8 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
@@ -16,58 +12,24 @@ import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.LocationFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
-import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-class LocationFilterFragment : Fragment() {
+class LocationFilterFragment : BaseFilterFragment<FragmentLocationFilterBinding>(
+    R.layout.fragment_location_filter,
+    FragmentLocationFilterBinding::inflate
+) {
 
-    private var mode = -1
-    private var _binding: FragmentLocationFilterBinding? = null
-    private val binding
-        get() = _binding!!
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
-        viewModelFactory
-    }
     private val locationViewModel: LocationsViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
-    private val locationFilterViewModel: LocationFilterViewModel by viewModels(){
+    private val locationFilterViewModel: LocationFilterViewModel by viewModels() {
         viewModelFactory
     }
     private val resultFilter = LocationFilterModel()
-    private val publishSubject = PublishSubject.create<Unit>()
-    private val compositeDisposable = CompositeDisposable()
 
-    override fun onAttach(context: Context) {
-        App.getAppComponent().injectLocationFilterFragment(this)
-        super.onAttach(context)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            mode = it.getInt(MODE)
-        }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentLocationFilterBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun setUI() {
         val filterGroupVisibility = when (mode) {
             FILTER -> View.VISIBLE
             SEARCH -> View.GONE
@@ -75,15 +37,39 @@ class LocationFilterFragment : Fragment() {
         }
         binding.filterGroup.visibility = filterGroupVisibility
         setupClickListener()
-        setupObservers()
         sendCheckCountOfLocationWithInterval()
+    }
+
+    override fun initArguments() {
+        arguments?.let {
+            mode = it.getInt(MODE)
+        }
+    }
+
+    override fun setupObservers() {
+        lifecycleScope.launchWhenStarted {
+            locationFilterViewModel.locationCountStateFlow.collect { count ->
+                val text = when (count) {
+                    0 -> if (mode == FILTER) requireContext().getString(R.string.filter_initial) else requireContext().getString(
+                        R.string.search_initial
+                    )
+                    -1 -> requireContext().getString(R.string.search_not_found)
+                    else -> requireContext().getString(R.string.search_count, count)
+                }
+                binding.countResultTextView.text = text
+            }
+        }
+    }
+
+    override fun injectDependencies() {
+        App.getAppComponent().injectLocationFilterFragment(this)
     }
 
     private fun sendCheckCountOfLocationWithInterval() {
         val disposable = publishSubject.debounce(1, TimeUnit.SECONDS)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe{
+            .subscribe {
                 locationFilterViewModel.sendFilters(resultFilter)
             }
         compositeDisposable.add(disposable)
@@ -112,29 +98,6 @@ class LocationFilterFragment : Fragment() {
         return if (text != null && text.isNotBlank()) {
             text.toString()
         } else null
-    }
-
-    private fun setupObservers() = lifecycleScope.launchWhenStarted {
-        locationFilterViewModel.locationCountStateFlow.collect { count ->
-            val text = when (count) {
-                0 -> if (mode == FILTER) requireContext().getString(R.string.filter_initial) else requireContext().getString(
-                    R.string.search_initial
-                )
-                -1 -> requireContext().getString(R.string.search_not_found)
-                else -> requireContext().getString(R.string.search_count, count)
-            }
-            binding.countResultTextView.text = text
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        mainViewModel.setIsOnParentLiveData(false)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeDisposable.dispose()
     }
 
     companion object {
