@@ -13,12 +13,14 @@ class LocationsMapper
 @Inject constructor(private val utils: Utils){
 
     fun transformLocationInfoRemoteIntoLocationModel(src: LocationInfoRemote): LocationModel {
-        return LocationModel(
-            id = src.locationId ?: 0,
-            name = src.locationName ?: "",
-            type = src.locationType ?: "",
-            dimension = src.locationDimension ?: ""
-        )
+        return with(src){
+            LocationModel(
+                id = locationId ?: 0,
+                name = locationName ?: "",
+                type = locationType ?: "",
+                dimension = locationDimension ?: ""
+            )
+        }
     }
 
     fun transformListLocationInfoRemoteIntoListLocationModel(src: List<LocationInfoRemote>): List<LocationModel> {
@@ -26,48 +28,56 @@ class LocationsMapper
     }
 
     fun transformLocationInfoRemoteInfoLocationDetailsModelWithIds(src: LocationInfoRemote): LocationDetailsModelWithId {
-        return LocationDetailsModelWithId(
-            locationId = src.locationId ?: 0,
-            locationName = src.locationName ?: "",
-            locationType = src.locationType ?: "",
-            dimension = src.locationDimension ?: "",
-            characters = src.locationResidents?.map { utils.getLastIntAfterSlash(it) ?: 0 }
-                ?: emptyList()
-        )
+        return with(src){
+            LocationDetailsModelWithId(
+                locationId = locationId ?: 0,
+                locationName = locationName ?: "",
+                locationType = locationType ?: "",
+                dimension = locationDimension ?: "",
+                characters = locationResidents?.map { utils.getLastIntAfterSlash(it) ?: 0 }
+                    ?: emptyList()
+            )
+        }
     }
 
     fun transformLocationDtoIntoLocationDetailsWithIds(src: LocationInfoDto): LocationDetailsModelWithId {
-        return LocationDetailsModelWithId(
-            locationId = src.locationId ?: 0,
-            locationName = src.locationName ?: "",
-            locationType = src.locationType ?: "",
-            dimension = src.locationDimension ?: "",
-            characters = utils.transformStringIdIntoListInt(src.locationResidentsIds)
-        )
+        return with(src){
+            LocationDetailsModelWithId(
+                locationId = locationId ?: 0,
+                locationName = locationName ?: "",
+                locationType = locationType ?: "",
+                dimension = locationDimension ?: "",
+                characters = utils.transformStringIdIntoListInt(locationResidentsIds)
+            )
+        }
     }
 
     fun transformLocationInfoDtoIntoLocationInfoRemote(src: LocationInfoDto): LocationInfoRemote {
-        return LocationInfoRemote(
-            locationId = src.locationId,
-            locationName = src.locationName,
-            locationType = src.locationType,
-            locationDimension = src.locationDimension,
-            locationResidents = utils.transformStringIdToList(src.locationResidentsIds),
-            locationUrl = src.locationUrl,
-            locationCreated = src.locationCreated
-        )
+        return with(src){
+            LocationInfoRemote(
+                locationId = locationId,
+                locationName = locationName,
+                locationType = locationType,
+                locationDimension = locationDimension,
+                locationResidents = utils.transformStringIdToList(locationResidentsIds),
+                locationUrl = locationUrl,
+                locationCreated = locationCreated
+            )
+        }
     }
 
 
     fun transformLocationInfoRemoteIntoLocationInfoDto(src: LocationInfoRemote): LocationInfoDto {
-        return LocationInfoDto(
-            locationId = src.locationId,
-            locationName = src.locationName,
-            locationType = src.locationType,
-            locationDimension = src.locationDimension,
-            locationResidentsIds = utils.transformListStringsToIds(src.locationResidents),
-            locationUrl = src.locationUrl,
-            locationCreated = src.locationCreated
-        )
+        return with(src){
+            LocationInfoDto(
+                locationId = locationId,
+                locationName = locationName,
+                locationType = locationType,
+                locationDimension = locationDimension,
+                locationResidentsIds = utils.transformListStringsToIds(locationResidents),
+                locationUrl = locationUrl,
+                locationCreated = locationCreated
+            )
+        }
     }
 }

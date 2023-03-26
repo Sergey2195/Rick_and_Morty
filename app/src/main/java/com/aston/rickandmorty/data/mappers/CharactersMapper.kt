@@ -17,14 +17,16 @@ class CharactersMapper
     @Inject constructor(private val utils: Utils) {
 
     private fun transformCharacterInfoRemoteIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
-        return CharacterModel(
-            id = src.characterId ?: 0,
-            name = src.characterName ?: "",
-            species = src.characterSpecies ?: "",
-            status = src.characterStatus ?: "",
-            gender = src.characterGender ?: "",
-            image = src.characterImage ?: ""
-        )
+        return with(src){
+            CharacterModel(
+                id = characterId ?: 0,
+                name = characterName ?: "",
+                species = characterSpecies ?: "",
+                status = characterStatus ?: "",
+                gender = characterGender ?: "",
+                image = characterImage ?: ""
+            )
+        }
     }
 
     fun transformListCharacterInfoRemoteIntoListCharacterModel(src: List<CharacterInfoRemote>): List<CharacterModel> {
@@ -32,26 +34,28 @@ class CharactersMapper
     }
 
     fun transformCharacterInfoRemoteIntoCharacterDetailsModel(src: CharacterInfoRemote): CharacterDetailsModel {
-        return CharacterDetailsModel(
-            characterId = src.characterId ?: 0,
-            characterName = src.characterName ?: "",
-            characterStatus = src.characterStatus ?: "",
-            characterSpecies = src.characterSpecies ?: "",
-            characterType = src.characterType ?: "",
-            characterGender = src.characterGender ?: "",
-            characterOrigin = CharacterOrigin(
-                characterOriginName = src.characterOriginRemote?.characterOriginName ?: "",
-                characterOriginUrl = src.characterOriginRemote?.characterOriginUrl
-            ),
-            characterLocation = CharacterLocation(
-                characterLocationName = src.characterLocationRemote?.characterLocationName ?: "",
-                characterLocationUrl = src.characterLocationRemote?.characterLocationUrl
-            ),
-            characterImage = src.characterImage,
-            characterEpisodes = src.characterEpisodes ?: emptyList(),
-            characterUrl = src.characterUrl,
-            characterCreated = src.characterCreated ?: ""
-        )
+        return with(src){
+            CharacterDetailsModel(
+                characterId = characterId ?: 0,
+                characterName = characterName ?: "",
+                characterStatus = characterStatus ?: "",
+                characterSpecies = characterSpecies ?: "",
+                characterType = characterType ?: "",
+                characterGender = characterGender ?: "",
+                characterOrigin = CharacterOrigin(
+                    characterOriginName = characterOriginRemote?.characterOriginName ?: "",
+                    characterOriginUrl = characterOriginRemote?.characterOriginUrl
+                ),
+                characterLocation = CharacterLocation(
+                    characterLocationName = characterLocationRemote?.characterLocationName ?: "",
+                    characterLocationUrl = characterLocationRemote?.characterLocationUrl
+                ),
+                characterImage = characterImage,
+                characterEpisodes = characterEpisodes ?: emptyList(),
+                characterUrl = characterUrl,
+                characterCreated = characterCreated ?: ""
+            )
+        }
     }
 
 
@@ -81,69 +85,75 @@ class CharactersMapper
     }
 
     fun transformCharacterInfoDtoIntoCharacterInfoRemote(src: CharacterInfoDto): CharacterInfoRemote {
-        return CharacterInfoRemote(
-            characterId = src.characterId,
-            characterName = src.characterName,
-            characterStatus = src.characterStatus,
-            characterSpecies = src.characterSpecies,
-            characterType = src.characterType,
-            characterGender = src.characterGender,
-            characterOriginRemote = CharacterOriginRemote(
-                characterOriginName = src.characterOriginName,
-                characterOriginUrl = src.characterOriginUrl
-            ),
-            characterLocationRemote = CharacterLocationRemote(
-                characterLocationName = src.characterLocationName,
-                characterLocationUrl = src.characterLocationUrl
-            ),
-            characterImage = src.characterImage,
-            characterEpisodes = utils.transformStringIdToList(src.characterEpisodesIds),
-            characterUrl = src.characterUrl,
-            characterCreated = src.characterCreated
-        )
+        with(src){
+            return CharacterInfoRemote(
+                characterId = characterId,
+                characterName = characterName,
+                characterStatus = characterStatus,
+                characterSpecies = characterSpecies,
+                characterType = characterType,
+                characterGender = characterGender,
+                characterOriginRemote = CharacterOriginRemote(
+                    characterOriginName = characterOriginName,
+                    characterOriginUrl = characterOriginUrl
+                ),
+                characterLocationRemote = CharacterLocationRemote(
+                    characterLocationName = characterLocationName,
+                    characterLocationUrl = characterLocationUrl
+                ),
+                characterImage = characterImage,
+                characterEpisodes = utils.transformStringIdToList(characterEpisodesIds),
+                characterUrl = characterUrl,
+                characterCreated = characterCreated
+            )
+        }
     }
 
 
     fun transformCharacterInfoDtoIntoCharacterDetailsModel(src: CharacterInfoDto?): CharacterDetailsModel? {
         if (src == null) return null
-        return CharacterDetailsModel(
-            characterId = src.characterId ?: 0,
-            characterName = src.characterName ?: "",
-            characterStatus = src.characterStatus ?: "",
-            characterSpecies = src.characterSpecies ?: "",
-            characterType = src.characterType ?: "",
-            characterGender = src.characterGender ?: "",
-            characterOrigin = CharacterOrigin(
-                characterOriginName = src.characterOriginName ?: "",
-                characterOriginUrl = src.characterOriginUrl
-            ),
-            characterLocation = CharacterLocation(
-                characterLocationName = src.characterLocationName ?: "",
-                characterLocationUrl = src.characterLocationUrl
-            ),
-            characterImage = src.characterImage,
-            characterEpisodes = utils.transformStringIdToList(src.characterEpisodesIds) ?: emptyList(),
-            characterUrl = src.characterUrl,
-            characterCreated = src.characterCreated ?: ""
-        )
+        with(src){
+            return CharacterDetailsModel(
+                characterId = characterId ?: 0,
+                characterName = characterName ?: "",
+                characterStatus = characterStatus ?: "",
+                characterSpecies = characterSpecies ?: "",
+                characterType = characterType ?: "",
+                characterGender = characterGender ?: "",
+                characterOrigin = CharacterOrigin(
+                    characterOriginName = characterOriginName ?: "",
+                    characterOriginUrl = characterOriginUrl
+                ),
+                characterLocation = CharacterLocation(
+                    characterLocationName = characterLocationName ?: "",
+                    characterLocationUrl = characterLocationUrl
+                ),
+                characterImage = characterImage,
+                characterEpisodes = utils.transformStringIdToList(characterEpisodesIds) ?: emptyList(),
+                characterUrl = characterUrl,
+                characterCreated = characterCreated ?: ""
+            )
+        }
     }
 
     fun transformCharacterInfoRemoteIntoCharacterInfoDto(src: CharacterInfoRemote): CharacterInfoDto {
-        return CharacterInfoDto(
-            characterId = src.characterId,
-            characterName = src.characterName,
-            characterStatus = src.characterStatus,
-            characterSpecies = src.characterSpecies,
-            characterType = src.characterType,
-            characterGender = src.characterGender,
-            characterOriginName = src.characterOriginRemote?.characterOriginName,
-            characterOriginUrl = src.characterOriginRemote?.characterOriginUrl,
-            characterLocationName = src.characterLocationRemote?.characterLocationName,
-            characterLocationUrl = src.characterLocationRemote?.characterLocationUrl,
-            characterImage = src.characterImage,
-            characterEpisodesIds = utils.transformListStringsToIds(src.characterEpisodes),
-            characterUrl = src.characterUrl,
-            characterCreated = src.characterCreated
-        )
+        with(src){
+            return CharacterInfoDto(
+                characterId = characterId,
+                characterName = characterName,
+                characterStatus = characterStatus,
+                characterSpecies = characterSpecies,
+                characterType = characterType,
+                characterGender = characterGender,
+                characterOriginName = characterOriginRemote?.characterOriginName,
+                characterOriginUrl = characterOriginRemote?.characterOriginUrl,
+                characterLocationName = characterLocationRemote?.characterLocationName,
+                characterLocationUrl = characterLocationRemote?.characterLocationUrl,
+                characterImage = characterImage,
+                characterEpisodesIds = utils.transformListStringsToIds(characterEpisodes),
+                characterUrl = characterUrl,
+                characterCreated = characterCreated
+            )
+        }
     }
 }

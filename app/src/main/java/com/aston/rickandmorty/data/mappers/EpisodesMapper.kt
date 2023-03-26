@@ -18,24 +18,28 @@ class EpisodesMapper
     }
 
     fun transformEpisodeInfoRemoteIntoEpisodeModel(src: EpisodeInfoRemote): EpisodeModel {
-        return EpisodeModel(
-            id = src.episodeId ?: 0,
-            name = src.episodeName ?: "",
-            number = src.episodeNumber ?: "",
-            dateRelease = src.episodeAirDate ?: ""
-        )
+        return with(src) {
+            EpisodeModel(
+                id = episodeId ?: 0,
+                name = episodeName ?: "",
+                number = episodeNumber ?: "",
+                dateRelease = episodeAirDate ?: ""
+            )
+        }
     }
 
     fun transformEpisodeInfoRemoteIntoEpisodeInfoDto(src: EpisodeInfoRemote): EpisodeInfoDto {
-        return EpisodeInfoDto(
-            episodeId = src.episodeId,
-            episodeName = src.episodeName,
-            episodeAirDate = src.episodeAirDate,
-            episodeNumber = src.episodeNumber,
-            episodeCharacters = utils.transformListStringsToIds(src.episodeCharacters),
-            episodeUrl = src.episodeUrl,
-            episodeCreated = src.episodeCreated
-        )
+        return with(src) {
+            EpisodeInfoDto(
+                episodeId = episodeId,
+                episodeName = episodeName,
+                episodeAirDate = episodeAirDate,
+                episodeNumber = episodeNumber,
+                episodeCharacters = utils.transformListStringsToIds(episodeCharacters),
+                episodeUrl = episodeUrl,
+                episodeCreated = episodeCreated
+            )
+        }
     }
 
     fun configurationEpisodeDetailsModel(
@@ -43,24 +47,28 @@ class EpisodesMapper
         characters: List<CharacterModel>
     ): EpisodeDetailsModel? {
         if (episode == null) return null
-        return EpisodeDetailsModel(
-            id = episode.episodeId ?: 0,
-            name = episode.episodeName ?: "",
-            airDate = episode.episodeAirDate ?: "",
-            episodeNumber = episode.episodeNumber ?: "",
-            characters = characters
-        )
+        return  with(episode){
+            EpisodeDetailsModel(
+                id = episodeId ?: 0,
+                name = episodeName ?: "",
+                airDate = episodeAirDate ?: "",
+                episodeNumber = episodeNumber ?: "",
+                characters = characters
+            )
+        }
     }
 
     fun transformEpisodeInfoDtoIntoEpisodeInfoRemote(src: EpisodeInfoDto): EpisodeInfoRemote {
-        return EpisodeInfoRemote(
-            episodeId = src.episodeId,
-            episodeName = src.episodeName,
-            episodeAirDate = src.episodeAirDate,
-            episodeNumber = src.episodeNumber,
-            episodeCharacters = utils.transformStringIdToList(src.episodeCharacters),
-            episodeUrl = src.episodeUrl,
-            episodeCreated = src.episodeCreated
-        )
+        return with(src){
+            EpisodeInfoRemote(
+                episodeId = episodeId,
+                episodeName = episodeName,
+                episodeAirDate = episodeAirDate,
+                episodeNumber = episodeNumber,
+                episodeCharacters = utils.transformStringIdToList(episodeCharacters),
+                episodeUrl = episodeUrl,
+                episodeCreated = episodeCreated
+            )
+        }
     }
 }
