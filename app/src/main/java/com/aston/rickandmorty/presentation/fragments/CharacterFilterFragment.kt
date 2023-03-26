@@ -147,7 +147,6 @@ class CharacterFilterFragment : BaseFilterFragment<FragmentCharacterFilterBindin
         charactersViewModel.setCharacterFilter(resultFilter)
     }
 
-
     companion object {
 
         private const val MODE = "mode"

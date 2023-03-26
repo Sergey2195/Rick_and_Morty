@@ -1,12 +1,8 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
@@ -16,51 +12,30 @@ import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.EpisodeFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
-import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-class EpisodeFilterFragment : Fragment() {
+class EpisodeFilterFragment : BaseFilterFragment<FragmentEpisodeFilterBinding>(
+    R.layout.fragment_episode_filter,
+    FragmentEpisodeFilterBinding::inflate
+) {
 
-    private var mode = -1
-    private var _binding: FragmentEpisodeFilterBinding? = null
-    private val binding
-        get() = _binding!!
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
+    private val viewModel: EpisodesViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
-    private val viewModel: EpisodesViewModel by viewModels({activity as MainActivity }) {
-        viewModelFactory
-    }
-    private val filterViewModel: EpisodeFilterViewModel by viewModels{
+    private val filterViewModel: EpisodeFilterViewModel by viewModels {
         viewModelFactory
     }
     private val resultFilter = EpisodeFilterModel()
-    private val publishSubject = PublishSubject.create<Unit>()
-    private val compositeDisposable = CompositeDisposable()
 
-    override fun onAttach(context: Context) {
-        App.getAppComponent().injectEpisodeFilterFragment(this)
-        super.onAttach(context)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initArguments() {
         arguments?.let {
             mode = it.getInt(MODE)
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        mainViewModel.setIsOnParentLiveData(false)
+    override fun setUI() {
         val filterGroupVisibility = when (mode) {
             FILTER -> View.VISIBLE
             SEARCH -> View.GONE
@@ -68,9 +43,9 @@ class EpisodeFilterFragment : Fragment() {
         }
         binding.filterGroup.visibility = filterGroupVisibility
         setupClickListener()
-        setupObservers()
         sendCheckCountOfEpisodesWithInterval()
     }
+
 
     private fun sendCheckCountOfEpisodesWithInterval() {
         val disposable = publishSubject.debounce(1, TimeUnit.SECONDS)
@@ -80,17 +55,23 @@ class EpisodeFilterFragment : Fragment() {
         compositeDisposable.add(disposable)
     }
 
-    private fun setupObservers() = lifecycleScope.launchWhenStarted {
-        filterViewModel.countOfEpisodesStateFlow.collect { count ->
-            val text = when (count) {
-                0 -> if (mode == FILTER) requireContext().getString(R.string.filter_initial) else requireContext().getString(
-                    R.string.search_initial
-                )
-                -1 -> requireContext().getString(R.string.search_not_found)
-                else -> requireContext().getString(R.string.search_count, count)
+    override fun setupObservers() {
+        lifecycleScope.launchWhenStarted {
+            filterViewModel.countOfEpisodesStateFlow.collect { count ->
+                val text = when (count) {
+                    0 -> if (mode == FILTER) requireContext().getString(R.string.filter_initial) else requireContext().getString(
+                        R.string.search_initial
+                    )
+                    -1 -> requireContext().getString(R.string.search_not_found)
+                    else -> requireContext().getString(R.string.search_count, count)
+                }
+                binding.countResultTextView.text = text
             }
-            binding.countResultTextView.text = text
         }
+    }
+
+    override fun injectDependencies() {
+        App.getAppComponent().injectEpisodeFilterFragment(this)
     }
 
     private fun setupClickListener() {
@@ -109,19 +90,6 @@ class EpisodeFilterFragment : Fragment() {
         return if (text != null && text.isNotBlank()) {
             text.toString()
         } else null
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentEpisodeFilterBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeDisposable.dispose()
     }
 
     companion object {
