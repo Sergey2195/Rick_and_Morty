@@ -1,12 +1,8 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
@@ -16,26 +12,15 @@ import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.CharacterFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
-import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-class CharacterFilterFragment : Fragment() {
+class CharacterFilterFragment : BaseFilterFragment<FragmentCharacterFilterBinding>(
+    R.layout.fragment_character_filter,
+    FragmentCharacterFilterBinding::inflate
+) {
 
-    private var mode = -1
-    private var _binding: FragmentCharacterFilterBinding? = null
-    private val binding
-        get() = _binding!!
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
-        viewModelFactory
-    }
     private val charactersViewModel: CharactersViewModel by viewModels({activity as MainActivity }) {
         viewModelFactory
     }
@@ -43,40 +28,14 @@ class CharacterFilterFragment : Fragment() {
         viewModelFactory
     }
     private val resultFilter = CharacterFilterModel()
-    private val publishSubject = PublishSubject.create<Unit>()
-    private val compositeDisposable = CompositeDisposable()
 
-    override fun onAttach(context: Context) {
-        App.getAppComponent().injectCharacterFilterFragment(this)
-        super.onAttach(context)
-    }
-    override fun onDetach() {
-        super.onDetach()
-        compositeDisposable.dispose()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initArguments() {
         arguments?.let {
             mode = it.getInt(MODE)
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        mainViewModel.setIsOnParentLiveData(false)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentCharacterFilterBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun setUI() {
         when (mode) {
             SEARCH_MODE -> {
                 binding.filterGroup.visibility = View.GONE
@@ -87,11 +46,14 @@ class CharacterFilterFragment : Fragment() {
             else -> throw RuntimeException("SearchAndFilterFragment unknown mode")
         }
         setupClickListeners()
-        setupObservers()
         sendCheckCountOfCharactersWithInterval()
     }
 
-    private fun setupObservers() = lifecycleScope.launchWhenCreated {
+    override fun setupObservers() {
+        observeFlows()
+    }
+
+    private fun observeFlows() = lifecycleScope.launchWhenStarted {
         characterFilterViewModel.charactersCountStateFlow.collect {
             val text = when (it) {
                 -1 -> requireContext().getString(R.string.search_not_found)
@@ -102,6 +64,10 @@ class CharacterFilterFragment : Fragment() {
             }
             binding.countResultTextView.text = text
         }
+    }
+
+    override fun injectDependencies() {
+        App.getAppComponent().injectCharacterFilterFragment(this)
     }
 
     private fun sendCheckCountOfCharactersWithInterval() {
@@ -181,10 +147,6 @@ class CharacterFilterFragment : Fragment() {
         charactersViewModel.setCharacterFilter(resultFilter)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
-    }
 
     companion object {
 

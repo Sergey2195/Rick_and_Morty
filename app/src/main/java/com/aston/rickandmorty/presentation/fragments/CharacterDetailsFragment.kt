@@ -23,14 +23,13 @@ import javax.inject.Inject
 
 class CharacterDetailsFragment : Fragment() {
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
     private var id: Int? = null
     private var container: Int? = null
     private var _binding: FragmentCharacterDetailsBinding? = null
     private val binding
         get() = _binding!!
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
     private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
@@ -136,6 +135,7 @@ class CharacterDetailsFragment : Fragment() {
     }
 
     companion object {
+
         fun newInstance(id: Int, container: Int) = CharacterDetailsFragment().apply {
             arguments = Bundle().apply {
                 putInt(ID_KEY, id)

@@ -37,19 +37,15 @@ class CharactersViewModel @Inject constructor(
     val characterFilter = _characterFilter.asStateFlow()
 
     fun getFlowCharacters(
-        nameFilter: String? = null,
-        statusFilter: String? = null,
-        speciesFilter: String? = null,
-        typeFilter: String? = null,
-        genderFilter: String? = null,
+        arrayFilter: Array<String?>,
         forceUpdate: Boolean
     ): Flow<PagingData<CharacterModel>> {
         return characterAllFlowUseCase.invoke(
-            nameFilter,
-            statusFilter,
-            speciesFilter,
-            typeFilter,
-            genderFilter,
+            arrayFilter[0],
+            arrayFilter[1],
+            arrayFilter[2],
+            arrayFilter[3],
+            arrayFilter[4],
             forceUpdate
         ).cachedIn(viewModelScope)
     }
