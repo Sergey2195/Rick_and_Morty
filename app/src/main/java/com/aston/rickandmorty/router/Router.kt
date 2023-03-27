@@ -1,6 +1,5 @@
 package com.aston.rickandmorty.router
 
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.aston.rickandmorty.R
@@ -13,10 +12,6 @@ class Router {
 
     private var mainActivity: MainActivity? = null
     private var currentFragment = 0
-        set(value) {
-            field = value
-            Log.d("SSV", "new value = $value")
-        }
 
     fun onCreate(activity: MainActivity) {
         mainActivity = activity

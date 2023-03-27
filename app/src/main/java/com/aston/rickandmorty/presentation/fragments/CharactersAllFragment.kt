@@ -40,7 +40,6 @@ class CharactersAllFragment : BaseFragment<FragmentCharactersAllBinding>(
 
     override fun setupObservers() {
         setupObservers(false)
-        setupRefreshListener()
     }
 
     override fun injectDependencies() {
@@ -60,6 +59,7 @@ class CharactersAllFragment : BaseFragment<FragmentCharactersAllBinding>(
             true -> standardMode()
             false -> filterMode()
         }
+        setupRefreshListener()
     }
 
     private fun standardMode() {
