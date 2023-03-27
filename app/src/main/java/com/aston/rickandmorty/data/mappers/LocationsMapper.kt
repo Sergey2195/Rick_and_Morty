@@ -10,10 +10,10 @@ import javax.inject.Inject
 
 @ApplicationScope
 class LocationsMapper
-@Inject constructor(private val utils: Utils){
+@Inject constructor(private val utils: Utils) {
 
     fun transformLocationInfoRemoteIntoLocationModel(src: LocationInfoRemote): LocationModel {
-        return with(src){
+        return with(src) {
             LocationModel(
                 id = locationId ?: 0,
                 name = locationName ?: "",
@@ -28,7 +28,7 @@ class LocationsMapper
     }
 
     fun transformLocationInfoRemoteInfoLocationDetailsModelWithIds(src: LocationInfoRemote): LocationDetailsModelWithId {
-        return with(src){
+        return with(src) {
             LocationDetailsModelWithId(
                 locationId = locationId ?: 0,
                 locationName = locationName ?: "",
@@ -41,7 +41,7 @@ class LocationsMapper
     }
 
     fun transformLocationDtoIntoLocationDetailsWithIds(src: LocationInfoDto): LocationDetailsModelWithId {
-        return with(src){
+        return with(src) {
             LocationDetailsModelWithId(
                 locationId = locationId ?: 0,
                 locationName = locationName ?: "",
@@ -53,7 +53,7 @@ class LocationsMapper
     }
 
     fun transformLocationInfoDtoIntoLocationInfoRemote(src: LocationInfoDto): LocationInfoRemote {
-        return with(src){
+        return with(src) {
             LocationInfoRemote(
                 locationId = locationId,
                 locationName = locationName,
@@ -68,7 +68,7 @@ class LocationsMapper
 
 
     fun transformLocationInfoRemoteIntoLocationInfoDto(src: LocationInfoRemote): LocationInfoDto {
-        return with(src){
+        return with(src) {
             LocationInfoDto(
                 locationId = locationId,
                 locationName = locationName,

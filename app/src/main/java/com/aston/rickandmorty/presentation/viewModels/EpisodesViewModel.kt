@@ -41,7 +41,7 @@ class EpisodesViewModel @Inject constructor(
         _episodeFilterStateFlow.value = null
     }
 
-    fun clearEpisodeDataForAdapter(){
+    fun clearEpisodeDataForAdapter() {
         _episodeDataForAdapter.value = null
     }
 

@@ -71,12 +71,7 @@ class LocationsRepositoryImpl @Inject constructor(
         if (forceUpdate) return@withContext downloadAndUpdateLocationsData(pageIndex, filters)
         val localItems = localRepository.getAllLocations(pageIndex, filters)
         if (pageIndex == 1) {
-            val remoteItems = remoteRepository.getAllLocations(1, filters)
-            writeRemoteResponseIntoDb(remoteItems)
-            checkIsNotFullData(
-                localItems?.pageInfo?.countOfElements,
-                remoteItems?.pageInfo?.countOfElements
-            )
+            checkFirstPage(localItems, filters)
         }
         return@withContext if (isNotFullData) {
             downloadAndUpdateLocationsData(pageIndex, filters)
@@ -84,6 +79,15 @@ class LocationsRepositoryImpl @Inject constructor(
             localItems
         }
     }.also { setLoading(false) }
+
+    private suspend fun checkFirstPage(localItems: AllLocationsResponse?, filters: Array<String?>) {
+        val remoteItems = remoteRepository.getAllLocations(1, filters)
+        writeRemoteResponseIntoDb(remoteItems)
+        checkIsNotFullData(
+            localItems?.pageInfo?.countOfElements,
+            remoteItems?.pageInfo?.countOfElements
+        )
+    }
 
     private fun writeRemoteResponseIntoDb(remoteResponse: AllLocationsResponse?) {
         if (remoteResponse?.listLocationsInfo == null) return
@@ -149,7 +153,7 @@ class LocationsRepositoryImpl @Inject constructor(
         isNotFullData = (localItems ?: -1) < (remoteItems ?: -1)
     }
 
-    private fun setLoading(isLoading: Boolean){
+    private fun setLoading(isLoading: Boolean) {
         sharedRepository.setLoadingProgressStateFlow(isLoading)
     }
 }

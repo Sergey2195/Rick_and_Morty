@@ -8,11 +8,11 @@ import com.aston.rickandmorty.databinding.DefaultLoadStateBinding
 class LoadStateViewHolder(private val binding: DefaultLoadStateBinding) : ViewHolder(binding.root) {
 
     fun populate(loadState: LoadState, clickListener: () -> Unit) {
-        binding.tryAgainButton.setOnClickListener {
-            clickListener.invoke()
+        with(binding) {
+            tryAgainButton.setOnClickListener { clickListener.invoke() }
+            loadStateProgressBar.isVisible = loadState is LoadState.Loading
+            errorTextView.isVisible = loadState is LoadState.Error
+            tryAgainButton.isVisible = loadState is LoadState.Error
         }
-        binding.loadStateProgressBar.isVisible = loadState is LoadState.Loading
-        binding.errorTextView.isVisible = loadState is LoadState.Error
-        binding.tryAgainButton.isVisible = loadState is LoadState.Error
     }
 }

@@ -8,7 +8,8 @@ import com.aston.rickandmorty.domain.entity.EpisodeModel
 import com.aston.rickandmorty.presentation.diffUtils.EpisodesDiffUtilsCallback
 import com.aston.rickandmorty.presentation.viewHolders.EpisodesViewHolder
 
-class EpisodesAdapter: PagingDataAdapter<EpisodeModel, EpisodesViewHolder>(EpisodesDiffUtilsCallback()){
+class EpisodesAdapter :
+    PagingDataAdapter<EpisodeModel, EpisodesViewHolder>(EpisodesDiffUtilsCallback()) {
 
     var clickListener: ((id: Int) -> Unit)? = null
 

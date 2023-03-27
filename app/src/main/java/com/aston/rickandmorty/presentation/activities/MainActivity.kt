@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
         }
     }
 
-    private fun setToolbarState(isLoading: Boolean){
+    private fun setToolbarState(isLoading: Boolean) {
         if (isLoading) return
         binding.appBarLayout.setExpanded(false, true)
     }

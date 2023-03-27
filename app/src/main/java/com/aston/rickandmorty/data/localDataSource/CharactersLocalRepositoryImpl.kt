@@ -46,18 +46,21 @@ class CharactersLocalRepositoryImpl @Inject constructor(
         return AllCharactersResponse(pageInfoResponse, filteredItemsPage)
     }
 
-    private fun filteringCharacters(filters: Array<String?>): List<CharacterInfoDto>{
+    private fun filteringCharacters(filters: Array<String?>): List<CharacterInfoDto> {
         return allCharactersData.filter { dto -> filteringCharacter(dto, filters) }
     }
 
-    private fun takePage(filtered: List<CharacterInfoDto>, pageIndex: Int): List<CharacterInfoRemote>{
+    private fun takePage(
+        filtered: List<CharacterInfoDto>,
+        pageIndex: Int
+    ): List<CharacterInfoRemote> {
         return filtered
             .take(pageIndex * pageSize)
             .drop((pageIndex - 1) * pageSize)
             .map { mapper.transformCharacterInfoDtoIntoCharacterInfoRemote(it) }
     }
 
-    private fun pageInfo(filtered: List<CharacterInfoDto>, pageIndex: Int): PageInfoResponse{
+    private fun pageInfo(filtered: List<CharacterInfoDto>, pageIndex: Int): PageInfoResponse {
         val countPages = filtered.size / pageSize + if (filtered.size % pageSize != 0) 1 else 0
         val prevPage = if (pageIndex > 1) utils.getPageString(pageIndex - 1) else null
         val nextPage = if (pageIndex == countPages) null else utils.getPageString(pageIndex + 1)

@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @ApplicationScope
 class EpisodesMapper
-@Inject constructor(private val utils: Utils){
+@Inject constructor(private val utils: Utils) {
 
     fun transformListEpisodeInfoRemoteIntoListEpisodeModel(src: List<EpisodeInfoRemote>): List<EpisodeModel> {
         return src.map { transformEpisodeInfoRemoteIntoEpisodeModel(it) }
@@ -47,7 +47,7 @@ class EpisodesMapper
         characters: List<CharacterModel>
     ): EpisodeDetailsModel? {
         if (episode == null) return null
-        return  with(episode){
+        return with(episode) {
             EpisodeDetailsModel(
                 id = episodeId ?: 0,
                 name = episodeName ?: "",
@@ -59,7 +59,7 @@ class EpisodesMapper
     }
 
     fun transformEpisodeInfoDtoIntoEpisodeInfoRemote(src: EpisodeInfoDto): EpisodeInfoRemote {
-        return with(src){
+        return with(src) {
             EpisodeInfoRemote(
                 episodeId = episodeId,
                 episodeName = episodeName,

@@ -20,7 +20,7 @@ class EpisodesAllFragment : BaseFragment<FragmentEpisodesAllBinding>(
     FragmentEpisodesAllBinding::inflate
 ) {
 
-    private val viewModel: EpisodesViewModel by viewModels({activity as MainActivity }) {
+    private val viewModel: EpisodesViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
     private val adapter = EpisodesAdapter()
@@ -52,7 +52,7 @@ class EpisodesAllFragment : BaseFragment<FragmentEpisodesAllBinding>(
     }
 
     private fun setupRefreshListener() {
-        (requireActivity() as ToolbarManager).setRefreshClickListener{
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
             jobObserver?.cancel()
             sendParametersAndObserve(true)
         }
@@ -84,9 +84,10 @@ class EpisodesAllFragment : BaseFragment<FragmentEpisodesAllBinding>(
 
     private fun sendParametersAndObserve(forceUpdate: Boolean) {
         jobObserver = lifecycleScope.launchWhenStarted {
-            viewModel.getEpisodesAllFlow(arrayFilter[0], arrayFilter[1], forceUpdate).collect { pagingData ->
-                adapter.submitData(pagingData)
-            }
+            viewModel.getEpisodesAllFlow(arrayFilter[0], arrayFilter[1], forceUpdate)
+                .collect { pagingData ->
+                    adapter.submitData(pagingData)
+                }
         }
     }
 

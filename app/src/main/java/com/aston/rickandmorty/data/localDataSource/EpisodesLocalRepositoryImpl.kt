@@ -41,18 +41,18 @@ class EpisodesLocalRepositoryImpl @Inject constructor(
         return AllEpisodesResponse(pageInfoResponse, filteredItemsPage)
     }
 
-    private fun filteringEpisodes(filters: Array<String?>): List<EpisodeInfoDto>{
-        return allEpisodesData.filter { filter(filters, it)}
+    private fun filteringEpisodes(filters: Array<String?>): List<EpisodeInfoDto> {
+        return allEpisodesData.filter { filter(filters, it) }
     }
 
-    private fun takePage(filtered: List<EpisodeInfoDto>, pageIndex: Int): List<EpisodeInfoRemote>{
+    private fun takePage(filtered: List<EpisodeInfoDto>, pageIndex: Int): List<EpisodeInfoRemote> {
         return filtered
             .take(pageIndex * pageSize)
             .drop((pageIndex - 1) * pageSize)
             .map { mapper.transformEpisodeInfoDtoIntoEpisodeInfoRemote(it) }
     }
 
-    private fun pageInfo(filtered: List<EpisodeInfoDto>, pageIndex: Int): PageInfoResponse{
+    private fun pageInfo(filtered: List<EpisodeInfoDto>, pageIndex: Int): PageInfoResponse {
         val countPages = filtered.size / pageSize + if (filtered.size % pageSize != 0) 1 else 0
         val prevPage = if (pageIndex > 1) utils.getPageString(pageIndex - 1) else null
         val nextPage = if (pageIndex == countPages) null else utils.getPageString(pageIndex + 1)

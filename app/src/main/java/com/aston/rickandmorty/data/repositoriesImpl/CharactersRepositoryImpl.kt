@@ -52,6 +52,17 @@ class CharactersRepositoryImpl @Inject constructor(
         }
     }
 
+    private suspend fun checkFirstPage(
+        localItems: AllCharactersResponse?,
+        filters: Array<String?>
+    ) {
+        val remoteItems = remoteRepository.getAllCharacters(1, filters)
+        checkIsNotFullData(
+            localItems?.pageInfo?.countOfElements,
+            remoteItems?.pageInfo?.countOfElements
+        )
+    }
+
     private suspend fun loadCharacters(
         pageIndex: Int,
         filters: Array<String?>,
@@ -61,11 +72,7 @@ class CharactersRepositoryImpl @Inject constructor(
         if (forceUpdate) return@withContext downloadAndUpdateCharactersData(pageIndex, filters)
         val localItems = localRepository.getAllCharacters(pageIndex, filters)
         if (pageIndex == 1) {
-            val remoteItems = remoteRepository.getAllCharacters(pageIndex, filters)
-            checkIsNotFullData(
-                localItems?.pageInfo?.countOfElements,
-                remoteItems?.pageInfo?.countOfElements
-            )
+            checkFirstPage(localItems, filters)
         }
         if (isNotFullData) {
             val remoteData = downloadAndUpdateCharactersData(pageIndex, filters)
@@ -113,7 +120,7 @@ class CharactersRepositoryImpl @Inject constructor(
             val job = applicationScope.launch {
                 val idData = getCharacterData(id, forceUpdate)
                 val mappedData = mapper.transformCharacterDetailsModelIntoCharacterModel(idData)
-                if (mappedData != null){
+                if (mappedData != null) {
                     resultList.add(mappedData)
                 }
             }
@@ -146,7 +153,7 @@ class CharactersRepositoryImpl @Inject constructor(
             )
         }
 
-    private fun setLoading(isLoading: Boolean){
+    private fun setLoading(isLoading: Boolean) {
         sharedRepository.setLoadingProgressStateFlow(isLoading)
     }
 }

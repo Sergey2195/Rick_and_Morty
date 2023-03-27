@@ -12,7 +12,6 @@ import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.adapters.CharactersAdapter
 import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
-import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.Job
 

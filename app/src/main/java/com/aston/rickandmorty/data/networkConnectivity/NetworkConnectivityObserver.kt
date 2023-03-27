@@ -19,7 +19,6 @@ class NetworkConnectivityObserver @Inject constructor(
     private val connectivityManager =
         application.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
 
-
     override fun isDeviceOnline(context: Context): Boolean {
         val connManager = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCapabilities = connManager.getNetworkCapabilities(connManager.activeNetwork)

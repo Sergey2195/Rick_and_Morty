@@ -6,6 +6,7 @@ import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.fragments.*
 
 class Router {
+
     private var mainActivity: MainActivity? = null
 
     fun onCreate(activity: MainActivity) {
@@ -55,7 +56,5 @@ class Router {
         const val LOCATION_NAME = "location name"
         const val EPISODES_TAG = "episodes fragment"
         const val EPISODES_NAME = "episodes name"
-        const val CHARACTER_DETAIL_TAG = "character detail fragment"
-        const val CHARACTER_DETAIL_NAME = "character detail name"
     }
 }

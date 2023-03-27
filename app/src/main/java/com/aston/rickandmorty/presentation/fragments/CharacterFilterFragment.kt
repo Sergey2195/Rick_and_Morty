@@ -21,10 +21,10 @@ class CharacterFilterFragment : BaseFilterFragment<FragmentCharacterFilterBindin
     FragmentCharacterFilterBinding::inflate
 ) {
 
-    private val charactersViewModel: CharactersViewModel by viewModels({activity as MainActivity }) {
+    private val charactersViewModel: CharactersViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
-    private val characterFilterViewModel: CharacterFilterViewModel by viewModels{
+    private val characterFilterViewModel: CharacterFilterViewModel by viewModels {
         viewModelFactory
     }
     private val resultFilter = CharacterFilterModel()

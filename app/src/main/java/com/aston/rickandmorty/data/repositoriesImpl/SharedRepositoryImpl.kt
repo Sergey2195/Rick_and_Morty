@@ -46,7 +46,7 @@ class SharedRepositoryImpl @Inject constructor(
         _loadingProgressStateFlow.value = isLoading
     }
 
-    override fun errorConnection(e:Exception) {
+    override fun errorConnection(e: Exception) {
         if (e.cause?.message?.contains(NOT_FOUND_CODE) == true) return
         applicationScope.launch {
             _errorConnectionStateFlow.value = true
@@ -59,7 +59,7 @@ class SharedRepositoryImpl @Inject constructor(
         return connectionStatusIsAvailable.asStateFlow()
     }
 
-    companion object{
+    companion object {
         private const val NOT_FOUND_CODE = "404"
     }
 }

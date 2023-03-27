@@ -2,14 +2,11 @@ package com.aston.rickandmorty.presentation.fragments
 
 import android.view.LayoutInflater
 import androidx.annotation.LayoutRes
-import androidx.fragment.app.viewModels
 import androidx.viewbinding.ViewBinding
-import com.aston.rickandmorty.presentation.activities.MainActivity
-import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
-abstract class BaseFilterFragment<VB: ViewBinding>(
+abstract class BaseFilterFragment<VB : ViewBinding>(
     @LayoutRes private val layoutRes: Int,
     bindingInflater: (inflater: LayoutInflater) -> VB
 ) : BaseFragment<VB>(layoutRes, bindingInflater) {

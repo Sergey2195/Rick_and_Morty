@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CharactersDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addCharacter(data: CharacterInfoDto)
 

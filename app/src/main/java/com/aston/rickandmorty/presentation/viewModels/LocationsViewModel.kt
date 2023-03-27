@@ -70,7 +70,7 @@ class LocationsViewModel @Inject constructor(
         _locationDetailsStateFlow.value = dataForAdapter
     }
 
-    fun clearDataLocationDetailsAdapter(){
+    fun clearDataLocationDetailsAdapter() {
         _locationDetailsStateFlow.value = null
     }
 
@@ -99,10 +99,10 @@ class LocationsViewModel @Inject constructor(
         return adaptersUtils.transformLocationDetailsModelToDetailsModelAdapter(data)
     }
 
-    private fun sortListCharacters(list: List<CharacterModel>): List<CharacterModel>{
+    private fun sortListCharacters(list: List<CharacterModel>): List<CharacterModel> {
         return try {
             list.sortedBy { it.id }
-        }catch (e:Exception){
+        } catch (e: Exception) {
             emptyList()
         }
     }

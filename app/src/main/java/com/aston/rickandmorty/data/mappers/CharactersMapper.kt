@@ -14,10 +14,10 @@ import javax.inject.Inject
 
 @ApplicationScope
 class CharactersMapper
-    @Inject constructor(private val utils: Utils) {
+@Inject constructor(private val utils: Utils) {
 
     private fun transformCharacterInfoRemoteIntoCharacterModel(src: CharacterInfoRemote): CharacterModel {
-        return with(src){
+        return with(src) {
             CharacterModel(
                 id = characterId ?: 0,
                 name = characterName ?: "",
@@ -34,7 +34,7 @@ class CharactersMapper
     }
 
     fun transformCharacterInfoRemoteIntoCharacterDetailsModel(src: CharacterInfoRemote): CharacterDetailsModel {
-        return with(src){
+        return with(src) {
             CharacterDetailsModel(
                 characterId = characterId ?: 0,
                 characterName = characterName ?: "",
@@ -85,7 +85,7 @@ class CharactersMapper
     }
 
     fun transformCharacterInfoDtoIntoCharacterInfoRemote(src: CharacterInfoDto): CharacterInfoRemote {
-        with(src){
+        with(src) {
             return CharacterInfoRemote(
                 characterId = characterId,
                 characterName = characterName,
@@ -112,7 +112,7 @@ class CharactersMapper
 
     fun transformCharacterInfoDtoIntoCharacterDetailsModel(src: CharacterInfoDto?): CharacterDetailsModel? {
         if (src == null) return null
-        with(src){
+        with(src) {
             return CharacterDetailsModel(
                 characterId = characterId ?: 0,
                 characterName = characterName ?: "",
@@ -129,7 +129,8 @@ class CharactersMapper
                     characterLocationUrl = characterLocationUrl
                 ),
                 characterImage = characterImage,
-                characterEpisodes = utils.transformStringIdToList(characterEpisodesIds) ?: emptyList(),
+                characterEpisodes = utils.transformStringIdToList(characterEpisodesIds)
+                    ?: emptyList(),
                 characterUrl = characterUrl,
                 characterCreated = characterCreated ?: ""
             )
@@ -137,7 +138,7 @@ class CharactersMapper
     }
 
     fun transformCharacterInfoRemoteIntoCharacterInfoDto(src: CharacterInfoRemote): CharacterInfoDto {
-        with(src){
+        with(src) {
             return CharacterInfoDto(
                 characterId = characterId,
                 characterName = characterName,

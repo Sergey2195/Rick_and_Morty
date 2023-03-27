@@ -46,11 +46,12 @@ class EpisodesRemoteRepositoryImpl @Inject constructor(
 
     override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
         if (!isConnected()) return Single.error(Exception("no connection"))
-        return apiCall.getCountOfEpisodes(filters[0], filters[1]).map { it.pageInfo?.countOfElements ?: -1}
-            .doOnError{sharedRepository.errorConnection(Exception(it))}
+        return apiCall.getCountOfEpisodes(filters[0], filters[1])
+            .map { it.pageInfo?.countOfElements ?: -1 }
+            .doOnError { sharedRepository.errorConnection(Exception(it)) }
     }
 
-    private fun isConnected(): Boolean{
+    private fun isConnected(): Boolean {
         return sharedRepository.getStateFlowIsConnected().value
     }
 }

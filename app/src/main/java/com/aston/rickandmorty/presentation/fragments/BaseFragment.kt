@@ -14,10 +14,10 @@ import com.aston.rickandmorty.presentation.viewModels.MainViewModel
 import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import javax.inject.Inject
 
-abstract class BaseFragment<VB: ViewBinding>(
+abstract class BaseFragment<VB : ViewBinding>(
     @LayoutRes private val layoutRes: Int,
     private val bindingInflater: (inflater: LayoutInflater) -> VB
-): Fragment(layoutRes) {
+) : Fragment(layoutRes) {
 
     private var _binding: VB? = null
     protected val binding: VB

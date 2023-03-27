@@ -143,19 +143,21 @@ class EpisodesRepositoryImp @Inject constructor(
         setLoading(true)
         if (forceUpdate) return@withContext downloadAndUpdateEpisodesData(pageIndex, filters)
         val localItems = episodesLocalRepository.getAllEpisodes(pageIndex, filters)
-        if (pageIndex == 1) {
-            val remoteItems = episodesRemoteRepository.getAllEpisodes(1, filters)
-            checkIsNotFullData(
-                localItems?.pageInfo?.countOfElements,
-                remoteItems?.pageInfo?.countOfElements
-            )
-        }
+        if (pageIndex == 1) { checkFirstPage(filters, localItems) }
         return@withContext if (isNotFullData) {
             downloadAndUpdateEpisodesData(pageIndex, filters)
         } else {
             localItems
         }
     }.also { setLoading(false) }
+
+    private suspend fun checkFirstPage(filters: Array<String?>, localItems: AllEpisodesResponse?){
+        val remoteItems = episodesRemoteRepository.getAllEpisodes(1, filters)
+        checkIsNotFullData(
+            localItems?.pageInfo?.countOfElements,
+            remoteItems?.pageInfo?.countOfElements
+        )
+    }
 
     private fun checkIsNotFullData(localItems: Int?, remoteItems: Int?) {
         isNotFullData = (localItems ?: -1) < (remoteItems ?: -1)
@@ -196,7 +198,7 @@ class EpisodesRepositoryImp @Inject constructor(
         }
     }
 
-    private fun setLoading(isLoading: Boolean){
+    private fun setLoading(isLoading: Boolean) {
         sharedRepository.setLoadingProgressStateFlow(isLoading)
     }
 }

@@ -24,21 +24,31 @@ class DetailsTextViewHolder(private val binding: DetailsTextBinding) :
     }
 }
 
-class DetailsCharacterViewHolder(private val binding: CharacterItemBinding): DetailsViewHolder(binding.root){
+class DetailsCharacterViewHolder(private val binding: CharacterItemBinding) :
+    DetailsViewHolder(binding.root) {
     override fun populate(data: DetailsModelAdapter, clickListener: ((id: Int) -> Unit)?) {
         val typedData = data as DetailsModelCharacter
+        loadImage(typedData)
+        with(binding) {
+            characterNameValue.text = typedData.characterData?.name
+            characterGenderValue.text = typedData.characterData?.gender
+            characterSpeciesValue.text = typedData.characterData?.species
+            characterStatusValue.text = typedData.characterData?.status
+            characterConstraintLayout.setOnClickListener {
+                clickListener?.invoke(
+                    typedData.characterData?.id
+                        ?: throw RuntimeException("populate, DetailsCharacterViewHolder")
+                )
+            }
+        }
+    }
+
+    private fun loadImage(data: DetailsModelCharacter) {
         Glide.with(binding.root)
-            .load(typedData.characterData?.image)
+            .load(data.characterData?.image)
             .placeholder(R.drawable.toolbar_image)
             .transform(RoundedCorners(20))
             .into(binding.characterImage)
-        binding.characterNameValue.text = typedData.characterData?.name
-        binding.characterGenderValue.text = typedData.characterData?.gender
-        binding.characterSpeciesValue.text = typedData.characterData?.species
-        binding.characterStatusValue.text = typedData.characterData?.status
-        binding.characterConstraintLayout.setOnClickListener {
-            clickListener?.invoke(typedData.characterData?.id ?: throw RuntimeException("populate, DetailsCharacterViewHolder"))
-        }
     }
 }
 
