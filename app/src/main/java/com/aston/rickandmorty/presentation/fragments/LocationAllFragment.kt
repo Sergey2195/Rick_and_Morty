@@ -87,6 +87,7 @@ class LocationAllFragment : BaseFragment<FragmentLocationAllBinding>(
         binding.locationsRecyclerView.layoutManager = gridLayoutManager
         adapter.clickListener = {
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.from_right, R.anim.to_left, R.anim.from_left, R.anim.to_right)
                 .replace(
                     R.id.locationFragmentContainerRoot,
                     LocationDetailsFragment.newInstance(it, R.id.locationFragmentContainerRoot)

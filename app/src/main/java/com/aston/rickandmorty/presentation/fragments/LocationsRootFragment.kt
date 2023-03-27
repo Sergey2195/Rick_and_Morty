@@ -56,6 +56,7 @@ class LocationsRootFragment : BaseFragment<FragmentLocationsRootBinding>(
         )
         childFragmentManager.popBackStack()
         childFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
             .replace(R.id.locationFragmentContainerRoot, fragment)
             .addToBackStack(null)
             .commit()
@@ -87,6 +88,7 @@ class LocationsRootFragment : BaseFragment<FragmentLocationsRootBinding>(
 
     private fun startFilterOrSearchFragment(mode: Int) {
         childFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
             .replace(
                 R.id.locationFragmentContainerRoot,
                 LocationFilterFragment.newInstance(mode)

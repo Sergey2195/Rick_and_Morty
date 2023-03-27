@@ -109,6 +109,7 @@ class CharactersAllFragment : BaseFragment<FragmentCharactersAllBinding>(
 
     private fun startCharacterDetailsFragment(id: Int) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.from_right, R.anim.to_left, R.anim.from_left, R.anim.to_right)
             .replace(
                 R.id.charactersFragmentContainerRoot,
                 CharacterDetailsFragment.newInstance(id, R.id.charactersFragmentContainerRoot)

@@ -80,6 +80,7 @@ class EpisodeDetailsFragment : BaseFragment<FragmentEpisodeDetailsBinding>(
 
     private fun openCharacterDetailsFragment(id: Int) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.from_right, R.anim.to_left, R.anim.from_left, R.anim.to_right)
             .replace(container!!, CharacterDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()

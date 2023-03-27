@@ -53,6 +53,7 @@ class EpisodesRootFragment : BaseFragment<FragmentEpisodesRootBinding>(
         val fragment = EpisodesAllFragment.newInstance(filter.name, filter.episode)
         childFragmentManager.popBackStack()
         childFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
             .replace(R.id.episodeFragmentContainerRoot, fragment)
             .addToBackStack(null)
             .commit()
@@ -78,6 +79,7 @@ class EpisodesRootFragment : BaseFragment<FragmentEpisodesRootBinding>(
 
     private fun startFilterOrSearchFragment(mode: Int) {
         childFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
             .replace(R.id.episodeFragmentContainerRoot, EpisodeFilterFragment.newInstance(mode))
             .addToBackStack(null)
             .commit()

@@ -73,6 +73,7 @@ class EpisodesAllFragment : BaseFragment<FragmentEpisodesAllBinding>(
         binding.episodesRecyclerView.layoutManager = gridLayoutManager
         adapter.clickListener = {
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.from_right, R.anim.to_left, R.anim.from_left, R.anim.to_right)
                 .replace(
                     R.id.episodeFragmentContainerRoot,
                     EpisodeDetailsFragment.newInstance(it, R.id.episodeFragmentContainerRoot)

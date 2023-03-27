@@ -88,6 +88,7 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
 
     private fun openLocationDetails(id: Int) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.from_right, R.anim.to_left, R.anim.from_left, R.anim.to_right)
             .replace(container!!, LocationDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()

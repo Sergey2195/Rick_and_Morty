@@ -54,6 +54,7 @@ class CharactersRootFragment : BaseFragment<FragmentCharactersRootBinding>(
         )
         childFragmentManager.popBackStack()
         childFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
             .replace(R.id.charactersFragmentContainerRoot, fragment)
             .addToBackStack(null)
             .commit()
@@ -73,6 +74,7 @@ class CharactersRootFragment : BaseFragment<FragmentCharactersRootBinding>(
     private fun setupSearchClickListener() {
         (requireActivity() as ToolbarManager).setSearchButtonClickListener {
             childFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
                 .replace(
                     R.id.charactersFragmentContainerRoot,
                     CharacterFilterFragment.newInstance(CharacterFilterFragment.SEARCH_MODE)
@@ -85,6 +87,7 @@ class CharactersRootFragment : BaseFragment<FragmentCharactersRootBinding>(
     private fun setupFilterClickListener() {
         (requireActivity() as ToolbarManager).setFilterButtonClickListener {
             childFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
                 .replace(
                     R.id.charactersFragmentContainerRoot,
                     CharacterFilterFragment.newInstance(CharacterFilterFragment.FILTER_MODE)
