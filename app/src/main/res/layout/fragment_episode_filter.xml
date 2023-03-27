@@ -30,7 +30,7 @@
         android:layout_margin="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameInputLayout">
+        app:layout_constraintTop_toBottomOf="@id/nameInputLayout">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/episodeEditText"

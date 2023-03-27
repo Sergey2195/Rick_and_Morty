@@ -24,19 +24,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/character_name_title"
-        app:layout_constraintBottom_toBottomOf="@+id/characterNameValue"
+        app:layout_constraintBottom_toBottomOf="@id/characterNameValue"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/characterNameValue"/>
+        app:layout_constraintTop_toTopOf="@id/characterNameValue"/>
 
     <TextView
         android:id="@+id/characterNameValue"
         style="@style/ValueStyle"
         android:text="@string/character_example_value"
         app:layout_constraintVertical_chainStyle="packed"
-        app:layout_constraintBottom_toTopOf="@+id/characterSpeciesValue"
+        app:layout_constraintBottom_toTopOf="@id/characterSpeciesValue"
         app:layout_constraintTop_toBottomOf="@id/characterImage"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/barrier"/>
+        app:layout_constraintStart_toEndOf="@id/barrier"/>
 
     <TextView
         android:id="@+id/characterSpeciesTitle"
@@ -44,18 +44,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/character_species_title"
-        app:layout_constraintBottom_toBottomOf="@+id/characterSpeciesValue"
+        app:layout_constraintBottom_toBottomOf="@id/characterSpeciesValue"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/characterSpeciesValue" />
+        app:layout_constraintTop_toTopOf="@id/characterSpeciesValue" />
 
     <TextView
         android:id="@+id/characterSpeciesValue"
         style="@style/ValueStyle"
         android:text="@string/character_example_value"
-        app:layout_constraintBottom_toTopOf="@+id/characterStatusValue"
+        app:layout_constraintBottom_toTopOf="@id/characterStatusValue"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/barrier"
-        app:layout_constraintTop_toBottomOf="@+id/characterNameValue" />
+        app:layout_constraintStart_toEndOf="@id/barrier"
+        app:layout_constraintTop_toBottomOf="@id/characterNameValue" />
 
     <TextView
         android:id="@+id/characterStatusTitle"
@@ -63,18 +63,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/character_status_title"
-        app:layout_constraintBottom_toBottomOf="@+id/characterStatusValue"
+        app:layout_constraintBottom_toBottomOf="@id/characterStatusValue"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/characterStatusValue" />
+        app:layout_constraintTop_toTopOf="@id/characterStatusValue" />
 
     <TextView
         android:id="@+id/characterStatusValue"
         style="@style/ValueStyle"
         android:text="@string/character_example_value"
-        app:layout_constraintBottom_toTopOf="@+id/characterGenderValue"
+        app:layout_constraintBottom_toTopOf="@id/characterGenderValue"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/barrier"
-        app:layout_constraintTop_toBottomOf="@+id/characterSpeciesValue" />
+        app:layout_constraintStart_toEndOf="@id/barrier"
+        app:layout_constraintTop_toBottomOf="@id/characterSpeciesValue" />
 
     <TextView
         android:id="@+id/characterGenderTitle"
@@ -84,7 +84,7 @@
         android:text="@string/character_gender_title"
         app:layout_constraintBottom_toBottomOf="@id/characterGenderValue"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/characterGenderValue" />
+        app:layout_constraintTop_toTopOf="@id/characterGenderValue" />
 
     <TextView
         android:id="@+id/characterGenderValue"
@@ -92,8 +92,8 @@
         android:text="@string/character_example_value"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/barrier"
-        app:layout_constraintTop_toBottomOf="@+id/characterStatusValue" />
+        app:layout_constraintStart_toEndOf="@id/barrier"
+        app:layout_constraintTop_toBottomOf="@id/characterStatusValue" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/barrier"

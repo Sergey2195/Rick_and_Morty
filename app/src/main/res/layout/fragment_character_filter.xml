@@ -27,7 +27,7 @@
         app:layout_constraintBottom_toTopOf="@id/nameInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/countResultTextView" />
+        app:layout_constraintTop_toBottomOf="@id/countResultTextView" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nameInputLayout"
@@ -52,7 +52,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/character_status_title"
         app:layout_constraintStart_toEndOf="@id/startSpace"
-        app:layout_constraintTop_toBottomOf="@+id/nameInputLayout" />
+        app:layout_constraintTop_toBottomOf="@id/nameInputLayout" />
 
     <RadioGroup
         android:id="@+id/statusRadioGroup"
