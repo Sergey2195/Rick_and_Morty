@@ -58,7 +58,13 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
     private fun observeLoadingState() = lifecycleScope.launchWhenStarted {
         viewModel.getLoadingStateFlow().collect { isLoading ->
             binding.swipeRefreshLayout.isRefreshing = isLoading
+            setToolbarState(isLoading)
         }
+    }
+
+    private fun setToolbarState(isLoading: Boolean){
+        if (isLoading) return
+        binding.appBarLayout.setExpanded(false, true)
     }
 
     private fun observeLiveData() {
