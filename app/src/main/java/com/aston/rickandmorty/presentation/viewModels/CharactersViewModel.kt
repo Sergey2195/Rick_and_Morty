@@ -1,6 +1,5 @@
 package com.aston.rickandmorty.presentation.viewModels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -81,9 +80,7 @@ class CharactersViewModel @Inject constructor(
 
     fun loadInfoAboutCharacter(id: Int, forceUpdate: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
-            val data = characterDetailsUseCase.invoke(id, forceUpdate)
-            data ?: return@launch
-            Log.d("SSV_FR", "data not null")
+            val data = characterDetailsUseCase.invoke(id, forceUpdate) ?: return@launch
             val originModel = getOriginModel(data, forceUpdate)
             val locationModel = getLocationModel(data, forceUpdate)
             val episodesModels = getEpisodesModels(data, forceUpdate)
