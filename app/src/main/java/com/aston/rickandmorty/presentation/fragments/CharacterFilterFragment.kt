@@ -55,8 +55,8 @@ class CharacterFilterFragment : BaseFilterFragment<FragmentCharacterFilterBindin
     }
 
     override fun setRefreshLayoutListener() {
-        (requireActivity() as ToolbarManager).setRefreshClickListener{
-           //todo
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
+            characterFilterViewModel.sendFilters(resultFilter)
         }
     }
 

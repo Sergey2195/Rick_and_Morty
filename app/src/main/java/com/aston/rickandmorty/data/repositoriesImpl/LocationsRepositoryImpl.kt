@@ -144,9 +144,10 @@ class LocationsRepositoryImpl @Inject constructor(
         }
 
     override fun getCountOfLocations(filters: Array<String?>): Single<Int> {
+        setLoading(true)
         return remoteRepository.getCountOfLocations(filters).onErrorResumeNext(
             localRepository.getCountOfLocations(filters)
-        )
+        ).doAfterTerminate { setLoading(false) }
     }
 
     private fun checkIsNotFullData(localItems: Int?, remoteItems: Int?) {

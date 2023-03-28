@@ -115,9 +115,10 @@ class EpisodesRepositoryImp @Inject constructor(
         }
 
     override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
+        setLoading(true)
         return episodesRemoteRepository.getCountOfEpisodes(filters).onErrorResumeNext {
             episodesLocalRepository.getCountOfEpisodes(filters)
-        }
+        }.doAfterTerminate { setLoading(false) }
     }
 
     private fun getEpisodesPager(

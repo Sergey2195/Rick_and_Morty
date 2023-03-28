@@ -12,6 +12,7 @@ import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.LocationFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
@@ -47,7 +48,9 @@ class LocationFilterFragment : BaseFilterFragment<FragmentLocationFilterBinding>
     }
 
     override fun setRefreshLayoutListener() {
-
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
+            locationFilterViewModel.sendFilters(resultFilter)
+        }
     }
 
     override fun setupObservers() {

@@ -12,6 +12,7 @@ import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.EpisodeFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
@@ -47,6 +48,9 @@ class EpisodeFilterFragment : BaseFilterFragment<FragmentEpisodeFilterBinding>(
     }
 
     override fun setRefreshLayoutListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
+            filterViewModel.sendFilters(resultFilter)
+        }
     }
 
     private fun sendCheckCountOfEpisodesWithInterval() {
