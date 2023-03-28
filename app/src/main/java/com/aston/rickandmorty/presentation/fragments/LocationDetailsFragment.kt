@@ -55,7 +55,6 @@ class LocationDetailsFragment : BaseFragment<FragmentLocationDetailsBinding>(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         loadData(false)
-        setupRefreshListener()
     }
 
     override fun onStart() {
@@ -69,7 +68,7 @@ class LocationDetailsFragment : BaseFragment<FragmentLocationDetailsBinding>(
         viewModel.clearDataLocationDetailsAdapter()
     }
 
-    private fun setupRefreshListener() {
+    override fun setRefreshLayoutListener() {
         (requireActivity() as ToolbarManager).setRefreshClickListener {
             loadData(true)
         }

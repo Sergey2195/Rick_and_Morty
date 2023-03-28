@@ -133,12 +133,22 @@ class CharactersRepositoryImpl @Inject constructor(
 
     private suspend fun downloadAndUpdateCharacterData(id: Int): CharacterDetailsModel? =
         withContext(Dispatchers.IO) {
-            val remoteData = remoteRepository.getSingleCharacterInfo(id) ?: return@withContext null
+            val remoteData = remoteRepository.getSingleCharacterInfo(id)
+            if (remoteData == null) {
+                setLoadingChange()
+                return@withContext null
+            }
             localRepository.addCharacter(remoteData)
             return@withContext mapper.transformCharacterInfoRemoteIntoCharacterDetailsModel(
                 remoteData
             )
         }
+
+    private suspend fun setLoadingChange() {
+        setLoading(true)
+        delay(100)
+        setLoading(false)
+    }
 
     override fun getCountOfCharacters(filters: Array<String?>): Single<Int> {
         return remoteRepository.getCountOfCharacters(filters).onErrorResumeNext {

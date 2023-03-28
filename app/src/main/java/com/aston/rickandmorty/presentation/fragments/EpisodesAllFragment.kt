@@ -42,16 +42,11 @@ class EpisodesAllFragment : BaseFragment<FragmentEpisodesAllBinding>(
         sendParametersAndObserve(false)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setupRefreshListener()
-    }
-
     override fun setUI() {
         prepareRecyclerView()
     }
 
-    private fun setupRefreshListener() {
+    override fun setRefreshLayoutListener() {
         (requireActivity() as ToolbarManager).setRefreshClickListener {
             jobObserver?.cancel()
             sendParametersAndObserve(true)
@@ -94,9 +89,9 @@ class EpisodesAllFragment : BaseFragment<FragmentEpisodesAllBinding>(
 
     override fun onStart() {
         super.onStart()
-        val filtersInNull = allFiltersIsNull()
-        mainViewModel.setIsOnParentLiveData(filtersInNull)
-        val title = if (filtersInNull) {
+        val filtersIsNull = allFiltersIsNull()
+        mainViewModel.setIsOnParentLiveData(filtersIsNull)
+        val title = if (filtersIsNull) {
             requireContext().getString(R.string.bottom_navigation_menu_episodes_title)
         } else {
             getTitleFiltering()

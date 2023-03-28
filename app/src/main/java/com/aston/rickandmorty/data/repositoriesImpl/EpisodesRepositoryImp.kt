@@ -181,7 +181,11 @@ class EpisodesRepositoryImp @Inject constructor(
 
     private suspend fun downloadAndUpdateEpisodeData(id: Int): EpisodeDetailsModel? =
         withContext(Dispatchers.IO) {
-            val remoteData = episodesRemoteRepository.getEpisodeInfo(id) ?: return@withContext null
+            val remoteData = episodesRemoteRepository.getEpisodeInfo(id)
+            if (remoteData == null){
+                changeLoadingState()
+                return@withContext null
+            }
             episodesLocalRepository.addEpisode(remoteData)
             val multiIdString =
                 utils.transformListStringIdToStringWithoutSlash(remoteData.episodeCharacters) ?: ""
@@ -196,6 +200,12 @@ class EpisodesRepositoryImp @Inject constructor(
         } catch (e: Exception) {
             emptyList()
         }
+    }
+
+    private suspend fun changeLoadingState(){
+        setLoading(true)
+        delay(100)
+        setLoading(false)
     }
 
     private fun setLoading(isLoading: Boolean) {

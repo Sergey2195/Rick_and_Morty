@@ -100,6 +100,9 @@ class LocationsRootFragment : BaseFragment<FragmentLocationsRootBinding>(
     override fun initArguments() {
     }
 
+    override fun setRefreshLayoutListener() {
+    }
+
     companion object {
         fun newInstance() = LocationsRootFragment()
     }

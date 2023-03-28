@@ -51,15 +51,13 @@ class EpisodeDetailsFragment : BaseFragment<FragmentEpisodeDetailsBinding>(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sendIdEpisode(false)
-        setupRefreshListener()
     }
 
     override fun setUI() {
         prepareRecyclerView()
-
     }
 
-    private fun setupRefreshListener() {
+    override fun setRefreshLayoutListener() {
         (requireActivity() as ToolbarManager).setRefreshClickListener {
             sendIdEpisode(true)
         }

@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.presentation.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.Toast
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager {
 
     private fun observeLoadingState() = lifecycleScope.launchWhenStarted {
         viewModel.getLoadingStateFlow().collect { isLoading ->
+            Log.d("SSV_ACT", "set loading = $isLoading")
             binding.swipeRefreshLayout.isRefreshing = isLoading
             setToolbarState(isLoading)
         }

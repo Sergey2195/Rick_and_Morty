@@ -46,6 +46,8 @@ class EpisodeFilterFragment : BaseFilterFragment<FragmentEpisodeFilterBinding>(
         sendCheckCountOfEpisodesWithInterval()
     }
 
+    override fun setRefreshLayoutListener() {
+    }
 
     private fun sendCheckCountOfEpisodesWithInterval() {
         val disposable = publishSubject.debounce(1, TimeUnit.SECONDS)

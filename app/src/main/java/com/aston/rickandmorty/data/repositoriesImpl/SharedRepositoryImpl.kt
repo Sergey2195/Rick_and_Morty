@@ -1,6 +1,7 @@
 package com.aston.rickandmorty.data.repositoriesImpl
 
 import android.app.Application
+import android.util.Log
 import com.aston.rickandmorty.data.networkConnectivity.ConnectivityObserver
 import com.aston.rickandmorty.data.networkConnectivity.NetworkConnectivityObserver
 import com.aston.rickandmorty.di.ApplicationScope
@@ -43,6 +44,7 @@ class SharedRepositoryImpl @Inject constructor(
     }
 
     override fun setLoadingProgressStateFlow(isLoading: Boolean) {
+        Log.d("SSV_REP SHARED", "is loading = $isLoading")
         _loadingProgressStateFlow.value = isLoading
     }
 

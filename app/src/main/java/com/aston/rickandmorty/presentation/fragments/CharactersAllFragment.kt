@@ -46,7 +46,7 @@ class CharactersAllFragment : BaseFragment<FragmentCharactersAllBinding>(
         App.getAppComponent().injectCharactersAllFragment(this)
     }
 
-    private fun setupRefreshListener() {
+    override fun setRefreshLayoutListener() {
         (requireActivity() as ToolbarManager).setRefreshClickListener {
             observerJob?.cancel()
             setupObservers(true)
@@ -59,7 +59,6 @@ class CharactersAllFragment : BaseFragment<FragmentCharactersAllBinding>(
             true -> standardMode()
             false -> filterMode()
         }
-        setupRefreshListener()
     }
 
     private fun standardMode() {

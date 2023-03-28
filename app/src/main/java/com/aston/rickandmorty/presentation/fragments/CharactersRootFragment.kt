@@ -116,6 +116,9 @@ class CharactersRootFragment : BaseFragment<FragmentCharactersRootBinding>(
     override fun setUI() {
     }
 
+    override fun setRefreshLayoutListener() {
+    }
+
     companion object {
         fun newInstance() = CharactersRootFragment()
     }

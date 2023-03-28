@@ -88,6 +88,9 @@ class EpisodesRootFragment : BaseFragment<FragmentEpisodesRootBinding>(
     override fun initArguments() {
     }
 
+    override fun setRefreshLayoutListener() {
+    }
+
     companion object {
         fun newInstance() = EpisodesRootFragment()
     }

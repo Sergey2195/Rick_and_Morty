@@ -12,6 +12,7 @@ import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.CharacterFilterViewModel
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
+import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
@@ -51,6 +52,12 @@ class CharacterFilterFragment : BaseFilterFragment<FragmentCharacterFilterBindin
 
     override fun setupObservers() {
         observeFlows()
+    }
+
+    override fun setRefreshLayoutListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener{
+           //todo
+        }
     }
 
     private fun observeFlows() = lifecycleScope.launchWhenStarted {

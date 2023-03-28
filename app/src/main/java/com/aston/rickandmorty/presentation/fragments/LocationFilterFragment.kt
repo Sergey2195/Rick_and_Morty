@@ -46,6 +46,10 @@ class LocationFilterFragment : BaseFilterFragment<FragmentLocationFilterBinding>
         }
     }
 
+    override fun setRefreshLayoutListener() {
+
+    }
+
     override fun setupObservers() {
         lifecycleScope.launchWhenStarted {
             locationFilterViewModel.locationCountStateFlow.collect { count ->

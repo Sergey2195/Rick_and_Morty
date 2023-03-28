@@ -30,6 +30,7 @@ abstract class BaseFragment<VB : ViewBinding>(
     protected abstract fun setupObservers()
     protected abstract fun injectDependencies()
     protected abstract fun initArguments()
+    protected abstract fun setRefreshLayoutListener()
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -53,6 +54,11 @@ abstract class BaseFragment<VB : ViewBinding>(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUI()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        setRefreshLayoutListener()
     }
 
     override fun onDestroyView() {

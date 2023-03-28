@@ -36,11 +36,6 @@ class LocationAllFragment : BaseFragment<FragmentLocationAllBinding>(
         prepareRecyclerView()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setupSwipeListener()
-    }
-
     override fun initArguments() {
         arguments?.let {
             arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
@@ -51,7 +46,7 @@ class LocationAllFragment : BaseFragment<FragmentLocationAllBinding>(
         setupObserversWithSetForceUpdate(false)
     }
 
-    private fun setupSwipeListener() {
+    override fun setRefreshLayoutListener() {
         (requireActivity() as ToolbarManager).setRefreshClickListener {
             jobObserve?.cancel()
             adapter.refresh()

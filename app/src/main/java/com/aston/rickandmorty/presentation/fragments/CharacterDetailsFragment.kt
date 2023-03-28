@@ -13,6 +13,7 @@ import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsTitleVa
 import com.aston.rickandmorty.presentation.adapters.CharacterDetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import kotlinx.coroutines.Job
 
 class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
     R.layout.fragment_character_details,
@@ -25,6 +26,7 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
         viewModelFactory
     }
     private val adapter = CharacterDetailsAdapter()
+    private var observeJob: Job? = null
 
     override fun initArguments() {
         arguments?.let {
@@ -32,7 +34,6 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
             container = it.getInt(CONTAINER)
         }
         if (id == null) throw RuntimeException("unknown id onCreate CharacterDetailsFragment")
-        setupSwipeListener()
     }
 
     override fun setUI() {
@@ -45,9 +46,11 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
         App.getAppComponent().injectCharacterDetailsFragment(this)
     }
 
-    private fun setupSwipeListener() {
+    override fun setRefreshLayoutListener() {
         (requireActivity() as ToolbarManager).setRefreshClickListener {
+            observeJob?.cancel()
             loadData(true)
+            observeData()
         }
     }
 
@@ -56,7 +59,7 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
     }
 
     private fun observeData() {
-        lifecycleScope.launchWhenStarted {
+        observeJob = lifecycleScope.launchWhenStarted {
             viewModel.dataForAdapter.collect { list ->
                 adapter.submitList(list)
                 setupName(list)
