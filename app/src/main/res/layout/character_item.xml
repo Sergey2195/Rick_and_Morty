@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/characterConstraintLayout"
     android:layout_width="wrap_content"
@@ -14,9 +13,10 @@
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         android:src="@drawable/example_rick_image"
+        android:contentDescription="@string/character_name_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/characterNameTitle"
@@ -26,17 +26,17 @@
         android:text="@string/character_name_title"
         app:layout_constraintBottom_toBottomOf="@id/characterNameValue"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/characterNameValue"/>
+        app:layout_constraintTop_toTopOf="@id/characterNameValue" />
 
     <TextView
         android:id="@+id/characterNameValue"
         style="@style/ValueStyle"
         android:text="@string/character_example_value"
-        app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintBottom_toTopOf="@id/characterSpeciesValue"
-        app:layout_constraintTop_toBottomOf="@id/characterImage"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/barrier"/>
+        app:layout_constraintStart_toEndOf="@id/barrier"
+        app:layout_constraintTop_toBottomOf="@id/characterImage"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
         android:id="@+id/characterSpeciesTitle"

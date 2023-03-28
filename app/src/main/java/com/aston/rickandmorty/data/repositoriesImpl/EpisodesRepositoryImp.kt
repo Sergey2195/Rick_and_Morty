@@ -56,8 +56,8 @@ class EpisodesRepositoryImp @Inject constructor(
 
     private suspend fun getCharactersModel(listIds: List<String>?): List<CharacterModel> {
         if (listIds == null) return emptyList()
-        val listJob = arrayListOf<Job>()
-        val resultList = arrayListOf<CharacterModel>()
+        val listJob = mutableListOf<Job>()
+        val resultList = mutableListOf<CharacterModel>()
         for (id in listIds) {
             val job = applicationScope.launch {
                 val preparedId = utils.transformIdWithStringAndSlashIntoInt(id)
@@ -71,7 +71,15 @@ class EpisodesRepositoryImp @Inject constructor(
             listJob.add(job)
         }
         listJob.joinAll()
-        return resultList.sortedBy { it.id }
+        return sortedCharactersModel(resultList)
+    }
+
+    private fun sortedCharactersModel(list: List<CharacterModel>): List<CharacterModel> {
+        return try {
+            list.sortedBy { it.id }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     override suspend fun getListEpisodeModel(
@@ -144,7 +152,9 @@ class EpisodesRepositoryImp @Inject constructor(
         setLoading(true)
         if (forceUpdate) return@withContext downloadAndUpdateEpisodesData(pageIndex, filters)
         val localItems = episodesLocalRepository.getAllEpisodes(pageIndex, filters)
-        if (pageIndex == 1) { checkFirstPage(filters, localItems) }
+        if (pageIndex == 1) {
+            checkFirstPage(filters, localItems)
+        }
         return@withContext if (isNotFullData) {
             downloadAndUpdateEpisodesData(pageIndex, filters)
         } else {
@@ -152,7 +162,7 @@ class EpisodesRepositoryImp @Inject constructor(
         }
     }.also { setLoading(false) }
 
-    private suspend fun checkFirstPage(filters: Array<String?>, localItems: AllEpisodesResponse?){
+    private suspend fun checkFirstPage(filters: Array<String?>, localItems: AllEpisodesResponse?) {
         val remoteItems = episodesRemoteRepository.getAllEpisodes(1, filters)
         checkIsNotFullData(
             localItems?.pageInfo?.countOfElements,
@@ -183,7 +193,7 @@ class EpisodesRepositoryImp @Inject constructor(
     private suspend fun downloadAndUpdateEpisodeData(id: Int): EpisodeDetailsModel? =
         withContext(Dispatchers.IO) {
             val remoteData = episodesRemoteRepository.getEpisodeInfo(id)
-            if (remoteData == null){
+            if (remoteData == null) {
                 changeLoadingState()
                 return@withContext null
             }
@@ -203,7 +213,7 @@ class EpisodesRepositoryImp @Inject constructor(
         }
     }
 
-    private suspend fun changeLoadingState(){
+    private suspend fun changeLoadingState() {
         setLoading(true)
         delay(100)
         setLoading(false)

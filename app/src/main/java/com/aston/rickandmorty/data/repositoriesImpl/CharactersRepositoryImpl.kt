@@ -154,7 +154,7 @@ class CharactersRepositoryImpl @Inject constructor(
         setLoading(true)
         return remoteRepository.getCountOfCharacters(filters).onErrorResumeNext {
             localRepository.getCountOfCharacters(filters)
-        }.doAfterTerminate{setLoading(false)}
+        }.doAfterTerminate { setLoading(false) }
     }
 
     override suspend fun getMultiCharacterModelOnlyRemote(multiId: String): List<CharacterModel> =
