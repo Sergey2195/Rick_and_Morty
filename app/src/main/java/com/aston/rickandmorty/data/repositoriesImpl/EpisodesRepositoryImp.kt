@@ -86,6 +86,7 @@ class EpisodesRepositoryImp @Inject constructor(
         multiId: String,
         forceUpdate: Boolean
     ): List<EpisodeModel>? = withContext(Dispatchers.IO) {
+        setLoading(true)
         val listId = multiId.split(",").map { it.toInt() }
         if (listId.isEmpty()) return@withContext null
         val listJob = arrayListOf<Job>()
@@ -98,6 +99,7 @@ class EpisodesRepositoryImp @Inject constructor(
             listJob.add(job)
         }
         listJob.joinAll()
+        setLoading(false)
         sortedList(resultList)
     }
 

@@ -80,6 +80,7 @@ class CharactersViewModel @Inject constructor(
 
     fun loadInfoAboutCharacter(id: Int, forceUpdate: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
+            _dataForAdapter.value = emptyList()
             val data = characterDetailsUseCase.invoke(id, forceUpdate) ?: return@launch
             val originModel = getOriginModel(data, forceUpdate)
             val locationModel = getLocationModel(data, forceUpdate)
@@ -100,9 +101,4 @@ class CharactersViewModel @Inject constructor(
     fun clearCharacterFilter() {
         _characterFilter.value = null
     }
-
-    fun clearDataForAdapter() {
-        _dataForAdapter.value = emptyList()
-    }
-
 }

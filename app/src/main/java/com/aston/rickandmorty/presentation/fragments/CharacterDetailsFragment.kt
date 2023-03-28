@@ -91,7 +91,12 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
 
     private fun openLocationDetails(id: Int) {
         parentFragmentManager.beginTransaction()
-            .setCustomAnimations(R.anim.from_right, R.anim.to_left, R.anim.from_left, R.anim.to_right)
+            .setCustomAnimations(
+                R.anim.from_right,
+                R.anim.to_left,
+                R.anim.from_left,
+                R.anim.to_right
+            )
             .replace(container!!, LocationDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()
@@ -99,7 +104,12 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
 
     private fun openEpisodeDetails(id: Int) {
         parentFragmentManager.beginTransaction()
-            .setCustomAnimations(R.anim.from_right, R.anim.to_left, R.anim.from_left, R.anim.to_right)
+            .setCustomAnimations(
+                R.anim.from_right,
+                R.anim.to_left,
+                R.anim.from_left,
+                R.anim.to_right
+            )
             .replace(container!!, EpisodeDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()
@@ -108,11 +118,6 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
     private fun setToolBarText(str: String?) {
         if (str == null) return
         (requireActivity() as ToolbarManager).setToolbarText(str)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel.clearDataForAdapter()
     }
 
     override fun setupObservers() {
