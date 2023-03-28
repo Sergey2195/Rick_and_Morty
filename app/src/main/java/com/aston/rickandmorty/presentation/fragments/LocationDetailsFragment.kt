@@ -12,6 +12,8 @@ import com.aston.rickandmorty.presentation.adapterModels.DetailsModelText
 import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.filterNotNull
 
 class LocationDetailsFragment : BaseFragment<FragmentLocationDetailsBinding>(
@@ -26,6 +28,11 @@ class LocationDetailsFragment : BaseFragment<FragmentLocationDetailsBinding>(
     private val viewModel: LocationsViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
+    private var observerJob: Job? = null
+
+    override fun injectDependencies() {
+        App.getAppComponent().injectLocationDetailsFragment(this)
+    }
 
     override fun initArguments() {
         arguments?.let {
@@ -34,22 +41,15 @@ class LocationDetailsFragment : BaseFragment<FragmentLocationDetailsBinding>(
         }
     }
 
-    override fun injectDependencies() {
-        App.getAppComponent().injectLocationDetailsFragment(this)
-    }
-
     override fun setupObservers() {
-        lifecycleScope.launchWhenStarted {
+        observerJob = lifecycleScope.launchWhenStarted {
             viewModel.locationDetailsStateFlow.filterNotNull().collect { data ->
                 detailsAdapter.submitList(data)
                 titleText = (data[1] as? DetailsModelText)?.text
                 setToolBarText(titleText)
+                cancel()
             }
         }
-    }
-
-    override fun setUI() {
-        prepareRecyclersView()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,21 +57,19 @@ class LocationDetailsFragment : BaseFragment<FragmentLocationDetailsBinding>(
         loadData(false)
     }
 
-    override fun onStart() {
-        super.onStart()
-        mainViewModel.setIsOnParentLiveData(false)
-        setToolBarText(titleText)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel.clearDataLocationDetailsAdapter()
+    override fun setUI() {
+        prepareRecyclersView()
     }
 
     override fun setRefreshLayoutListener() {
         (requireActivity() as ToolbarManager).setRefreshClickListener {
             loadData(true)
+            setupObservers()
         }
+    }
+
+    private fun loadData(forceUpdate: Boolean) {
+        viewModel.sendIdToGetDetails(id ?: throw RuntimeException("load data"), forceUpdate)
     }
 
     private fun prepareRecyclersView() {
@@ -82,19 +80,32 @@ class LocationDetailsFragment : BaseFragment<FragmentLocationDetailsBinding>(
 
     private fun openCharacterDetailsFragment(id: Int) {
         parentFragmentManager.beginTransaction()
-            .setCustomAnimations(R.anim.from_right, R.anim.to_left, R.anim.from_left, R.anim.to_right)
+            .setCustomAnimations(
+                R.anim.from_right,
+                R.anim.to_left,
+                R.anim.from_left,
+                R.anim.to_right
+            )
             .replace(container!!, CharacterDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()
     }
 
-    private fun loadData(forceUpdate: Boolean) {
-        viewModel.sendIdToGetDetails(id ?: throw RuntimeException("load data"), forceUpdate)
+    override fun onStart() {
+        super.onStart()
+        mainViewModel.setIsOnParentLiveData(false)
+        setToolBarText(titleText)
     }
+
 
     private fun setToolBarText(str: String?) {
         if (str == null) return
         (requireActivity() as ToolbarManager).setToolbarText(str)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        observerJob?.cancel()
     }
 
     companion object {

@@ -12,6 +12,8 @@ import com.aston.rickandmorty.presentation.adapterModels.DetailsModelText
 import com.aston.rickandmorty.presentation.adapters.DetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.filterNotNull
 
 class EpisodeDetailsFragment : BaseFragment<FragmentEpisodeDetailsBinding>(
@@ -26,6 +28,7 @@ class EpisodeDetailsFragment : BaseFragment<FragmentEpisodeDetailsBinding>(
     }
     private val detailsAdapter = DetailsAdapter()
     private var titleText: String? = null
+    private var observeJob: Job? = null
 
     override fun injectDependencies() {
         App.getAppComponent().injectEpisodeDetailsFragment(this)
@@ -39,11 +42,12 @@ class EpisodeDetailsFragment : BaseFragment<FragmentEpisodeDetailsBinding>(
     }
 
     override fun setupObservers() {
-        lifecycleScope.launchWhenStarted {
+        observeJob = lifecycleScope.launchWhenStarted {
             viewModel.episodeDataForAdapter.filterNotNull().collect { data ->
                 detailsAdapter.submitList(data)
                 titleText = (data[1] as? DetailsModelText)?.text
                 setToolBarTitleText(titleText)
+                cancel()
             }
         }
     }
@@ -60,6 +64,7 @@ class EpisodeDetailsFragment : BaseFragment<FragmentEpisodeDetailsBinding>(
     override fun setRefreshLayoutListener() {
         (requireActivity() as ToolbarManager).setRefreshClickListener {
             sendIdEpisode(true)
+            setupObservers()
         }
     }
 
@@ -78,15 +83,15 @@ class EpisodeDetailsFragment : BaseFragment<FragmentEpisodeDetailsBinding>(
 
     private fun openCharacterDetailsFragment(id: Int) {
         parentFragmentManager.beginTransaction()
-            .setCustomAnimations(R.anim.from_right, R.anim.to_left, R.anim.from_left, R.anim.to_right)
+            .setCustomAnimations(
+                R.anim.from_right,
+                R.anim.to_left,
+                R.anim.from_left,
+                R.anim.to_right
+            )
             .replace(container!!, CharacterDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel.clearEpisodeDataForAdapter()
     }
 
     override fun onStart() {
@@ -98,6 +103,11 @@ class EpisodeDetailsFragment : BaseFragment<FragmentEpisodeDetailsBinding>(
     private fun setToolBarTitleText(text: String?) {
         if (text == null) return
         (requireActivity() as ToolbarManager).setToolbarText(text)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        observeJob?.cancel()
     }
 
     companion object {

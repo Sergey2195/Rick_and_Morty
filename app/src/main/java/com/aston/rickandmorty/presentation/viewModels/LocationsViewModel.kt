@@ -50,14 +50,13 @@ class LocationsViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     fun sendIdToGetDetails(id: Int, forceUpdate: Boolean) {
+        _locationDetailsStateFlow.value = null
         val disposable = locationDetailsUseCase.invoke(id, forceUpdate)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ dataWithId ->
                 gotResponseFromSingle(dataWithId, forceUpdate)
-            }, {
-                locationDetailsStateFlow.value = null
-            })
+            }, {})
         compositeDisposable.add(disposable)
     }
 
@@ -68,10 +67,6 @@ class LocationsViewModel @Inject constructor(
         val locationDetailsModel = getLocationDetails(dataWithId, forceUpdate)
         val dataForAdapter = prepareDataForAdapter(locationDetailsModel)
         _locationDetailsStateFlow.value = dataForAdapter
-    }
-
-    fun clearDataLocationDetailsAdapter() {
-        _locationDetailsStateFlow.value = null
     }
 
     private suspend fun getLocationDetails(
