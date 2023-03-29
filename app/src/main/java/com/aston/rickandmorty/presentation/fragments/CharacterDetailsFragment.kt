@@ -136,6 +136,7 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
         super.onDestroyView()
         observeJob?.cancel()
         observeJob = null
+        viewModel.clearCharacterDetails()
     }
 
     companion object {

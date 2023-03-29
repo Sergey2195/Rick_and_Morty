@@ -98,6 +98,10 @@ class CharactersViewModel @Inject constructor(
         _characterFilter.value = filter
     }
 
+    fun clearCharacterDetails(){
+        _dataForAdapter.value = null
+    }
+
     fun clearCharacterFilter() {
         _characterFilter.value = null
     }
