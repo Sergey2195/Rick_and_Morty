@@ -29,8 +29,8 @@ class CharactersViewModel @Inject constructor(
     private val utils: Utils
 ) : ViewModel() {
 
-    private val _dataForAdapter: MutableStateFlow<List<CharacterDetailsModelAdapter>> =
-        MutableStateFlow(emptyList())
+    private val _dataForAdapter: MutableStateFlow<List<CharacterDetailsModelAdapter>?> =
+        MutableStateFlow(null)
     val dataForAdapter
         get() = _dataForAdapter.asStateFlow()
     private val _characterFilter: MutableStateFlow<CharacterFilterModel?> = MutableStateFlow(null)
@@ -80,7 +80,7 @@ class CharactersViewModel @Inject constructor(
 
     fun loadInfoAboutCharacter(id: Int, forceUpdate: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
-            _dataForAdapter.value = emptyList()
+            _dataForAdapter.value = null
             val data = characterDetailsUseCase.invoke(id, forceUpdate) ?: return@launch
             val originModel = getOriginModel(data, forceUpdate)
             val locationModel = getLocationModel(data, forceUpdate)

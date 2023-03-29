@@ -14,6 +14,8 @@ import com.aston.rickandmorty.presentation.adapters.CharacterDetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.filterNotNull
 
 class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
     R.layout.fragment_character_details,
@@ -27,6 +29,7 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
     }
     private val adapter = CharacterDetailsAdapter()
     private var observeJob: Job? = null
+    private var titleText: String? = null
 
     override fun initArguments() {
         arguments?.let {
@@ -36,9 +39,16 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
         if (id == null) throw RuntimeException("unknown id onCreate CharacterDetailsFragment")
     }
 
-    override fun setUI() {
-        loadData()
+    override fun setupObservers() {
         observeData()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        loadData(false)
+    }
+
+    override fun setUI() {
         prepareRecyclerViews()
     }
 
@@ -48,7 +58,6 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
 
     override fun setRefreshLayoutListener() {
         (requireActivity() as ToolbarManager).setRefreshClickListener {
-            observeJob?.cancel()
             loadData(true)
             observeData()
         }
@@ -60,9 +69,10 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
 
     private fun observeData() {
         observeJob = lifecycleScope.launchWhenStarted {
-            viewModel.dataForAdapter.collect { list ->
+            viewModel.dataForAdapter.filterNotNull().collect { list ->
                 adapter.submitList(list)
                 setupName(list)
+                cancel()
             }
         }
     }
@@ -70,12 +80,14 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
     private fun setupName(list: List<CharacterDetailsModelAdapter>) {
         if (list.isEmpty()) return
         val name = (list[1] as? CharacterDetailsTitleValueModelAdapter)?.value
+        titleText = name
         setToolBarText(name)
     }
 
     override fun onStart() {
         super.onStart()
         mainViewModel.setIsOnParentLiveData(false)
+        setToolBarText(titleText)
     }
 
     private fun prepareRecyclerViews() {
@@ -120,7 +132,10 @@ class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
         (requireActivity() as ToolbarManager).setToolbarText(str)
     }
 
-    override fun setupObservers() {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        observeJob?.cancel()
+        observeJob = null
     }
 
     companion object {
