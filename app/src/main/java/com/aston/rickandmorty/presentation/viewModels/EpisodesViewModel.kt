@@ -25,6 +25,7 @@ class EpisodesViewModel @Inject constructor(
     val episodeDataForAdapter = _episodeDataForAdapter.asStateFlow()
 
     fun sendIdEpisode(id: Int, forceUpdate: Boolean) = viewModelScope.launch {
+        _episodeDataForAdapter.value = null
         val episodeDetailsModel = episodeDetailsUseCase.invoke(id, forceUpdate) ?: return@launch
         _episodeDataForAdapter.value =
             adaptersUtils.transformEpisodeDetailsModelToDetailsModelAdapter(episodeDetailsModel)
@@ -39,10 +40,6 @@ class EpisodesViewModel @Inject constructor(
 
     fun clearFilter() {
         _episodeFilterStateFlow.value = null
-    }
-
-    fun clearEpisodeDataForAdapter(){
-        _episodeDataForAdapter.value = null
     }
 
     fun setFilter(filter: EpisodeFilterModel) {

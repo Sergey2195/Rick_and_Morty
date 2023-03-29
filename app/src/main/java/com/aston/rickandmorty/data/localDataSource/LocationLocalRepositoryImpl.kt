@@ -1,9 +1,8 @@
 package com.aston.rickandmorty.data.localDataSource
 
-import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.LocationsDao
 import com.aston.rickandmorty.data.localDataSource.models.LocationInfoDto
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.LocationsMapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllLocationsResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.LocationInfoRemote
 import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
@@ -15,10 +14,11 @@ import javax.inject.Inject
 
 @ApplicationScope
 class LocationLocalRepositoryImpl @Inject constructor(
-    private val mapper: Mapper,
+    private val mapper: LocationsMapper,
     private val locationsDao: LocationsDao,
     private val applicationScope: CoroutineScope,
-    private val utils: LocalRepositoriesUtils
+    private val utils: LocalRepositoriesUtils,
+    private val pageSize: Int
 ) : LocationsLocalRepository {
 
     private var allLocationData: List<LocationInfoDto> = emptyList()
@@ -42,18 +42,23 @@ class LocationLocalRepositoryImpl @Inject constructor(
         pageIndex: Int,
         filter: Array<String?>
     ): AllLocationsResponse? {
-        val filtered = allLocationData.filter { filtering(filter, it) }
+        val filtered = filteringLocations(filter)
         if (filtered.isEmpty()) return null
-        val filteredItemsPage = filtered
-            .take(pageIndex * PAGE_SIZE)
-            .drop((pageIndex - 1) * PAGE_SIZE)
-            .map { mapper.transformLocationInfoDtoIntoLocationInfoRemote(it) }
+        val filteredItemsPage = takePage(filtered, pageIndex)
         if (filteredItemsPage.isEmpty()) return null
-        val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
+        val pageInfoResponse = pageInfo(filtered, pageIndex)
+        return AllLocationsResponse(pageInfoResponse, filteredItemsPage)
+    }
+
+    private fun filteringLocations(filter: Array<String?>): List<LocationInfoDto> {
+        return allLocationData.filter { filtering(filter, it) }
+    }
+
+    private fun pageInfo(filtered: List<LocationInfoDto>, pageIndex: Int): PageInfoResponse {
+        val countPages = filtered.size / pageSize + if (filtered.size % pageSize != 0) 1 else 0
         val prevPage = if (pageIndex > 1) utils.getPageString(pageIndex - 1) else null
         val nextPage = if (pageIndex == countPages) null else utils.getPageString(pageIndex + 1)
-        val pageInfoResponse = PageInfoResponse(filtered.size, countPages, nextPage, prevPage)
-        return AllLocationsResponse(pageInfoResponse, filteredItemsPage)
+        return PageInfoResponse(filtered.size, countPages, nextPage, prevPage)
     }
 
     override fun getSingleLocationInfoRx(id: Int): Single<LocationInfoDto> {
@@ -67,12 +72,22 @@ class LocationLocalRepositoryImpl @Inject constructor(
 
     override fun getCountOfLocations(filters: Array<String?>): Single<Int> {
         val count = allLocationData.count { filtering(filters, it) }
-        return Single.just(count)
+        return Single.just(if (count == 0) -1 else count)
     }
 
-    private fun filtering(filters: Array<String?>, dto: LocationInfoDto): Boolean{
+    private fun filtering(filters: Array<String?>, dto: LocationInfoDto): Boolean {
         return utils.filteringItem(filters[0], dto.locationName) &&
                 utils.filteringItem(filters[1], dto.locationType) &&
                 utils.filteringItem(filters[2], dto.locationDimension)
+    }
+
+    private fun takePage(
+        filtered: List<LocationInfoDto>,
+        pageIndex: Int
+    ): List<LocationInfoRemote> {
+        return filtered
+            .take(pageIndex * pageSize)
+            .drop((pageIndex - 1) * pageSize)
+            .map { mapper.transformLocationInfoDtoIntoLocationInfoRemote(it) }
     }
 }

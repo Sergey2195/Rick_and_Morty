@@ -14,8 +14,4 @@ class LocalRepositoriesUtils @Inject constructor() {
         if (filter == null) return true
         return src?.lowercase()?.contains(filter.lowercase()) ?: false
     }
-
-    companion object {
-        const val PAGE_SIZE = 20
-    }
 }

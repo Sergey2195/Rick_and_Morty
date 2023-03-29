@@ -40,4 +40,32 @@ class Utils @Inject constructor() {
         }
         return resultStr
     }
+
+    fun transformStringIdIntoListInt(src: String?): List<Int> {
+        if (src == null) return emptyList()
+        return try {
+            src.split(",").map { (it.trim(' ', '/')).toInt() }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    fun transformListStringsToIds(src: List<String>?): String? {
+        if (src == null) return null
+        return src.map { "/${getLastIntAfterSlash(it)}" }.joinToString(separator = ",")
+    }
+
+    fun transformListStringIdToStringWithoutSlash(src: List<String>?): String? {
+        if (src == null) return null
+        return transformListStringsToIds(src)?.replace("/", "")
+    }
+
+    fun transformStringIdToList(src: String?): List<String>? {
+        if (src == null) return null
+        return src.split(",").map { it.trim() }
+    }
+
+    fun transformIdWithStringAndSlashIntoInt(str: String): Int {
+        return str.replace("/", "").toInt()
+    }
 }

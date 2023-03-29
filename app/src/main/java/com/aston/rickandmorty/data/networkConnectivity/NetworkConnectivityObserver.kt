@@ -1,4 +1,4 @@
-package com.aston.rickandmorty.data
+package com.aston.rickandmorty.data.networkConnectivity
 
 import android.app.Application
 import android.content.Context
@@ -18,7 +18,6 @@ class NetworkConnectivityObserver @Inject constructor(
 
     private val connectivityManager =
         application.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-
 
     override fun isDeviceOnline(context: Context): Boolean {
         val connManager = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager

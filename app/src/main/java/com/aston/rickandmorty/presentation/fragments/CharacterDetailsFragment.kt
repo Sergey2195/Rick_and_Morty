@@ -1,14 +1,10 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.aston.rickandmorty.R
 import com.aston.rickandmorty.databinding.FragmentCharacterDetailsBinding
 import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
@@ -16,37 +12,26 @@ import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsModelAd
 import com.aston.rickandmorty.presentation.adapterModels.CharacterDetailsTitleValueModelAdapter
 import com.aston.rickandmorty.presentation.adapters.CharacterDetailsAdapter
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
-import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
-import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.filterNotNull
 
-class CharacterDetailsFragment : Fragment() {
+class CharacterDetailsFragment : BaseFragment<FragmentCharacterDetailsBinding>(
+    R.layout.fragment_character_details,
+    FragmentCharacterDetailsBinding::inflate
+) {
 
     private var id: Int? = null
     private var container: Int? = null
-    private var _binding: FragmentCharacterDetailsBinding? = null
-    private val binding
-        get() = _binding!!
-    private val component = App.getAppComponent()
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
-        viewModelFactory
-    }
     private val viewModel: CharactersViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
     private val adapter = CharacterDetailsAdapter()
+    private var observeJob: Job? = null
+    private var titleText: String? = null
 
-    override fun onAttach(context: Context) {
-        component.injectCharacterDetailsFragment(this)
-        super.onAttach(context)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initArguments() {
         arguments?.let {
             id = it.getInt(ID_KEY)
             container = it.getInt(CONTAINER)
@@ -54,25 +39,27 @@ class CharacterDetailsFragment : Fragment() {
         if (id == null) throw RuntimeException("unknown id onCreate CharacterDetailsFragment")
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentCharacterDetailsBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        prepareRecyclerViews()
+    override fun setupObservers() {
         observeData()
-        loadData()
-        setupSwipeListener()
     }
 
-    private fun setupSwipeListener() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        loadData(false)
+    }
+
+    override fun setUI() {
+        prepareRecyclerViews()
+    }
+
+    override fun injectDependencies() {
+        App.getAppComponent().injectCharacterDetailsFragment(this)
+    }
+
+    override fun setRefreshLayoutListener() {
         (requireActivity() as ToolbarManager).setRefreshClickListener {
             loadData(true)
+            observeData()
         }
     }
 
@@ -81,10 +68,11 @@ class CharacterDetailsFragment : Fragment() {
     }
 
     private fun observeData() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.dataForAdapter.collect { list ->
+        observeJob = lifecycleScope.launchWhenStarted {
+            viewModel.dataForAdapter.filterNotNull().collect { list ->
                 adapter.submitList(list)
                 setupName(list)
+                cancel()
             }
         }
     }
@@ -92,12 +80,14 @@ class CharacterDetailsFragment : Fragment() {
     private fun setupName(list: List<CharacterDetailsModelAdapter>) {
         if (list.isEmpty()) return
         val name = (list[1] as? CharacterDetailsTitleValueModelAdapter)?.value
+        titleText = name
         setToolBarText(name)
     }
 
     override fun onStart() {
         super.onStart()
         mainViewModel.setIsOnParentLiveData(false)
+        setToolBarText(titleText)
     }
 
     private fun prepareRecyclerViews() {
@@ -113,6 +103,12 @@ class CharacterDetailsFragment : Fragment() {
 
     private fun openLocationDetails(id: Int) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.from_right,
+                R.anim.to_left,
+                R.anim.from_left,
+                R.anim.to_right
+            )
             .replace(container!!, LocationDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()
@@ -120,6 +116,12 @@ class CharacterDetailsFragment : Fragment() {
 
     private fun openEpisodeDetails(id: Int) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.from_right,
+                R.anim.to_left,
+                R.anim.from_left,
+                R.anim.to_right
+            )
             .replace(container!!, EpisodeDetailsFragment.newInstance(id, container!!))
             .addToBackStack(null)
             .commit()
@@ -132,11 +134,12 @@ class CharacterDetailsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
-        viewModel.clearDataForAdapter()
+        observeJob?.cancel()
+        observeJob = null
     }
 
     companion object {
+
         fun newInstance(id: Int, container: Int) = CharacterDetailsFragment().apply {
             arguments = Bundle().apply {
                 putInt(ID_KEY, id)

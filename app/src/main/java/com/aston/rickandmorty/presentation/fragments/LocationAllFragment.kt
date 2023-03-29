@@ -1,11 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,23 +12,14 @@ import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.adapters.LocationsAdapter
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
-import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.Job
-import javax.inject.Inject
 
-class LocationAllFragment : Fragment() {
+class LocationAllFragment : BaseFragment<FragmentLocationAllBinding>(
+    R.layout.fragment_location_all,
+    FragmentLocationAllBinding::inflate
+) {
 
-    private var _binding: FragmentLocationAllBinding? = null
-    private val binding
-        get() = _binding!!
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val component = App.getAppComponent()
-    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
-        viewModelFactory
-    }
     private val viewModel: LocationsViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
@@ -42,30 +28,29 @@ class LocationAllFragment : Fragment() {
     private var arrayFilter: Array<String?> = Array(5) { null }
     private var jobObserve: Job? = null
 
-    override fun onAttach(context: Context) {
-        component.injectLocationAllFragment(this)
-        super.onAttach(context)
+    override fun injectDependencies() {
+        App.getAppComponent().injectLocationAllFragment(this)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun setUI() {
         prepareRecyclerView()
-        setupObserversWithSetForceUpdate(false)
-        setupSwipeListener()
     }
 
-    private fun setupSwipeListener(){
-        (requireActivity() as ToolbarManager).setRefreshClickListener{
-            jobObserve?.cancel()
-            adapter.refresh()
-            setupObserversWithSetForceUpdate(true)
+    override fun initArguments() {
+        arguments?.let {
+            arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
+    override fun setupObservers() {
+        setupObserversWithSetForceUpdate(false)
+    }
+
+    override fun setRefreshLayoutListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
+            jobObserve?.cancel()
+            adapter.refresh()
+            setupObserversWithSetForceUpdate(true)
         }
     }
 
@@ -97,6 +82,7 @@ class LocationAllFragment : Fragment() {
         binding.locationsRecyclerView.layoutManager = gridLayoutManager
         adapter.clickListener = {
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.from_right, R.anim.to_left, R.anim.from_left, R.anim.to_right)
                 .replace(
                     R.id.locationFragmentContainerRoot,
                     LocationDetailsFragment.newInstance(it, R.id.locationFragmentContainerRoot)
@@ -104,19 +90,6 @@ class LocationAllFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentLocationAllBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
     }
 
     override fun onStart() {

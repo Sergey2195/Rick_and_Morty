@@ -2,13 +2,13 @@ package com.aston.rickandmorty.data.pagingSources
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.LocationsMapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllLocationsResponse
 import com.aston.rickandmorty.domain.entity.LocationModel
 import com.aston.rickandmorty.utils.Utils
 
 class LocationsPagingSource(
-    private val mapper: Mapper,
+    private val mapper: LocationsMapper,
     private val utils: Utils,
     private val loader: suspend (pageIndex: Int) -> AllLocationsResponse?
 ) : PagingSource<Int, LocationModel>() {

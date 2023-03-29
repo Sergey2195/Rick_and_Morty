@@ -1,11 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,60 +12,42 @@ import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.adapters.DefaultLoadStateAdapter
 import com.aston.rickandmorty.presentation.adapters.EpisodesAdapter
 import com.aston.rickandmorty.presentation.viewModels.EpisodesViewModel
-import com.aston.rickandmorty.presentation.viewModels.MainViewModel
-import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.Job
-import javax.inject.Inject
 
-class EpisodesAllFragment : Fragment() {
+class EpisodesAllFragment : BaseFragment<FragmentEpisodesAllBinding>(
+    R.layout.fragment_episodes_all,
+    FragmentEpisodesAllBinding::inflate
+) {
 
-    private var _binding: FragmentEpisodesAllBinding? = null
-    private val binding
-        get() = _binding!!
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val mainViewModel: MainViewModel by viewModels({ activity as MainActivity }) {
+    private val viewModel: EpisodesViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
-    private val viewModel: EpisodesViewModel by viewModels({activity as MainActivity }) {
-        viewModelFactory
-    }
-    private val component = App.getAppComponent()
     private val adapter = EpisodesAdapter()
     private var gridLayoutManager: GridLayoutManager? = null
     private var arrayFilter: Array<String?> = Array(2) { null }
     private var jobObserver: Job? = null
 
-    override fun onAttach(context: Context) {
-        component.injectEpisodesAllFragment(this)
-        super.onAttach(context)
+    override fun injectDependencies() {
+        App.getAppComponent().injectEpisodesAllFragment(this)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initArguments() {
         arguments?.let {
             arrayFilter = it.getStringArray(FILTER_ARRAY) as Array<String?>
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentEpisodesAllBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        prepareRecyclerView()
+    override fun setupObservers() {
         sendParametersAndObserve(false)
-        setupRefreshListener()
     }
 
-    private fun setupRefreshListener() {
-        (requireActivity() as ToolbarManager).setRefreshClickListener{
+    override fun setUI() {
+        prepareRecyclerView()
+    }
+
+    override fun setRefreshLayoutListener() {
+        (requireActivity() as ToolbarManager).setRefreshClickListener {
             jobObserver?.cancel()
             sendParametersAndObserve(true)
         }
@@ -91,6 +68,7 @@ class EpisodesAllFragment : Fragment() {
         binding.episodesRecyclerView.layoutManager = gridLayoutManager
         adapter.clickListener = {
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.from_right, R.anim.to_left, R.anim.from_left, R.anim.to_right)
                 .replace(
                     R.id.episodeFragmentContainerRoot,
                     EpisodeDetailsFragment.newInstance(it, R.id.episodeFragmentContainerRoot)
@@ -102,17 +80,18 @@ class EpisodesAllFragment : Fragment() {
 
     private fun sendParametersAndObserve(forceUpdate: Boolean) {
         jobObserver = lifecycleScope.launchWhenStarted {
-            viewModel.getEpisodesAllFlow(arrayFilter[0], arrayFilter[1], forceUpdate).collect { pagingData ->
-                adapter.submitData(pagingData)
-            }
+            viewModel.getEpisodesAllFlow(arrayFilter[0], arrayFilter[1], forceUpdate)
+                .collect { pagingData ->
+                    adapter.submitData(pagingData)
+                }
         }
     }
 
     override fun onStart() {
         super.onStart()
-        val filtersInNull = allFiltersIsNull()
-        mainViewModel.setIsOnParentLiveData(filtersInNull)
-        val title = if (filtersInNull) {
+        val filtersIsNull = allFiltersIsNull()
+        mainViewModel.setIsOnParentLiveData(filtersIsNull)
+        val title = if (filtersIsNull) {
             requireContext().getString(R.string.bottom_navigation_menu_episodes_title)
         } else {
             getTitleFiltering()
@@ -126,11 +105,6 @@ class EpisodesAllFragment : Fragment() {
 
     private fun allFiltersIsNull(): Boolean {
         return arrayFilter.all { it == null }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
     }
 
     companion object {

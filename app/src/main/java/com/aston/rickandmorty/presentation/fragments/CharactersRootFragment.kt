@@ -1,11 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
@@ -14,56 +9,42 @@ import com.aston.rickandmorty.domain.entity.CharacterFilterModel
 import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.CharactersViewModel
-import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class CharactersRootFragment : Fragment() {
+class CharactersRootFragment : BaseFragment<FragmentCharactersRootBinding>(
+    R.layout.fragment_characters_root,
+    FragmentCharactersRootBinding::inflate
+) {
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val component = App.getAppComponent()
-    private val charactersViewModel: CharactersViewModel by viewModels({activity as MainActivity }) {
+    private val charactersViewModel: CharactersViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
-    private var _binding: FragmentCharactersRootBinding? = null
-    private val binding
-        get() = _binding!!
 
-    override fun onAttach(context: Context) {
-        component.injectCharactersRootFragment(this)
-        super.onAttach(context)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentCharactersRootBinding.inflate(inflater, container, false)
-        return binding.root
+    override fun injectDependencies() {
+        App.getAppComponent().injectCharactersRootFragment(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         if (savedInstanceState == null) {
             startInitialFragment()
         }
         setupBackButtonClickListener()
-        setupObservers()
     }
 
-    private fun setupObservers() = lifecycleScope.launch{
-        charactersViewModel.characterFilter.filterNotNull().collect{
-            startFragmentWithFiltering(it)
-            charactersViewModel.clearCharacterFilter()
+    override fun setupObservers() {
+        lifecycleScope.launch {
+            charactersViewModel.characterFilter.filterNotNull().collect {
+                startFragmentWithFiltering(it)
+                charactersViewModel.clearCharacterFilter()
+            }
         }
     }
 
-    private fun startFragmentWithFiltering(filter: CharacterFilterModel){
+    private fun startFragmentWithFiltering(filter: CharacterFilterModel) {
         val fragment = CharactersAllFragment.newInstance(
             filter.nameFilter,
             filter.statusFilter,
@@ -73,6 +54,7 @@ class CharactersRootFragment : Fragment() {
         )
         childFragmentManager.popBackStack()
         childFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
             .replace(R.id.charactersFragmentContainerRoot, fragment)
             .addToBackStack(null)
             .commit()
@@ -92,6 +74,7 @@ class CharactersRootFragment : Fragment() {
     private fun setupSearchClickListener() {
         (requireActivity() as ToolbarManager).setSearchButtonClickListener {
             childFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
                 .replace(
                     R.id.charactersFragmentContainerRoot,
                     CharacterFilterFragment.newInstance(CharacterFilterFragment.SEARCH_MODE)
@@ -104,6 +87,7 @@ class CharactersRootFragment : Fragment() {
     private fun setupFilterClickListener() {
         (requireActivity() as ToolbarManager).setFilterButtonClickListener {
             childFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
                 .replace(
                     R.id.charactersFragmentContainerRoot,
                     CharacterFilterFragment.newInstance(CharacterFilterFragment.FILTER_MODE)
@@ -119,16 +103,20 @@ class CharactersRootFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
-    }
-
     private fun startInitialFragment() = lifecycleScope.launchWhenStarted {
         delay(100)
         childFragmentManager.beginTransaction()
             .add(R.id.charactersFragmentContainerRoot, CharactersAllFragment.newInstance())
             .commit()
+    }
+
+    override fun initArguments() {
+    }
+
+    override fun setUI() {
+    }
+
+    override fun setRefreshLayoutListener() {
     }
 
     companion object {

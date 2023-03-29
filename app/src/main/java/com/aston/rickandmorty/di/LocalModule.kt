@@ -21,7 +21,7 @@ interface LocalModule {
             return Room.databaseBuilder(
                 application,
                 CharactersDatabase::class.java,
-                "characters_db"
+                CHARACTERS_DB_NAME
             ).build()
         }
 
@@ -37,7 +37,7 @@ interface LocalModule {
             return Room.databaseBuilder(
                 application,
                 LocationsDatabase::class.java,
-                "locations_db"
+                LOCATION_DB_NAME
             ).build()
         }
 
@@ -53,7 +53,7 @@ interface LocalModule {
             return Room.databaseBuilder(
                 application,
                 EpisodesDatabase::class.java,
-                "episodes_db"
+                EPISODES_DB_NAME
             ).build()
         }
 
@@ -62,5 +62,9 @@ interface LocalModule {
         fun provideEpisodesDao(episodesDatabase: EpisodesDatabase): EpisodesDao{
             return episodesDatabase.getDao()
         }
+
+        private const val LOCATION_DB_NAME = "locations_db"
+        private const val EPISODES_DB_NAME = "episodes_db"
+        private const val CHARACTERS_DB_NAME = "characters_db"
     }
 }

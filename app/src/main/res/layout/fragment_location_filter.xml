@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.fragments.LocationFilterFragment">
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nameInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/saveButton">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/nameEditText"
@@ -19,10 +21,12 @@
             android:layout_height="wrap_content"
             android:hint="@string/character_name_title" />
     </com.google.android.material.textfield.TextInputLayout>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/typeInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nameInputLayout">
@@ -38,39 +42,42 @@
         android:id="@+id/dimensionInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/typeInputLayout">
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/dimensionEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/dimension_title" />
     </com.google.android.material.textfield.TextInputLayout>
+
     <TextView
         android:id="@+id/countResultTextView"
-        style="@style/TitleStyle"
+        style="@style/CountOfFiltratingStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/search_count"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dimensionInputLayout"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/filterGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="dimensionInputLayout,typeInputLayout" />
+
     <Button
         android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/save_button_title"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="?attr/filterButtonTextColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/countResultTextView"
-        app:layout_constraintVertical_bias="0"/>
+        app:layout_constraintTop_toBottomOf="@+id/countResultTextView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

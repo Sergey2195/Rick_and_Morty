@@ -4,8 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".presentation.fragments.LocationAllFragment">
+
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/locationsRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/locationsRecyclerView"/>
+        android:layout_height="match_parent" />
 </FrameLayout>

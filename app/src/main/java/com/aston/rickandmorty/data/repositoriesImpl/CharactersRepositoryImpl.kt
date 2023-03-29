@@ -5,7 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.apiCalls.CharactersApiCall
 import com.aston.rickandmorty.data.localDataSource.CharactersLocalRepository
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.CharactersMapper
 import com.aston.rickandmorty.data.pagingSources.CharactersPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.CharactersRemoteRepository
 import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
@@ -16,17 +16,14 @@ import com.aston.rickandmorty.domain.repository.CharactersRepository
 import com.aston.rickandmorty.domain.repository.SharedRepository
 import com.aston.rickandmorty.utils.Utils
 import io.reactivex.Single
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @ApplicationScope
 class CharactersRepositoryImpl @Inject constructor(
     private val charactersApiCall: CharactersApiCall,
-    private val mapper: Mapper,
+    private val mapper: CharactersMapper,
     private val utils: Utils,
     private val pagingConfig: PagingConfig,
     private val remoteRepository: CharactersRemoteRepository,
@@ -55,6 +52,17 @@ class CharactersRepositoryImpl @Inject constructor(
         }
     }
 
+    private suspend fun checkFirstPage(
+        localItems: AllCharactersResponse?,
+        filters: Array<String?>
+    ) {
+        val remoteItems = remoteRepository.getAllCharacters(1, filters)
+        checkIsNotFullData(
+            localItems?.pageInfo?.countOfElements,
+            remoteItems?.pageInfo?.countOfElements
+        )
+    }
+
     private suspend fun loadCharacters(
         pageIndex: Int,
         filters: Array<String?>,
@@ -64,14 +72,11 @@ class CharactersRepositoryImpl @Inject constructor(
         if (forceUpdate) return@withContext downloadAndUpdateCharactersData(pageIndex, filters)
         val localItems = localRepository.getAllCharacters(pageIndex, filters)
         if (pageIndex == 1) {
-            val remoteItems = remoteRepository.getAllCharacters(pageIndex, filters)
-            checkIsNotFullData(
-                localItems?.pageInfo?.countOfElements,
-                remoteItems?.pageInfo?.countOfElements
-            )
+            checkFirstPage(localItems, filters)
         }
-        return@withContext if (isNotFullData) {
-            downloadAndUpdateCharactersData(pageIndex, filters)
+        if (isNotFullData) {
+            val remoteData = downloadAndUpdateCharactersData(pageIndex, filters)
+            remoteData ?: localItems
         } else {
             localItems
         }
@@ -98,36 +103,68 @@ class CharactersRepositoryImpl @Inject constructor(
 
     override suspend fun getCharacterData(id: Int, forceUpdate: Boolean): CharacterDetailsModel? =
         withContext(Dispatchers.IO) {
-            setLoading(true)
             if (forceUpdate) return@withContext downloadAndUpdateCharacterData(id)
             val localData = localRepository.getCharacterInfo(id)
                 ?: return@withContext downloadAndUpdateCharacterData(id)
             mapper.transformCharacterInfoDtoIntoCharacterDetailsModel(localData)
-        }.also { setLoading(false) }
+        }
+
+    override suspend fun getListCharactersData(
+        listId: List<Int>,
+        forceUpdate: Boolean
+    ): List<CharacterModel> {
+        setLoading(true)
+        val listJobs = mutableListOf<Job>()
+        val resultList = mutableListOf<CharacterModel>()
+        for (id in listId) {
+            val job = applicationScope.launch {
+                val idData = getCharacterData(id, forceUpdate)
+                val mappedData = mapper.transformCharacterDetailsModelIntoCharacterModel(idData)
+                if (mappedData != null) {
+                    resultList.add(mappedData)
+                }
+            }
+            listJobs.add(job)
+        }
+        listJobs.joinAll()
+        setLoading(false)
+        return resultList
+    }
 
     private suspend fun downloadAndUpdateCharacterData(id: Int): CharacterDetailsModel? =
         withContext(Dispatchers.IO) {
-            val remoteData = remoteRepository.getSingleCharacterInfo(id) ?: return@withContext null
+            val remoteData = remoteRepository.getSingleCharacterInfo(id)
+            if (remoteData == null) {
+                setLoadingChange()
+                return@withContext null
+            }
             localRepository.addCharacter(remoteData)
             return@withContext mapper.transformCharacterInfoRemoteIntoCharacterDetailsModel(
                 remoteData
             )
         }
 
-    override fun getCountOfCharacters(filters: Array<String?>): Single<Int> {
-        return remoteRepository.getCountOfCharacters(filters).onErrorResumeNext {
-            localRepository.getCountOfCharacters(filters)
-        }
+    private suspend fun setLoadingChange() {
+        setLoading(true)
+        delay(100)
+        setLoading(false)
     }
 
-    override suspend fun getMultiCharacterModel(multiId: String): List<CharacterModel> =
+    override fun getCountOfCharacters(filters: Array<String?>): Single<Int> {
+        setLoading(true)
+        return remoteRepository.getCountOfCharacters(filters).onErrorResumeNext {
+            localRepository.getCountOfCharacters(filters)
+        }.doAfterTerminate { setLoading(false) }
+    }
+
+    override suspend fun getMultiCharacterModelOnlyRemote(multiId: String): List<CharacterModel> =
         withContext(Dispatchers.IO) {
             return@withContext mapper.transformListCharacterInfoRemoteIntoCharacterModel(
                 charactersApiCall.getMultiCharactersData(multiId)
             )
         }
 
-    private fun setLoading(isLoading: Boolean){
+    private fun setLoading(isLoading: Boolean) {
         sharedRepository.setLoadingProgressStateFlow(isLoading)
     }
 }

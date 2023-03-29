@@ -23,9 +23,19 @@
         <item name="android:layout_marginEnd">20dp</item>
         <item name="android:textSize">18sp</item>
     </style>
+
+    <style name="DetailsStyle" parent="ValueDetailsStyle">
+        <item name="android:textColor">?attr/detailsTextColor</item>
+    </style>
+
     <style name="ValueLocation" parent="ValueStyle">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/variantFirst</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <style name="CountOfFiltratingStyle" parent="TitleStyle">
+        <item name="android:textColor">?attr/detailsTextColor</item>
+    </style>
+
 </resources>

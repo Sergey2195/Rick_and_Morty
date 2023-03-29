@@ -4,7 +4,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.localDataSource.EpisodesLocalRepository
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.CharactersMapper
+import com.aston.rickandmorty.data.mappers.EpisodesMapper
 import com.aston.rickandmorty.data.pagingSources.EpisodesPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.EpisodesRemoteRepository
 import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
@@ -23,7 +24,8 @@ import javax.inject.Inject
 
 @ApplicationScope
 class EpisodesRepositoryImp @Inject constructor(
-    private val mapper: Mapper,
+    private val mapper: EpisodesMapper,
+    private val charactersMapper: CharactersMapper,
     private val utils: Utils,
     private val applicationScope: CoroutineScope,
     private val episodesLocalRepository: EpisodesLocalRepository,
@@ -54,28 +56,37 @@ class EpisodesRepositoryImp @Inject constructor(
 
     private suspend fun getCharactersModel(listIds: List<String>?): List<CharacterModel> {
         if (listIds == null) return emptyList()
-        val listJob = arrayListOf<Job>()
-        val resultList = arrayListOf<CharacterModel>()
+        val listJob = mutableListOf<Job>()
+        val resultList = mutableListOf<CharacterModel>()
         for (id in listIds) {
             val job = applicationScope.launch {
-                val preparedId = mapper.transformIdWithStringAndSlashIntoInt(id)
+                val preparedId = utils.transformIdWithStringAndSlashIntoInt(id)
                 val characterData =
                     charactersRepository.getCharacterData(preparedId, false) ?: return@launch
                 val characterModel =
-                    mapper.transformCharacterDetailsModelIntoCharacterModel(characterData)
+                    charactersMapper.transformCharacterDetailsModelIntoCharacterModel(characterData)
                         ?: return@launch
                 resultList.add(characterModel)
             }
             listJob.add(job)
         }
         listJob.joinAll()
-        return resultList.sortedBy { it.id }
+        return sortedCharactersModel(resultList)
+    }
+
+    private fun sortedCharactersModel(list: List<CharacterModel>): List<CharacterModel> {
+        return try {
+            list.sortedBy { it.id }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     override suspend fun getListEpisodeModel(
         multiId: String,
         forceUpdate: Boolean
     ): List<EpisodeModel>? = withContext(Dispatchers.IO) {
+        setLoading(true)
         val listId = multiId.split(",").map { it.toInt() }
         if (listId.isEmpty()) return@withContext null
         val listJob = arrayListOf<Job>()
@@ -88,6 +99,7 @@ class EpisodesRepositoryImp @Inject constructor(
             listJob.add(job)
         }
         listJob.joinAll()
+        setLoading(false)
         sortedList(resultList)
     }
 
@@ -113,9 +125,10 @@ class EpisodesRepositoryImp @Inject constructor(
         }
 
     override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
+        setLoading(true)
         return episodesRemoteRepository.getCountOfEpisodes(filters).onErrorResumeNext {
             episodesLocalRepository.getCountOfEpisodes(filters)
-        }
+        }.doAfterTerminate { setLoading(false) }
     }
 
     private fun getEpisodesPager(
@@ -142,11 +155,7 @@ class EpisodesRepositoryImp @Inject constructor(
         if (forceUpdate) return@withContext downloadAndUpdateEpisodesData(pageIndex, filters)
         val localItems = episodesLocalRepository.getAllEpisodes(pageIndex, filters)
         if (pageIndex == 1) {
-            val remoteItems = episodesRemoteRepository.getAllEpisodes(1, filters)
-            checkIsNotFullData(
-                localItems?.pageInfo?.countOfElements,
-                remoteItems?.pageInfo?.countOfElements
-            )
+            checkFirstPage(filters, localItems)
         }
         return@withContext if (isNotFullData) {
             downloadAndUpdateEpisodesData(pageIndex, filters)
@@ -154,6 +163,14 @@ class EpisodesRepositoryImp @Inject constructor(
             localItems
         }
     }.also { setLoading(false) }
+
+    private suspend fun checkFirstPage(filters: Array<String?>, localItems: AllEpisodesResponse?) {
+        val remoteItems = episodesRemoteRepository.getAllEpisodes(1, filters)
+        checkIsNotFullData(
+            localItems?.pageInfo?.countOfElements,
+            remoteItems?.pageInfo?.countOfElements
+        )
+    }
 
     private fun checkIsNotFullData(localItems: Int?, remoteItems: Int?) {
         isNotFullData = (localItems ?: -1) < (remoteItems ?: -1)
@@ -177,12 +194,16 @@ class EpisodesRepositoryImp @Inject constructor(
 
     private suspend fun downloadAndUpdateEpisodeData(id: Int): EpisodeDetailsModel? =
         withContext(Dispatchers.IO) {
-            val remoteData = episodesRemoteRepository.getEpisodeInfo(id) ?: return@withContext null
+            val remoteData = episodesRemoteRepository.getEpisodeInfo(id)
+            if (remoteData == null) {
+                changeLoadingState()
+                return@withContext null
+            }
             episodesLocalRepository.addEpisode(remoteData)
             val multiIdString =
-                mapper.transformListStringIdToStringWithoutSlash(remoteData.episodeCharacters) ?: ""
+                utils.transformListStringIdToStringWithoutSlash(remoteData.episodeCharacters) ?: ""
             val charactersModel =
-                charactersRepository.getMultiCharacterModel(multiIdString)
+                charactersRepository.getMultiCharacterModelOnlyRemote(multiIdString)
             return@withContext mapper.configurationEpisodeDetailsModel(remoteData, charactersModel)
         }
 
@@ -194,7 +215,13 @@ class EpisodesRepositoryImp @Inject constructor(
         }
     }
 
-    private fun setLoading(isLoading: Boolean){
+    private suspend fun changeLoadingState() {
+        setLoading(true)
+        delay(100)
+        setLoading(false)
+    }
+
+    private fun setLoading(isLoading: Boolean) {
         sharedRepository.setLoadingProgressStateFlow(isLoading)
     }
 }

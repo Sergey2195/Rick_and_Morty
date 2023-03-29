@@ -28,11 +28,12 @@
     <string name="gender_male">Male</string>
     <string name="gender_genderless">Genderless</string>
     <string name="gender_unknown">Unknown</string>
-    <string name="save_button_title">Сохранить</string>
+    <string name="save_button_title">Применить</string>
     <string name="search_count">Найдено %d элементов</string>
     <string name="search_not_found">Нет элементов</string>
     <string name="search_initial">Режим поиска</string>
     <string name="filter_initial">Режим фильтра</string>
     <string name="network_error">Нет соединения с интернетом. Загружены сохраненные данные</string>
     <string name="network_connected">Соединение восстановлено</string>
+    <string name="error_connection">Произошла ошибка</string>
 </resources>

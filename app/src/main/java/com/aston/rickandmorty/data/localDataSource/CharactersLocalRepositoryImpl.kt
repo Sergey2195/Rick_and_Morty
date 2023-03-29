@@ -1,9 +1,8 @@
 package com.aston.rickandmorty.data.localDataSource
 
-import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.CharactersDao
 import com.aston.rickandmorty.data.localDataSource.models.CharacterInfoDto
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.CharactersMapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.CharacterInfoRemote
 import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
@@ -16,10 +15,11 @@ import javax.inject.Inject
 
 @ApplicationScope
 class CharactersLocalRepositoryImpl @Inject constructor(
-    private val mapper: Mapper,
+    private val mapper: CharactersMapper,
     private val charactersDao: CharactersDao,
     private val applicationScope: CoroutineScope,
-    private val utils: LocalRepositoriesUtils
+    private val utils: LocalRepositoriesUtils,
+    private val pageSize: Int
 ) : CharactersLocalRepository {
 
     private var allCharactersData: List<CharacterInfoDto> = emptyList()
@@ -38,20 +38,33 @@ class CharactersLocalRepositoryImpl @Inject constructor(
         pageIndex: Int,
         filters: Array<String?>
     ): AllCharactersResponse? {
-        val filtered = allCharactersData.filter { dto ->
-            filteringCharacter(dto, filters)
-        }
+        val filtered = filteringCharacters(filters)
         if (filtered.isEmpty()) return null
-        val filteredItemsPage = filtered
-            .take(pageIndex * PAGE_SIZE)
-            .drop((pageIndex - 1) * PAGE_SIZE)
-            .map { mapper.transformCharacterInfoDtoIntoCharacterInfoRemote(it) }
+        val filteredItemsPage = takePage(filtered, pageIndex)
         if (filteredItemsPage.isEmpty()) return null
-        val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
+        val pageInfoResponse = pageInfo(filtered, pageIndex)
+        return AllCharactersResponse(pageInfoResponse, filteredItemsPage)
+    }
+
+    private fun filteringCharacters(filters: Array<String?>): List<CharacterInfoDto> {
+        return allCharactersData.filter { dto -> filteringCharacter(dto, filters) }
+    }
+
+    private fun takePage(
+        filtered: List<CharacterInfoDto>,
+        pageIndex: Int
+    ): List<CharacterInfoRemote> {
+        return filtered
+            .take(pageIndex * pageSize)
+            .drop((pageIndex - 1) * pageSize)
+            .map { mapper.transformCharacterInfoDtoIntoCharacterInfoRemote(it) }
+    }
+
+    private fun pageInfo(filtered: List<CharacterInfoDto>, pageIndex: Int): PageInfoResponse {
+        val countPages = filtered.size / pageSize + if (filtered.size % pageSize != 0) 1 else 0
         val prevPage = if (pageIndex > 1) utils.getPageString(pageIndex - 1) else null
         val nextPage = if (pageIndex == countPages) null else utils.getPageString(pageIndex + 1)
-        val pageInfoResponse = PageInfoResponse(filtered.size, countPages, nextPage, prevPage)
-        return AllCharactersResponse(pageInfoResponse, filteredItemsPage)
+        return PageInfoResponse(filtered.size, countPages, nextPage, prevPage)
     }
 
     override suspend fun addCharacter(data: CharacterInfoRemote?) {
@@ -67,7 +80,9 @@ class CharactersLocalRepositoryImpl @Inject constructor(
         val count = allCharactersData.count { dto ->
             filteringCharacter(dto, filters)
         }
-        return Single.just(count)
+        return Single.just(
+            if (count == 0) -1 else count
+        )
     }
 
     private fun filteringCharacter(dto: CharacterInfoDto, filters: Array<String?>): Boolean {

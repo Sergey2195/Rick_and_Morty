@@ -1,11 +1,6 @@
 package com.aston.rickandmorty.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.aston.rickandmorty.R
@@ -14,34 +9,20 @@ import com.aston.rickandmorty.domain.entity.LocationFilterModel
 import com.aston.rickandmorty.presentation.App
 import com.aston.rickandmorty.presentation.activities.MainActivity
 import com.aston.rickandmorty.presentation.viewModels.LocationsViewModel
-import com.aston.rickandmorty.presentation.viewModelsFactory.ViewModelFactory
 import com.aston.rickandmorty.toolbarManager.ToolbarManager
 import kotlinx.coroutines.flow.filterNotNull
-import javax.inject.Inject
 
-class LocationsRootFragment : Fragment() {
+class LocationsRootFragment : BaseFragment<FragmentLocationsRootBinding>(
+    R.layout.fragment_locations_root,
+    FragmentLocationsRootBinding::inflate
+) {
 
-    private var _binding: FragmentLocationsRootBinding? = null
-    private val binding
-        get() = _binding!!
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val component = App.getAppComponent()
     private val locationViewModel: LocationsViewModel by viewModels({ activity as MainActivity }) {
         viewModelFactory
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentLocationsRootBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onAttach(context: Context) {
-        component.injectLocationsRootFragment(this)
-        super.onAttach(context)
+    override fun injectDependencies() {
+        App.getAppComponent().injectLocationsRootFragment(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,14 +33,19 @@ class LocationsRootFragment : Fragment() {
                 .commit()
         }
         setupBackButtonClickListener()
-        setupObservers()
     }
 
-    private fun setupObservers() = lifecycleScope.launchWhenCreated {
-        locationViewModel.locationFilterStateFlow.filterNotNull().collect {
-            startFragmentWithFiltering(it)
-            locationViewModel.clearFilter()
+    override fun setupObservers() {
+        lifecycleScope.launchWhenStarted {
+            locationViewModel.locationFilterStateFlow.filterNotNull().collect {
+                startFragmentWithFiltering(it)
+                locationViewModel.clearFilter()
+            }
         }
+    }
+
+    override fun setUI() {
+        setupClickListeners()
     }
 
     private fun startFragmentWithFiltering(filter: LocationFilterModel) {
@@ -70,6 +56,7 @@ class LocationsRootFragment : Fragment() {
         )
         childFragmentManager.popBackStack()
         childFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
             .replace(R.id.locationFragmentContainerRoot, fragment)
             .addToBackStack(null)
             .commit()
@@ -79,11 +66,6 @@ class LocationsRootFragment : Fragment() {
         (requireActivity() as ToolbarManager).setBackButtonClickListener {
             childFragmentManager.popBackStack()
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        setupClickListeners()
     }
 
     private fun setupClickListeners() {
@@ -98,14 +80,15 @@ class LocationsRootFragment : Fragment() {
         }
     }
 
-    private fun setupSearchButtonClickListener(){
-        (requireActivity() as ToolbarManager).setSearchButtonClickListener{
+    private fun setupSearchButtonClickListener() {
+        (requireActivity() as ToolbarManager).setSearchButtonClickListener {
             startFilterOrSearchFragment(LocationFilterFragment.SEARCH)
         }
     }
 
-    private fun startFilterOrSearchFragment(mode: Int){
+    private fun startFilterOrSearchFragment(mode: Int) {
         childFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.from_bot, R.anim.to_top, R.anim.from_top, R.anim.to_bot)
             .replace(
                 R.id.locationFragmentContainerRoot,
                 LocationFilterFragment.newInstance(mode)
@@ -114,9 +97,10 @@ class LocationsRootFragment : Fragment() {
             .commit()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
+    override fun initArguments() {
+    }
+
+    override fun setRefreshLayoutListener() {
     }
 
     companion object {

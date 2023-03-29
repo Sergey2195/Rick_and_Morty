@@ -1,9 +1,8 @@
 package com.aston.rickandmorty.data.localDataSource
 
-import com.aston.rickandmorty.data.localDataSource.LocalRepositoriesUtils.Companion.PAGE_SIZE
 import com.aston.rickandmorty.data.localDataSource.dao.EpisodesDao
 import com.aston.rickandmorty.data.localDataSource.models.EpisodeInfoDto
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.EpisodesMapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllEpisodesResponse
 import com.aston.rickandmorty.data.remoteDataSource.models.EpisodeInfoRemote
 import com.aston.rickandmorty.data.remoteDataSource.models.PageInfoResponse
@@ -17,10 +16,11 @@ import javax.inject.Inject
 
 @ApplicationScope
 class EpisodesLocalRepositoryImpl @Inject constructor(
-    private val mapper: Mapper,
+    private val mapper: EpisodesMapper,
     private val episodesDao: EpisodesDao,
     private val applicationScope: CoroutineScope,
-    private val utils: LocalRepositoriesUtils
+    private val utils: LocalRepositoriesUtils,
+    private val pageSize: Int
 ) : EpisodesLocalRepository {
 
     private var allEpisodesData: List<EpisodeInfoDto> = emptyList()
@@ -33,18 +33,30 @@ class EpisodesLocalRepositoryImpl @Inject constructor(
         pageIndex: Int,
         filters: Array<String?>
     ): AllEpisodesResponse? {
-        val filtered = allEpisodesData.filter { filter(filters, it)}
+        val filtered = filteringEpisodes(filters)
         if (filtered.isEmpty()) return null
-        val filteredItemsPage = filtered
-            .take(pageIndex * PAGE_SIZE)
-            .drop((pageIndex - 1) * PAGE_SIZE)
-            .map { mapper.transformEpisodeInfoDtoIntoEpisodeInfoRemote(it) }
+        val filteredItemsPage = takePage(filtered, pageIndex)
         if (filteredItemsPage.isEmpty()) return null
-        val countPages = filtered.size / 20 + if (filtered.size % 20 != 0) 1 else 0
+        val pageInfoResponse = pageInfo(filtered, pageIndex)
+        return AllEpisodesResponse(pageInfoResponse, filteredItemsPage)
+    }
+
+    private fun filteringEpisodes(filters: Array<String?>): List<EpisodeInfoDto> {
+        return allEpisodesData.filter { filter(filters, it) }
+    }
+
+    private fun takePage(filtered: List<EpisodeInfoDto>, pageIndex: Int): List<EpisodeInfoRemote> {
+        return filtered
+            .take(pageIndex * pageSize)
+            .drop((pageIndex - 1) * pageSize)
+            .map { mapper.transformEpisodeInfoDtoIntoEpisodeInfoRemote(it) }
+    }
+
+    private fun pageInfo(filtered: List<EpisodeInfoDto>, pageIndex: Int): PageInfoResponse {
+        val countPages = filtered.size / pageSize + if (filtered.size % pageSize != 0) 1 else 0
         val prevPage = if (pageIndex > 1) utils.getPageString(pageIndex - 1) else null
         val nextPage = if (pageIndex == countPages) null else utils.getPageString(pageIndex + 1)
-        val pageInfoResponse = PageInfoResponse(filtered.size, countPages, nextPage, prevPage)
-        return AllEpisodesResponse(pageInfoResponse, filteredItemsPage)
+        return PageInfoResponse(filtered.size, countPages, nextPage, prevPage)
     }
 
     override suspend fun addEpisode(data: EpisodeInfoRemote?) = withContext(Dispatchers.IO) {
@@ -60,7 +72,7 @@ class EpisodesLocalRepositoryImpl @Inject constructor(
 
     override fun getCountOfEpisodes(filters: Array<String?>): Single<Int> {
         val count = allEpisodesData.count { filter(filters, it) }
-        return Single.just(count)
+        return Single.just(if (count == 0) -1 else count)
     }
 
     private fun collectEpisodesLocalItems() = applicationScope.launch(Dispatchers.IO) {

@@ -14,23 +14,22 @@ class CharacterFilterViewModel @Inject constructor(
     private val countOfCharactersUseCase: CountOfCharactersUseCase
 ) : ViewModel() {
 
-
     private val compositeDisposable = CompositeDisposable()
     private val _charactersCountStateFlow = MutableStateFlow(0)
     val charactersCountStateFlow = _charactersCountStateFlow.asStateFlow()
 
     fun sendFilters(filterModel: CharacterFilterModel) {
         val disposable = countOfCharactersUseCase.invoke(
-                filterModel.nameFilter,
-                filterModel.statusFilter,
-                filterModel.speciesFilter,
-                filterModel.typeFilter,
-                filterModel.genderFilter
-            ).subscribeOn(Schedulers.io())
+            filterModel.nameFilter,
+            filterModel.statusFilter,
+            filterModel.speciesFilter,
+            filterModel.typeFilter,
+            filterModel.genderFilter
+        ).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ result->
-                 _charactersCountStateFlow.value = result
-            },{
+            .subscribe({ result ->
+                _charactersCountStateFlow.value = result
+            }, {
                 _charactersCountStateFlow.value = -1
             })
         compositeDisposable.add(disposable)

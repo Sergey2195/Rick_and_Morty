@@ -1,7 +1,7 @@
 package com.aston.rickandmorty.di
 
 import androidx.paging.PagingConfig
-import com.aston.rickandmorty.data.SharedRepositoryImpl
+import com.aston.rickandmorty.data.repositoriesImpl.SharedRepositoryImpl
 import com.aston.rickandmorty.data.localDataSource.*
 import com.aston.rickandmorty.data.remoteDataSource.*
 import com.aston.rickandmorty.data.repositoriesImpl.CharactersRepositoryImpl
@@ -51,11 +51,16 @@ interface DataModule {
 
     companion object {
         @Provides
-        fun providePagerConfig(): PagingConfig {
+        fun providePageSize(): Int{
+            return 20
+        }
+
+        @Provides
+        fun providePagerConfig(pageSize: Int): PagingConfig {
             return PagingConfig(
-                pageSize = 20,
+                pageSize = pageSize,
                 enablePlaceholders = false,
-                initialLoadSize = 20,
+                initialLoadSize = pageSize,
                 prefetchDistance = 2
             )
         }

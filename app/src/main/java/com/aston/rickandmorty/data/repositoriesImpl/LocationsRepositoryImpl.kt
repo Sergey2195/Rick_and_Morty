@@ -4,7 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.aston.rickandmorty.data.localDataSource.LocationsLocalRepository
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.LocationsMapper
 import com.aston.rickandmorty.data.pagingSources.LocationsPagingSource
 import com.aston.rickandmorty.data.remoteDataSource.LocationRemoteRepository
 import com.aston.rickandmorty.data.remoteDataSource.models.AllLocationsResponse
@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 @ApplicationScope
 class LocationsRepositoryImpl @Inject constructor(
-    private val mapper: Mapper,
+    private val mapper: LocationsMapper,
     private val utils: Utils,
     private val applicationScope: CoroutineScope,
     private val pagingConfig: PagingConfig,
@@ -71,12 +71,7 @@ class LocationsRepositoryImpl @Inject constructor(
         if (forceUpdate) return@withContext downloadAndUpdateLocationsData(pageIndex, filters)
         val localItems = localRepository.getAllLocations(pageIndex, filters)
         if (pageIndex == 1) {
-            val remoteItems = remoteRepository.getAllLocations(1, filters)
-            writeRemoteResponseIntoDb(remoteItems)
-            checkIsNotFullData(
-                localItems?.pageInfo?.countOfElements,
-                remoteItems?.pageInfo?.countOfElements
-            )
+            checkFirstPage(localItems, filters)
         }
         return@withContext if (isNotFullData) {
             downloadAndUpdateLocationsData(pageIndex, filters)
@@ -84,6 +79,15 @@ class LocationsRepositoryImpl @Inject constructor(
             localItems
         }
     }.also { setLoading(false) }
+
+    private suspend fun checkFirstPage(localItems: AllLocationsResponse?, filters: Array<String?>) {
+        val remoteItems = remoteRepository.getAllLocations(1, filters)
+        writeRemoteResponseIntoDb(remoteItems)
+        checkIsNotFullData(
+            localItems?.pageInfo?.countOfElements,
+            remoteItems?.pageInfo?.countOfElements
+        )
+    }
 
     private fun writeRemoteResponseIntoDb(remoteResponse: AllLocationsResponse?) {
         if (remoteResponse?.listLocationsInfo == null) return
@@ -98,9 +102,9 @@ class LocationsRepositoryImpl @Inject constructor(
         id: Int,
         forceUpdate: Boolean
     ): Single<LocationDetailsModelWithId> {
+        setLoading(true)
         if (forceUpdate) return getSingleLocationDataWithForceUpdate(id)
         return localRepository.getSingleLocationInfoRx(id).flatMap { data ->
-            setLoading(true)
             if (data.locationId == null) {
                 return@flatMap remoteRepository.getSingleLocationData(id).map {
                     mapper.transformLocationInfoRemoteInfoLocationDetailsModelWithIds(it)
@@ -110,7 +114,7 @@ class LocationsRepositoryImpl @Inject constructor(
                     it.onSuccess(mapper.transformLocationDtoIntoLocationDetailsWithIds(data))
                 }
             }
-        }.also { setLoading(false) }
+        }.doAfterTerminate { setLoading(false) }
     }
 
     private fun getSingleLocationDataWithForceUpdate(id: Int): Single<LocationDetailsModelWithId> {
@@ -119,17 +123,18 @@ class LocationsRepositoryImpl @Inject constructor(
             .map {
                 setLoading(false)
                 mapper.transformLocationInfoRemoteInfoLocationDetailsModelWithIds(it)
-            }
+            }.doOnError { setLoading(false) }
     }
 
 
     override suspend fun getLocationModel(id: Int, forceUpdate: Boolean): LocationModel? =
         withContext(Dispatchers.IO) {
+            setLoading(true)
             if (forceUpdate) return@withContext downloadAndUpdateLocationData(id)
             val localData = localRepository.getLocationInfo(id)
                 ?: return@withContext downloadAndUpdateLocationData(id)
             mapper.transformLocationInfoRemoteIntoLocationModel(localData)
-        }
+        }.also { setLoading(false) }
 
     private suspend fun downloadAndUpdateLocationData(id: Int): LocationModel? =
         withContext(Dispatchers.IO) {
@@ -139,16 +144,17 @@ class LocationsRepositoryImpl @Inject constructor(
         }
 
     override fun getCountOfLocations(filters: Array<String?>): Single<Int> {
+        setLoading(true)
         return remoteRepository.getCountOfLocations(filters).onErrorResumeNext(
             localRepository.getCountOfLocations(filters)
-        )
+        ).doAfterTerminate { setLoading(false) }
     }
 
     private fun checkIsNotFullData(localItems: Int?, remoteItems: Int?) {
         isNotFullData = (localItems ?: -1) < (remoteItems ?: -1)
     }
 
-    private fun setLoading(isLoading: Boolean){
+    private fun setLoading(isLoading: Boolean) {
         sharedRepository.setLoadingProgressStateFlow(isLoading)
     }
 }

@@ -137,16 +137,4 @@ class AdaptersUtils @Inject constructor(
             characters = listCharacters
         )
     }
-
-    fun transformCharacterDetailsModelIntoCharacterModel(src: CharacterDetailsModel?): CharacterModel? {
-        if (src == null) return null
-        return CharacterModel(
-            src.characterId,
-            src.characterName,
-            src.characterSpecies,
-            src.characterStatus,
-            src.characterGender,
-            src.characterImage ?: ""
-        )
-    }
 }

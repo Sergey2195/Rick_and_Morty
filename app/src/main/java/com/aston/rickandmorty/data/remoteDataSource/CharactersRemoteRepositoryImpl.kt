@@ -29,6 +29,7 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
                 arrayFilter[4]
             )
         } catch (e: Exception) {
+            connectionError(e)
             return null
         }
     }
@@ -38,6 +39,7 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
         return try {
             apiCall.getSingleCharacterData(id)
         } catch (e: Exception) {
+            connectionError(e)
             null
         }
     }
@@ -47,6 +49,7 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
         return try {
             apiCall.getMultiCharactersData(request)
         } catch (e: Exception) {
+            connectionError(e)
             null
         }
     }
@@ -60,9 +63,14 @@ class CharactersRemoteRepositoryImpl @Inject constructor(
             filters[3],
             filters[4]
         ).map { it.pageInfo?.countOfElements ?: -1 }
+            .doOnError { connectionError(Exception(it)) }
     }
 
     private fun isConnected(): Boolean {
         return sharedRepository.getStateFlowIsConnected().value
+    }
+
+    private fun connectionError(e: Exception) {
+        sharedRepository.errorConnection(e)
     }
 }

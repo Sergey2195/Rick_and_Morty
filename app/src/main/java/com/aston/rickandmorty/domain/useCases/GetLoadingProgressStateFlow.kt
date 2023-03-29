@@ -6,6 +6,6 @@ import javax.inject.Inject
 
 class GetLoadingProgressStateFlow @Inject constructor(private val rep: SharedRepository) {
     operator fun invoke(): StateFlow<Boolean>{
-        return rep.getLoadingProgressStateFlow()
+        return rep.loadingProgress()
     }
 }

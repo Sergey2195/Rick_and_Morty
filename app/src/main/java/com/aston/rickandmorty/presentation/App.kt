@@ -1,30 +1,29 @@
 package com.aston.rickandmorty.presentation
 
 import android.app.Application
+import com.aston.rickandmorty.di.ApplicationComponent
 import com.aston.rickandmorty.di.DaggerApplicationComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 class App : Application() {
 
-    private val appScope by lazy {
+    private val applicationScope by lazy {
         CoroutineScope(Dispatchers.IO)
-    }
-    private val component by lazy {
-        DaggerApplicationComponent.factory().create(
-            app,
-            appScope,
-            app.applicationContext
-        )
     }
 
     override fun onCreate() {
         super.onCreate()
-        app = this
+        if (appComponent == null) {
+            appComponent = DaggerApplicationComponent
+                .factory()
+                .create(this, applicationScope, applicationContext)
+        }
     }
 
-    companion object{
-        private lateinit var app: App
-        fun getAppComponent() = app.component
+    companion object {
+        private var appComponent: ApplicationComponent? = null
+        fun getAppComponent() =
+            appComponent ?: throw RuntimeException("App component is not initialised")
     }
 }

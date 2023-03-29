@@ -2,7 +2,7 @@ package com.aston.rickandmorty.data.pagingSources
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.aston.rickandmorty.data.mappers.Mapper
+import com.aston.rickandmorty.data.mappers.CharactersMapper
 import com.aston.rickandmorty.data.remoteDataSource.models.AllCharactersResponse
 import com.aston.rickandmorty.domain.entity.CharacterModel
 import com.aston.rickandmorty.utils.Utils
@@ -10,7 +10,7 @@ import retrofit2.HttpException
 import java.io.IOException
 
 class CharactersPagingSource(
-    private val mapper: Mapper,
+    private val mapper: CharactersMapper,
     private val utils: Utils,
     private val loader: suspend (pageIndex: Int) -> AllCharactersResponse?
 ) : PagingSource<Int, CharacterModel>() {
