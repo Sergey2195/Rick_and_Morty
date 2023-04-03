@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/locationConstraintLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:background="@drawable/rounded_shape"
+    android:padding="6dp">
+
+    <TextView
+        android:id="@+id/locationNameTitle"
+        style="@style/TitleStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/character_name_title"
+        app:layout_constraintBottom_toTopOf="@id/locationNameValue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
+
+    <TextView
+        android:id="@+id/locationNameValue"
+        style="@style/ValueLocation"
+        android:layout_marginStart="6dp"
+        android:text="@string/character_example_value"
+        app:layout_constraintBottom_toTopOf="@id/locationTypeTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/locationNameTitle" />
+
+    <TextView
+        android:id="@+id/locationTypeTitle"
+        style="@style/TitleStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/character_type_title"
+        app:layout_constraintBottom_toTopOf="@id/locationTypeValue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/locationNameValue" />
+
+    <TextView
+        android:id="@+id/locationTypeValue"
+        style="@style/ValueStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:text="@string/character_example_value"
+        app:layout_constraintBottom_toTopOf="@id/locationDimensionTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/locationTypeTitle" />
+
+    <TextView
+        android:id="@+id/locationDimensionTitle"
+        style="@style/TitleStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/dimension_title"
+        app:layout_constraintBottom_toTopOf="@id/locationDimensionValue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/locationTypeValue" />
+
+    <TextView
+        android:id="@+id/locationDimensionValue"
+        style="@style/ValueStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:text="@string/character_example_value"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/locationDimensionTitle" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

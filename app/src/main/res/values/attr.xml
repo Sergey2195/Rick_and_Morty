@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="selectedItemColor" format="color"/>
+    <attr name="unselectedItemColor" format="color"/>
+    <attr name="detailsTextColor" format="color"/>
+    <attr name="filterButtonTextColor" format="color"/>
+</resources>
