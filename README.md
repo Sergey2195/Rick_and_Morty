@@ -1,4 +1,4 @@
-# Проектная работа
+# Приложение Rick and Morty
 
 # Старт приложения
 https://user-images.githubusercontent.com/87987521/228489107-cf4ac664-5367-413a-bc91-d892216398a4.mov
